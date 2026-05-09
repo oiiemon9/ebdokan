@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import React from 'react';
 
 export default function NavBar() {
@@ -71,7 +72,9 @@ export default function NavBar() {
         </ul>
       </div>
       <div className="navbar-end">
-        <a className="btn">Button</a>
+        <Link href="/dashboard" className="btn">
+          Dashboard
+        </Link>
       </div>
     </div>
   );
