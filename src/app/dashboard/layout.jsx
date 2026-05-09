@@ -8,8 +8,11 @@ export default function DashboardLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-base-100 flex ">
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+    <div className="flex h-full">
+      <div className="h-fit sticky top-0 z-40">
+        <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      </div>
+
       <div className="w-full">
         <DashboardNavbar
           onToggleSidebar={() => setSidebarOpen((prev) => !prev)}

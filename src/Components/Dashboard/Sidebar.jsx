@@ -31,32 +31,23 @@ export default function Sidebar({ open, onClose }) {
         }`}
       >
         <div className="flex h-full flex-col justify-between">
-          <div className="flex items-center justify-between gap-3 border-b border-base-300 pb-4">
-            <div>
-              <p className="text-sm uppercase tracking-[0.2em] text-base-content/50">
-                Store
-              </p>
-              <h2 className="text-2xl font-bold text-primary">EB Dokan</h2>
+          <div className="flex items-center justify-between gap-3 border-b border-base-300 pb-4 relative">
+            <div className="w-full">
+              <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-6 border border-primary/20 shadow-sm">
+                <div className="flex flex-col items-center space-y-3">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl scale-150"></div>
+                    <img
+                      src="/EbDokanLogo.png"
+                      alt="EB Dokan Logo"
+                      className="relative h-12 w-auto object-contain drop-shadow-lg"
+                    />
+                  </div>
+                </div>
+                <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-full -translate-y-10 translate-x-10"></div>
+                <div className="absolute bottom-0 left-0 w-16 h-16 bg-primary-focus/10 rounded-full translate-y-8 -translate-x-8"></div>
+              </div>
             </div>
-            <button
-              type="button"
-              onClick={onClose}
-              className="btn btn-ghost btn-square lg:hidden"
-            >
-              <svg
-                className="h-5 w-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
           </div>
 
           <div className="flex-1 overflow-y-auto pt-4">
