@@ -26,14 +26,15 @@ export default function Sidebar({ open, onClose }) {
       )}
 
       <aside
-        className={`fixed left-0 top-0 z-40 h-screen w-72 border-r border-base-300 bg-base-200 p-4 shadow-lg transition-transform duration-300 ease-in-out lg:static lg:translate-x-0  ${
+        className={`fixed left-0 top-0 z-40 h-screen w-72 border-r border-base-300 bg-base-200 p-4 shadow-lg transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 overflow-hidden ${
           open ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="flex h-full flex-col justify-between">
+        <div className="flex h-full flex-col justify-between relative">
+          <div className="absolute -top-20 -right-20 w-[170px] h-[170px] bg-primary/8 rounded-full -translate-y-10 translate-x-10"></div>
           <div className="flex items-center justify-between gap-3 border-b border-base-300 pb-4 relative">
             <div className="w-full">
-              <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-6 border border-primary/20 shadow-sm">
+              <div className="relative overflow-hidden rounded-xl p-6 border border-primary/20 shadow-sm backdrop-blur-xs">
                 <div className="flex flex-col items-center space-y-3">
                   <div className="relative">
                     <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl scale-150"></div>
@@ -44,8 +45,6 @@ export default function Sidebar({ open, onClose }) {
                     />
                   </div>
                 </div>
-                <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-full -translate-y-10 translate-x-10"></div>
-                <div className="absolute bottom-0 left-0 w-16 h-16 bg-primary-focus/10 rounded-full translate-y-8 -translate-x-8"></div>
               </div>
             </div>
           </div>

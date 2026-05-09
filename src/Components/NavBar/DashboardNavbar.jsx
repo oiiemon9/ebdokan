@@ -24,9 +24,12 @@ export default function DashboardNavbar({ onToggleSidebar }) {
               />
             </svg>
           </button>
-          <div className="lg:hidden">
-            <p className="text-sm text-base-content/60">Dashboard</p>
-            <h1 className="text-xl font-semibold">EB Dokan</h1>
+          <div className="h-16 w-16 flex items-center justify-center lg:hidden">
+            <img
+              src="/EbDokanLogo.png"
+              alt="EB Dokan Logo"
+              className="relative h-12 w-auto object-contain drop-shadow-lg"
+            />
           </div>
         </div>
 
