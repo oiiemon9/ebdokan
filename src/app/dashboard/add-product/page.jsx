@@ -1,6 +1,7 @@
 'use client';
 
 import DashboardHeader from '@/Components/Dashboard/DashboardHeader';
+import RichTextEditor from '@/Components/RichTextEditor/RichTextEditor';
 import React, { useState } from 'react';
 
 export default function AddProductPage() {
@@ -14,65 +15,16 @@ export default function AddProductPage() {
     sku: '',
   });
 
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState({ type: '', text: '' });
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
+  const handleDescriptionChange = (html) => {
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      description: html,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Validate form
-      if (
-        !formData.productName ||
-        !formData.price ||
-        !formData.category ||
-        !formData.stock
-      ) {
-        setMessage({
-          type: 'error',
-          text: 'Please fill in all required fields',
-        });
-        setLoading(false);
-        return;
-      }
-
-      setMessage({
-        type: 'success',
-        text: 'Product added successfully!',
-      });
-
-      // Reset form
-      setFormData({
-        productName: '',
-        description: '',
-        category: '',
-        price: '',
-        stock: '',
-        image: '',
-        sku: '',
-      });
-
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
-    } catch (error) {
-      setMessage({
-        type: 'error',
-        text: 'Error adding product. Please try again.',
-      });
-    } finally {
-      setLoading(false);
-    }
+    console.log('Submitting Product:', formData);
   };
 
   return (
@@ -87,32 +39,7 @@ export default function AddProductPage() {
         <div className="lg:col-span-2">
           <div className="card bg-base-100 shadow-md border border-base-300">
             <div className="card-body">
-              {message.text && (
-                <div
-                  className={`alert alert-${message.type === 'success' ? 'success' : 'error'} mb-4`}
-                >
-                  <span>{message.text}</span>
-                </div>
-              )}
-
               <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Product Name */}
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text font-semibold">
-                      Product Name <span className="text-error">*</span>
-                    </span>
-                  </label>
-                  <input
-                    type="text"
-                    name="productName"
-                    value={formData.productName}
-                    onChange={handleInputChange}
-                    placeholder="Enter product name"
-                    className="input input-bordered w-full"
-                  />
-                </div>
-
                 {/* Description */}
                 <div className="form-control">
                   <label className="label">
@@ -120,133 +47,13 @@ export default function AddProductPage() {
                       Description
                     </span>
                   </label>
-                  <textarea
-                    name="description"
+                  <RichTextEditor
                     value={formData.description}
-                    onChange={handleInputChange}
+                    onChange={handleDescriptionChange}
                     placeholder="Enter product description"
-                    className="textarea textarea-bordered w-full h-24"
                   />
                 </div>
-
-                {/* Category */}
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text font-semibold">
-                      Category <span className="text-error">*</span>
-                    </span>
-                  </label>
-                  <select
-                    name="category"
-                    value={formData.category}
-                    onChange={handleInputChange}
-                    className="select select-bordered w-full"
-                  >
-                    <option value="">Select a category</option>
-                    <option value="electronics">Electronics</option>
-                    <option value="clothing">Clothing</option>
-                    <option value="books">Books</option>
-                    <option value="home">Home & Garden</option>
-                    <option value="sports">Sports</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-
-                {/* Price and Stock Row */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Price */}
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text font-semibold">
-                        Price ($) <span className="text-error">*</span>
-                      </span>
-                    </label>
-                    <input
-                      type="number"
-                      name="price"
-                      value={formData.price}
-                      onChange={handleInputChange}
-                      placeholder="0.00"
-                      step="0.01"
-                      min="0"
-                      className="input input-bordered w-full"
-                    />
-                  </div>
-
-                  {/* Stock */}
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text font-semibold">
-                        Stock <span className="text-error">*</span>
-                      </span>
-                    </label>
-                    <input
-                      type="number"
-                      name="stock"
-                      value={formData.stock}
-                      onChange={handleInputChange}
-                      placeholder="0"
-                      min="0"
-                      className="input input-bordered w-full"
-                    />
-                  </div>
-                </div>
-
-                {/* SKU and Image Row */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* SKU */}
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text font-semibold">SKU</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="sku"
-                      value={formData.sku}
-                      onChange={handleInputChange}
-                      placeholder="Product SKU"
-                      className="input input-bordered w-full"
-                    />
-                  </div>
-
-                  {/* Image URL */}
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text font-semibold">
-                        Image URL
-                      </span>
-                    </label>
-                    <input
-                      type="url"
-                      name="image"
-                      value={formData.image}
-                      onChange={handleInputChange}
-                      placeholder="https://example.com/image.jpg"
-                      className="input input-bordered w-full"
-                    />
-                  </div>
-                </div>
-
-                {/* Buttons */}
-                <div className="flex gap-3 pt-4">
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="btn btn-primary flex-1"
-                  >
-                    {loading ? (
-                      <>
-                        <span className="loading loading-spinner loading-sm"></span>
-                        Adding...
-                      </>
-                    ) : (
-                      '➕ Add Product'
-                    )}
-                  </button>
-                  <button type="reset" className="btn btn-ghost flex-1">
-                    Reset
-                  </button>
-                </div>
+                <button type="submit">Add Product</button>
               </form>
             </div>
           </div>
