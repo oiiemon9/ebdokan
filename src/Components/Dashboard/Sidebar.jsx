@@ -34,7 +34,7 @@ export default function Sidebar({ open, onClose }) {
           <div className="absolute -top-20 -right-20 w-[170px] h-[170px] bg-primary/8 rounded-full -translate-y-10 translate-x-10"></div>
           <div className="flex items-center justify-between gap-3 border-b border-base-300 pb-4 relative">
             <div className="w-full">
-              <div className="relative overflow-hidden rounded-xl p-6 border border-primary/20 shadow-sm backdrop-blur-xs">
+              <div className="relative overflow-hidden rounded-xl p-6 border border-primary/20 backdrop-blur-xs">
                 <div className="flex flex-col items-center space-y-3">
                   <div className="relative">
                     <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl scale-150"></div>
