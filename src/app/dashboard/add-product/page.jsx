@@ -1,7 +1,8 @@
 'use client';
 
 import DashboardHeader from '@/Components/Dashboard/DashboardHeader';
-import RichTextEditor from '@/Components/RichTextEditor/RichTextEditor';
+import TextEditor from '@/Components/TextEditor/TextEditor';
+
 import React, { useState } from 'react';
 
 export default function AddProductPage() {
@@ -11,20 +12,20 @@ export default function AddProductPage() {
     category: '',
     price: '',
     stock: '',
-    image: '',
     sku: '',
   });
 
-  const handleDescriptionChange = (html) => {
-    setFormData((prev) => ({
-      ...prev,
-      description: html,
-    }));
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [description, setDescription] = useState('');
+
+  const handleSave = () => {
+    console.log('HTML to save to DB:', description);
+    // This string contains <img src="https://res.cloudinary.com/...">
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Submitting Product:', formData);
+    setIsSubmitting(true);
   };
 
   return (
@@ -35,66 +36,37 @@ export default function AddProductPage() {
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Form Section */}
         <div className="lg:col-span-2">
           <div className="card bg-base-100 shadow-md border border-base-300">
             <div className="card-body">
               <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Description */}
+                {/* অন্যান্য ফিল্ডস... */}
+
                 <div className="form-control">
                   <label className="label">
                     <span className="label-text font-semibold">
                       Description
                     </span>
                   </label>
-                  <RichTextEditor
-                    value={formData.description}
-                    onChange={handleDescriptionChange}
-                    placeholder="Enter product description"
-                  />
+                  {/* text editor  */}
+                  <TextEditor value={description} onChange={setDescription} />
+                  {/* <TextEditor value={description} onChange={setDescription} /> */}
+                  {/* <TextEditor value={description} onChange={setDescription} /> */}
                 </div>
-                <button type="submit">Add Product</button>
+
+                <button
+                  onClick={handleSave}
+                  className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                >
+                  Save Post
+                </button>
               </form>
             </div>
           </div>
         </div>
 
-        {/* Info Section */}
-        <div className="lg:col-span-1">
-          <div className="card bg-base-100 shadow-md border border-base-300">
-            <div className="card-body">
-              <h3 className="card-title text-lg mb-4">Tips</h3>
-              <div className="space-y-4 text-sm">
-                <div>
-                  <p className="font-semibold text-primary mb-1">
-                    📝 Product Name
-                  </p>
-                  <p className="text-base-content/70">
-                    Use clear, descriptive names for better search results
-                  </p>
-                </div>
-                <div>
-                  <p className="font-semibold text-primary mb-1">💰 Pricing</p>
-                  <p className="text-base-content/70">
-                    Set competitive prices based on market research
-                  </p>
-                </div>
-                <div>
-                  <p className="font-semibold text-primary mb-1">📦 Stock</p>
-                  <p className="text-base-content/70">
-                    Keep accurate inventory to avoid overselling
-                  </p>
-                </div>
-                <div>
-                  <p className="font-semibold text-primary mb-1">🖼️ Images</p>
-                  <p className="text-base-content/70">
-                    Use high-quality product images for better conversions
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Tips Section */}
+        <div className="lg:col-span-1">{/* তোমার আগের Tips কার্ড */}</div>
       </div>
     </div>
   );
