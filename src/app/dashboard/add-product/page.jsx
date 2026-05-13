@@ -2,6 +2,7 @@
 
 import DashboardHeader from '@/Components/Dashboard/DashboardHeader';
 import TextEditor from '@/Components/TextEditor/TextEditor';
+import { useMutation } from '@tanstack/react-query';
 
 import React, { useState } from 'react';
 
@@ -15,17 +16,37 @@ export default function AddProductPage() {
     sku: '',
   });
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // const [isSubmitting, setIsSubmitting] = useState(false);
   const [description, setDescription] = useState('');
 
-  const handleSave = () => {
-    console.log('HTML to save to DB:', description);
-    // This string contains <img src="https://res.cloudinary.com/...">
-  };
+  // const handleSave = () => {
+  //   console.log('HTML to save to DB:', description);
+  // };
+
+  const mutation = useMutation({
+    mutationFn: async (product) => {
+      const res = await fetch('/api/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(product),
+      });
+      if (!res.ok) {
+        throw new Error('Failed to save product');
+      }
+      console.log(res);
+      return res.json();
+    },
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    const productData = {
+      ...formData,
+      description: description,
+    };
+    mutation.mutate(productData);
   };
 
   return (
@@ -50,12 +71,10 @@ export default function AddProductPage() {
                   </label>
                   {/* text editor  */}
                   <TextEditor value={description} onChange={setDescription} />
-                  {/* <TextEditor value={description} onChange={setDescription} /> */}
-                  {/* <TextEditor value={description} onChange={setDescription} /> */}
                 </div>
 
                 <button
-                  onClick={handleSave}
+                  type="submit"
                   className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                 >
                   Save Post

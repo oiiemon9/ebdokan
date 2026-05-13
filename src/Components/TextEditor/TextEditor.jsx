@@ -18,6 +18,7 @@ const TextEditor = ({ value, onChange }) => {
       if (editorRef.current && !quillInstance.current) {
         const quill = new Quill(editorRef.current, {
           theme: 'snow',
+          placeholder: 'Write product description here...',
           modules: {
             toolbar: {
               container: [
@@ -94,7 +95,7 @@ const TextEditor = ({ value, onChange }) => {
   }
 
   return (
-    <div className="border rounded-md overflow-hidden bg-white">
+    <div className="rounded-md overflow-hidden bg-white">
       <div ref={editorRef} style={{ height: '300px' }} />
     </div>
   );
