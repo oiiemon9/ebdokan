@@ -75,6 +75,9 @@ export default function AddProductPage() {
     },
   });
 
+  const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+  const UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
+
   const mutation = useMutation({
     mutationFn: async (product) => {
       const res = await fetch('/api/products', {
@@ -94,15 +97,44 @@ export default function AddProductPage() {
       ? Math.round(((comparePrice - price) / comparePrice) * 100)
       : null;
 
-  const onSubmit = (data) => {
-    const payload = {
-      ...data,
-      discountPercentage: discount,
-      images: data.images.map((img) => img.name),
-    };
+  const onSubmit = async (data) => {
+    try {
+      const uploadedImages = await Promise.all(
+        data.images.map(async (img) => {
+          const formData = new FormData();
 
-    console.log('Submitting product:', payload);
-    // mutation.mutate(payload);
+          formData.append('file', img.file);
+          formData.append('upload_preset', UPLOAD_PRESET);
+
+          const res = await fetch(
+            `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+            {
+              method: 'POST',
+              body: formData,
+            },
+          );
+
+          const uploadedImage = await res.json();
+
+          return uploadedImage.secure_url;
+        }),
+      );
+
+      console.log('Uploaded image:', uploadedImages);
+
+      // Final payload
+      const payload = {
+        ...data,
+        discountPercentage: discount,
+        images: uploadedImages,
+      };
+
+      console.log('Submitting product:', payload);
+
+      // mutation.mutate(payload);
+    } catch (error) {
+      console.error('Image upload failed:', error);
+    }
   };
 
   const inputClass =
@@ -496,7 +528,7 @@ export default function AddProductPage() {
                     disabled={isSubmitting || mutation.isPending}
                     className="btn btn-primary w-full rounded-xl font-semibold text-sm"
                   >
-                    {mutation.isPending ? (
+                    {mutation.isPending || isSubmitting ? (
                       <span className="flex items-center gap-2">
                         <span className="loading loading-spinner loading-xs" />
                         Saving...
