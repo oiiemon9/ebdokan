@@ -4,9 +4,10 @@ import DashboardHeader from '@/Components/Dashboard/DashboardHeader';
 import TextEditor from '@/Components/TextEditor/TextEditor';
 import { useMutation } from '@tanstack/react-query';
 import { useForm, Controller } from 'react-hook-form';
-import ColorPicker from '@/Components/AddProduct/ColorPicker';
-import ProductImageUpload from '@/Components/AddProduct/ProductImageUpload';
-import TagInput from '@/Components/AddProduct/TagInput';
+import ColorPicker from '@/Components/Dashboard/AddProduct/ColorPicker';
+import ProductImageUpload from '@/Components/Dashboard/AddProduct/ProductImageUpload';
+import TagInput from '@/Components/Dashboard/AddProduct/TagInput';
+import Swal from 'sweetalert2';
 
 // ─── Field Wrapper ──────────────────────────────────────────────────────────
 function Field({ label, required, error, hint, children }) {
@@ -47,6 +48,7 @@ export default function AddProductPage() {
     handleSubmit,
     control,
     watch,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
@@ -71,7 +73,6 @@ export default function AddProductPage() {
       tags: [],
       images: [],
       isFeatured: false,
-      trackInventory: true,
     },
   });
 
@@ -87,6 +88,21 @@ export default function AddProductPage() {
       });
       if (!res.ok) throw new Error('Failed to save product');
       return res.json();
+    },
+
+    onSuccess: (data) => {
+      alert('Product added successfully');
+      Swal.fire({
+        title: 'Success!',
+        text: 'Product added successfully',
+        icon: 'success',
+        confirmButtonText: 'Cool',
+      });
+      reset();
+    },
+
+    onError: (error) => {
+      alert(error.message);
     },
   });
 
@@ -120,8 +136,6 @@ export default function AddProductPage() {
         }),
       );
 
-      console.log('Uploaded image:', uploadedImages);
-
       // Final payload
       const payload = {
         ...data,
@@ -129,11 +143,9 @@ export default function AddProductPage() {
         images: uploadedImages,
       };
 
-      console.log('Submitting product:', payload);
-
-      // mutation.mutate(payload);
+      mutation.mutate(payload);
     } catch (error) {
-      console.error('Image upload failed:', error);
+      alert('Image upload failed:', error);
     }
   };
 
@@ -352,16 +364,6 @@ export default function AddProductPage() {
                     <div className="w-1 h-5 rounded-full bg-orange-500" />
                     <h2 className="font-bold text-base">Inventory</h2>
                   </div>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <span className="text-sm text-base-content/60">
-                      Track inventory
-                    </span>
-                    <input
-                      type="checkbox"
-                      {...register('trackInventory')}
-                      className="toggle toggle-sm toggle-primary"
-                    />
-                  </label>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -552,32 +554,8 @@ export default function AddProductPage() {
                       </span>
                     )}
                   </button>
-                  <button
-                    type="button"
-                    className="btn btn-ghost w-full rounded-xl text-sm"
-                  >
-                    Save as Draft
-                  </button>
                 </div>
 
-                {mutation.isSuccess && (
-                  <div className="alert alert-success text-sm rounded-xl py-2">
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    Product saved successfully!
-                  </div>
-                )}
                 {mutation.isError && (
                   <div className="alert alert-error text-sm rounded-xl py-2">
                     <svg

@@ -21,6 +21,7 @@
     "react-dom": "18.2.0",
     "react-hook-form": "^7.76.0",
     "react-quill": "^2.0.0",
+    "sweetalert2": "^11.26.25",
     "swiper": "^12.1.4"
   },
   "devDependencies": {
