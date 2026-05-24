@@ -7,5 +7,9 @@ export default function StatusBadge({ status }) {
     archived: { cls: 'badge-ghost', label: '📦 Archived' },
   };
   const { cls, label } = map[status] || { cls: 'badge-ghost', label: status };
-  return <span className={`badge badge-sm ${cls} font-semibold`}>{label}</span>;
+  return (
+    <span className={`badge badge-sm ${cls} font-semibold text-nowrap`}>
+      {label}
+    </span>
+  );
 }

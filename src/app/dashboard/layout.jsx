@@ -13,7 +13,7 @@ export default function DashboardLayout({ children }) {
         <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       </div>
 
-      <div className="w-full">
+      <div className="flex-1 overflow-hidden">
         <DashboardNavbar
           onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
         />
