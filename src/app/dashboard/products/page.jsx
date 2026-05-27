@@ -4,6 +4,7 @@ import DashboardHeader from '@/Components/Dashboard/DashboardHeader';
 import ProductRow from '@/Components/Dashboard/Products/ProductRow';
 import Skeleton from '@/Components/Dashboard/Products/Skeleton';
 import { useQuery } from '@tanstack/react-query';
+import Link from 'next/link';
 
 export default function ProductsPage() {
   const {
@@ -66,7 +67,10 @@ export default function ProductsPage() {
               </svg>
               Filter
             </button>
-            <button className="btn btn-sm btn-primary rounded-xl font-semibold text-xs gap-1.5">
+            <Link
+              href="/dashboard/add-product"
+              className="btn btn-sm btn-primary rounded-xl font-semibold text-xs gap-1.5"
+            >
               <svg
                 className="w-3.5 h-3.5"
                 fill="none"
@@ -81,7 +85,7 @@ export default function ProductsPage() {
                 />
               </svg>
               Add Product
-            </button>
+            </Link>
           </div>
         </div>
 
