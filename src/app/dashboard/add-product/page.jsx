@@ -109,7 +109,7 @@ export default function AddProductPage() {
   const price = watch('price');
   const comparePrice = watch('comparePrice');
   const discount =
-    comparePrice && price
+    comparePrice && price && price < comparePrice
       ? Math.round(((comparePrice - price) / comparePrice) * 100)
       : null;
 

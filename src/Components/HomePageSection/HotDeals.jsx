@@ -1,18 +1,18 @@
 import { getHotDeals } from '@/app/lib/api';
 import Image from 'next/image';
+import Link from 'next/link';
 
 const HotDeals = async () => {
   const deals = await getHotDeals();
 
-  console.log('Hot Deals:', deals);
-
   return (
     <section className="py-10">
       <h2 className="text-2xl font-bold text-center mb-6">Hot Deals</h2>
-      <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+      <div className="container mx-auto grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5  gap-6">
         {deals.map((deal) => (
-          <div
+          <Link
             key={deal._id}
+            href={`/products/${deal._id}`}
             className="bg-white rounded-2xl p-4 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 flex flex-col gap-2.5 relative"
           >
             <div className="absolute top-3.5 left-3.5 flex gap-1">
@@ -95,7 +95,7 @@ const HotDeals = async () => {
             <button className="mt-auto border-1.5 border-gray-900 text-gray-900 text-xs font-semibold px-4 py-2.5 rounded-full w-fit hover:bg-gray-900 hover:text-white transition-colors">
               Add to Cart
             </button>
-          </div>
+          </Link>
         ))}
       </div>
     </section>
