@@ -5,3 +5,10 @@ export async function getHotDeals() {
   );
   return res.json();
 }
+export async function getProduct(id) {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}`,
+    { cache: 'no-store' },
+  );
+  return res.json();
+}

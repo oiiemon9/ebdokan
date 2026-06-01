@@ -61,9 +61,11 @@ const HotDeals = async () => {
               <span className="text-lg font-bold text-gray-900">
                 TK {parseInt(deal.price)}
               </span>
-              <span className="text-sm text-gray-400 line-through">
-                TK {parseInt(deal.comparePrice)}
-              </span>
+              {deal.comparePrice && (
+                <span className="text-sm text-gray-400 line-through">
+                  TK {parseInt(deal.comparePrice)}
+                </span>
+              )}
             </div>
 
             {/* Name & Description */}
