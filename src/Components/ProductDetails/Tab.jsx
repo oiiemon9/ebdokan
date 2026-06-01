@@ -26,9 +26,10 @@ function StarRating({ rating, size = 'sm' }) {
   );
 }
 
-export default function Tab() {
+export default function Tab({ data: product }) {
   const [activeTab, setActiveTab] = useState('reviews');
   const [reviewSort, setReviewSort] = useState('latest');
+  console.log(product);
   const reviews = [
     {
       id: 1,
@@ -132,10 +133,63 @@ export default function Tab() {
               <h2 className="text-2xl font-['Fraunces'] font-semibold text-[#1a1a2e] mb-4">
                 Product Description
               </h2>
-              <div
-                className="text-gray-600 leading-relaxed text-base"
-                dangerouslySetInnerHTML={{ __html: product.description }}
-              />
+              <>
+                <style>{`
+                      .rich-content p {
+                        margin-bottom: 0.9rem;
+                        line-height: 1.8;
+                        color: #4b5563;
+                      }
+
+                  
+                      .rich-content ol,
+                      .rich-content ul {
+                        padding-left: 1.5rem;
+                        margin-bottom: 1rem;
+                      }
+
+                      .rich-content li[data-list="ordered"] {
+                        list-style-type: decimal;
+                        display: list-item;
+                        line-height: 1.9;
+                        color: #374151;
+                        font-size: 0.95rem;
+                        padding-left: 0.3rem;
+                      }
+
+                      .rich-content li[data-list="bullet"] {
+                        list-style-type: disc;
+                        display: list-item;
+                        line-height: 1.9;
+                        color: #374151;
+                      }
+
+                    
+                      .rich-content .ql-ui {
+                        display: none;
+                      }
+
+                    
+                      .rich-content img {
+                        max-width: 100%;
+                        border-radius: 12px;
+                        margin-top: 1.2rem;
+                        display: block;
+                      }
+
+                  
+                      .rich-content strong {
+                        font-weight: 600;
+                        color: #111827;
+                      }
+                    `}</style>
+
+                <div
+                  className="rich-content text-base leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: product.description }}
+                />
+              </>
+
               <div className="mt-8 grid grid-cols-2 gap-4">
                 {[
                   'Premium Quality Materials',

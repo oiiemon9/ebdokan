@@ -107,7 +107,7 @@ export default async function Page({ params }) {
       {/* ── Product Hero ── */}
       <ProductHero data={data} />
       {/* ── Tabs ── */}
-      <Tab />
+      <Tab data={data} />
       {/* ── Related Products ── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t border-gray-200">
         <div className="flex items-center justify-between mb-8">
