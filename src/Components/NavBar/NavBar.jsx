@@ -6,6 +6,7 @@ import React from 'react';
 
 export default function NavBar() {
   const { data: sessionData, status } = useSession();
+  console.log('Session Data:', sessionData);
 
   return (
     <div className="navbar bg-base-100 shadow-sm sticky top-0 z-50">
@@ -77,7 +78,7 @@ export default function NavBar() {
         </ul>
       </div>
       <div className="navbar-end gap-2">
-        <Image
+        <img
           height={40}
           width={40}
           src={sessionData?.user?.image || '/default-avatar.png'}
