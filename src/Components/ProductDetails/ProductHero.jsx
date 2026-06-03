@@ -44,7 +44,7 @@ export default function ProductHero({ data }) {
   const [quantity, setQuantity] = useState(1);
   const [addedToCart, setAddedToCart] = useState(false);
   const product = data;
-  console.log('Product data in ProductHero:', product);
+
   const handleAddToCart = () => {
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2000);
@@ -97,7 +97,10 @@ export default function ProductHero({ data }) {
                   'https://res.cloudinary.com/dzfrakxek/image/upload/v1779854366/image-not-available_i7kvke.png'
                 }
                 alt={`Product image ${activeImage + 1}`}
-                fill
+                width={600}
+                height={600}
+                loading="eager"
+                priority
                 className=" object-contain p-10"
               />
 
@@ -214,14 +217,14 @@ export default function ProductHero({ data }) {
           {/* Price */}
           <div className="flex items-end gap-3">
             <span className="text-4xl font-bold text-[#1a1a2e] font-['Fraunces']">
-              TK {product.price}
+              ৳{product.price}
             </span>
             <span className="text-xl text-gray-400 line-through mb-1">
-              TK {product.comparePrice}
+              ৳{product.comparePrice}
             </span>
             {product?.price < product?.comparePrice && (
               <span className="mb-1 bg-rose-100 text-rose-600 text-xs font-bold px-2.5 py-1 rounded-full">
-                Save TK {Number(product.comparePrice) - Number(product.price)}
+                Save ৳ {Number(product.comparePrice) - Number(product.price)}
               </span>
             )}
           </div>

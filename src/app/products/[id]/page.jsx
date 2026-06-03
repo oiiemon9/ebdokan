@@ -97,11 +97,11 @@ export default async function Page({ params }) {
             Home
           </span>
           <span>/</span>
-          {/* <span className="hover:text-gray-700 cursor-pointer transition-colors capitalize">
-            {product.category}
-          </span> */}
+          <span className="hover:text-gray-700 cursor-pointer transition-colors capitalize">
+            {data?.category}
+          </span>
           <span>/</span>
-          {/* <span className="text-gray-700">{product.productName}</span> */}
+          <span className="text-gray-700">{data?.productName}</span>
         </nav>
       </div>
       {/* ── Product Hero ── */}
@@ -242,25 +242,6 @@ export default async function Page({ params }) {
           ))}
         </div>
       </section>
-      {/* ── Sticky Add to Cart (mobile) ──
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-2xl lg:hidden z-50">
-        <div className="flex items-center gap-3 max-w-lg mx-auto">
-          <div>
-            <p className="text-xs text-gray-400 font-medium">
-              {product.productName}
-            </p>
-            <p className="text-base font-bold text-[#1a1a2e]">
-              ${product.price}
-            </p>
-          </div>
-          <button
-            onClick={handleAddToCart}
-            className={`flex-1 h-11 rounded-xl font-semibold text-sm transition-all ${addedToCart ? 'bg-emerald-500 text-white' : 'bg-[#1a1a2e] text-white hover:bg-[#2d2d4e] active:scale-95'}`}
-          >
-            {addedToCart ? '✓ Added!' : '+ Add to Cart'}
-          </button>
-        </div>
-      </div> */}
     </div>
   );
 }

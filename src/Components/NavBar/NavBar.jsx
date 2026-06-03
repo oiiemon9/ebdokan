@@ -1,9 +1,14 @@
+'use client';
+import { signOut, useSession } from 'next-auth/react';
+import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
 
 export default function NavBar() {
+  const { data: sessionData, status } = useSession();
+
   return (
-    <div className="navbar bg-base-100 shadow-sm">
+    <div className="navbar bg-base-100 shadow-sm sticky top-0 z-50">
       <div className="navbar-start">
         <div className="dropdown">
           <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
@@ -71,7 +76,23 @@ export default function NavBar() {
           </li>
         </ul>
       </div>
-      <div className="navbar-end">
+      <div className="navbar-end gap-2">
+        <Image
+          height={40}
+          width={40}
+          src={sessionData?.user?.image || '/default-avatar.png'}
+          className="h-10 w-10 rounded-full object-cover bg-green-800"
+          alt="User Avatar"
+        />
+        {sessionData?.user?.name ? (
+          <button onClick={() => signOut()} className="btn">
+            logout
+          </button>
+        ) : (
+          <Link href="/login" className="btn">
+            Login
+          </Link>
+        )}
         <Link href="/dashboard" className="btn">
           Dashboard
         </Link>

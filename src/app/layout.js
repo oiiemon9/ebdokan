@@ -2,6 +2,7 @@ import { Poppins } from 'next/font/google';
 import './globals.css';
 import RootWrapper from './RootWrapper';
 import QueryProvider from '@/providers/QueryProvider';
+import AuthProvider from '@/providers/AuthProvider';
 
 const poppins = Poppins({
   variable: '--font-poppins',
@@ -19,7 +20,9 @@ export default function RootLayout({ children }) {
     <html lang="en" className={`${poppins.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
         <QueryProvider>
-          <RootWrapper>{children}</RootWrapper>
+          <AuthProvider>
+            <RootWrapper>{children}</RootWrapper>
+          </AuthProvider>
         </QueryProvider>
       </body>
     </html>

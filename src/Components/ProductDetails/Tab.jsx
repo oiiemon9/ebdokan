@@ -29,7 +29,6 @@ function StarRating({ rating, size = 'sm' }) {
 export default function Tab({ data: product }) {
   const [activeTab, setActiveTab] = useState('reviews');
   const [reviewSort, setReviewSort] = useState('latest');
-  console.log(product);
   const reviews = [
     {
       id: 1,
@@ -108,33 +107,15 @@ export default function Tab({ data: product }) {
   });
   return (
     <div>
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
-        <div className="border-b border-gray-200">
-          <div className="flex gap-8">
-            {['details', 'reviews', 'discussion'].map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`pb-3 text-sm font-medium capitalize tracking-wide transition-colors ${activeTab === tab ? 'tab-active' : 'text-gray-400 hover:text-gray-600 border-b-2 border-transparent'}`}
-              >
-                {tab === 'reviews'
-                  ? `Reviews (${totalReviews})`
-                  : tab.charAt(0).toUpperCase() + tab.slice(1)}
-              </button>
-            ))}
-          </div>
-        </div>
-      </section>
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        {/* Details Tab */}
-        {activeTab === 'details' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-            <div className="lg:col-span-2">
-              <h2 className="text-2xl font-['Fraunces'] font-semibold text-[#1a1a2e] mb-4">
-                Product Description
-              </h2>
-              <>
-                <style>{`
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-gray-200 mb-6 mt-6"></div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+          <div className="lg:col-span-2">
+            <h2 className="text-2xl font-['Fraunces'] font-semibold text-[#1a1a2e] mb-4">
+              Product Description
+            </h2>
+            <>
+              <style>{`
                       .rich-content p {
                         margin-bottom: 0.9rem;
                         line-height: 1.8;
@@ -184,80 +165,60 @@ export default function Tab({ data: product }) {
                       }
                     `}</style>
 
+              <div
+                className="rich-content text-base leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: product.description }}
+              />
+            </>
+          </div>
+
+          <div className="sticky top-6 h-fit">
+            <h3 className="text-lg font-semibold text-[#1a1a2e] mb-4 font-['Fraunces']">
+              Specifications
+            </h3>
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+              {[
+                ['SKU', product.sku],
+                ['Barcode', product.barcode],
+                ['Weight', `${product.weight} ${product.weightUnit}`],
+                ['Category', product.category],
+                ['Sub-category', product.subCategory],
+                ['Brand', product.brand],
+                ['Status', product.status],
+                ['Stock', `${product.stock} units`],
+              ].map(([label, value], i) => (
                 <div
-                  className="rich-content text-base leading-relaxed"
-                  dangerouslySetInnerHTML={{ __html: product.description }}
-                />
-              </>
-
-              <div className="mt-8 grid grid-cols-2 gap-4">
-                {[
-                  'Premium Quality Materials',
-                  'Handcrafted Precision',
-                  'Sustainable Sourcing',
-                  'Lifetime Guarantee',
-                ].map((f) => (
-                  <div
-                    key={f}
-                    className="flex items-center gap-3 bg-white rounded-xl p-4 border border-gray-100 shadow-sm"
-                  >
-                    <div className="w-8 h-8 rounded-lg bg-[#1a1a2e] flex items-center justify-center shrink-0">
-                      <svg
-                        className="w-4 h-4 text-[#e8b86d]"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                    </div>
-                    <span className="text-sm font-medium text-gray-700">
-                      {f}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-lg font-semibold text-[#1a1a2e] mb-4 font-['Fraunces']">
-                Specifications
-              </h3>
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                {[
-                  ['SKU', product.sku],
-                  ['Barcode', product.barcode],
-                  ['Weight', `${product.weight} ${product.weightUnit}`],
-                  ['Category', product.category],
-                  ['Sub-category', product.subCategory],
-                  ['Brand', product.brand],
-                  ['Status', product.status],
-                  ['Stock', `${product.stock} units`],
-                ].map(([label, value], i) => (
-                  <div
-                    key={label}
-                    className={`flex justify-between items-start py-3 px-4 text-sm ${i % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}
-                  >
-                    <span className="text-gray-500 font-medium">{label}</span>
-                    <span className="text-gray-800 font-semibold text-right max-w-[60%] break-words capitalize">
-                      {value}
-                    </span>
-                  </div>
-                ))}
-              </div>
+                  key={label}
+                  className={`flex justify-between items-start py-3 px-4 text-sm ${i % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}
+                >
+                  <span className="text-gray-500 font-medium">{label}</span>
+                  <span className="text-gray-800 font-semibold text-right max-w-[60%] break-words capitalize">
+                    {value}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
-        )}
+        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6 mt-6 border-b border-gray-200 "></div>
+        <div>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-['Fraunces'] font-semibold text-[#1a1a2e] mb-6">
+              Customer Reviews
+            </h2>
 
-        {/* Reviews Tab */}
-        {activeTab === 'reviews' && (
+            <select
+              value={reviewSort}
+              onChange={(e) => setReviewSort(e.target.value)}
+              className="text-sm border border-gray-200 rounded-xl px-3 py-2 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1a1a2e]"
+            >
+              <option value="latest">Latest</option>
+              <option value="highest">Highest Rated</option>
+              <option value="lowest">Lowest Rated</option>
+              <option value="helpful">Most Helpful</option>
+            </select>
+          </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-            {/* Rating Overview */}
             <div className="lg:col-span-1">
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sticky top-6">
                 <div className="text-center mb-6">
@@ -308,23 +269,8 @@ export default function Tab({ data: product }) {
             </div>
 
             {/* Review List */}
-            <div className="lg:col-span-2">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-['Fraunces'] font-semibold text-[#1a1a2e]">
-                  Customer Reviews
-                </h3>
-                <select
-                  value={reviewSort}
-                  onChange={(e) => setReviewSort(e.target.value)}
-                  className="text-sm border border-gray-200 rounded-xl px-3 py-2 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1a1a2e]"
-                >
-                  <option value="latest">Latest</option>
-                  <option value="highest">Highest Rated</option>
-                  <option value="lowest">Lowest Rated</option>
-                  <option value="helpful">Most Helpful</option>
-                </select>
-              </div>
 
+            <div className="lg:col-span-2">
               <div className="space-y-4">
                 {sortedReviews.map((review) => (
                   <div
@@ -389,75 +335,74 @@ export default function Tab({ data: product }) {
               </button>
             </div>
           </div>
-        )}
+        </div>
 
         {/* Discussion Tab */}
-        {activeTab === 'discussion' && (
-          <div className="max-w-2xl">
-            <h2 className="text-2xl font-['Fraunces'] font-semibold text-[#1a1a2e] mb-6">
-              Community Discussion
-            </h2>
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
-              <h3 className="text-base font-semibold text-gray-800 mb-3">
-                Ask a Question
-              </h3>
-              <textarea
-                placeholder="What would you like to know about this product?"
-                rows={3}
-                className="w-full border border-gray-200 rounded-xl p-3 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1a1a2e] resize-none"
-              />
-              <button className="mt-3 px-6 py-2.5 bg-[#1a1a2e] text-white rounded-xl text-sm font-semibold hover:bg-[#2d2d4e] transition-colors">
-                Post Question
-              </button>
-            </div>
-            <div className="space-y-4">
-              {[
-                {
-                  q: 'Is this suitable for beginners?',
-                  a: "Yes, it's designed to be accessible for all skill levels. The included guide makes it easy to get started.",
-                  user: 'Alex T.',
-                  aUser: 'Store Team',
-                },
-                {
-                  q: 'What is the return policy?',
-                  a: "We offer a full 30-day return policy. Just contact support and we'll arrange a free pickup.",
-                  user: 'Sam K.',
-                  aUser: 'Store Team',
-                },
-              ].map((item, i) => (
-                <div
-                  key={i}
-                  className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6"
-                >
-                  <div className="flex items-start gap-3 mb-3">
-                    <div className="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xs font-bold shrink-0 mt-0.5">
-                      Q
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-800">
-                        {item.q}
-                      </p>
-                      <p className="text-xs text-gray-400 mt-0.5">
-                        Asked by {item.user}
-                      </p>
-                    </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6 mt-6 border-b border-gray-200"></div>
+        <div className="max-w-2xl mb-6">
+          <h2 className="text-2xl font-['Fraunces'] font-semibold text-[#1a1a2e] mb-6">
+            Community Discussion
+          </h2>
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
+            <h3 className="text-base font-semibold text-gray-800 mb-3">
+              Ask a Question
+            </h3>
+            <textarea
+              placeholder="What would you like to know about this product?"
+              rows={3}
+              className="w-full border border-gray-200 rounded-xl p-3 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1a1a2e] resize-none"
+            />
+            <button className="mt-3 px-6 py-2.5 bg-[#1a1a2e] text-white rounded-xl text-sm font-semibold hover:bg-[#2d2d4e] transition-colors">
+              Post Question
+            </button>
+          </div>
+          <div className="space-y-4">
+            {[
+              {
+                q: 'Is this suitable for beginners?',
+                a: "Yes, it's designed to be accessible for all skill levels. The included guide makes it easy to get started.",
+                user: 'Alex T.',
+                aUser: 'Store Team',
+              },
+              {
+                q: 'What is the return policy?',
+                a: "We offer a full 30-day return policy. Just contact support and we'll arrange a free pickup.",
+                user: 'Sam K.',
+                aUser: 'Store Team',
+              },
+            ].map((item, i) => (
+              <div
+                key={i}
+                className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6"
+              >
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xs font-bold shrink-0 mt-0.5">
+                    Q
                   </div>
-                  <div className="flex items-start gap-3 ml-4 pl-4 border-l-2 border-[#e8b86d]">
-                    <div className="w-7 h-7 rounded-full bg-[#1a1a2e] flex items-center justify-center text-white text-xs font-bold shrink-0 mt-0.5">
-                      A
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">{item.a}</p>
-                      <p className="text-xs text-gray-400 mt-0.5">
-                        — {item.aUser}
-                      </p>
-                    </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-800">
+                      {item.q}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      Asked by {item.user}
+                    </p>
                   </div>
                 </div>
-              ))}
-            </div>
+                <div className="flex items-start gap-3 ml-4 pl-4 border-l-2 border-[#e8b86d]">
+                  <div className="w-7 h-7 rounded-full bg-[#1a1a2e] flex items-center justify-center text-white text-xs font-bold shrink-0 mt-0.5">
+                    A
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">{item.a}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      — {item.aUser}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
-        )}
+        </div>
       </section>
     </div>
   );
