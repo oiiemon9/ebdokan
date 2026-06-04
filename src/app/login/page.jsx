@@ -64,6 +64,12 @@ export default function page() {
     },
   };
 
+  const googleSignIn = async () => {
+    await signIn('google', {
+      callbackUrl: '/',
+    });
+  };
+
   return (
     <>
       <style>{`
@@ -258,7 +264,7 @@ export default function page() {
             >
               {/* Google */}
               <motion.button
-                onClick={() => signIn('google', { callbackUrl: '/' })}
+                onClick={googleSignIn}
                 whileHover={{
                   y: -2,
                   boxShadow: '0 6px 20px rgba(0,0,0,0.10)',
