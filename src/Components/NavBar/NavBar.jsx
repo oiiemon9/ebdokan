@@ -6,7 +6,6 @@ import React from 'react';
 
 export default function NavBar() {
   const { data: sessionData, status } = useSession();
-
   return (
     <div className="navbar bg-base-100 shadow-sm sticky top-0 z-50">
       <div className="navbar-start">
