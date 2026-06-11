@@ -3,28 +3,31 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { signIn } from 'next-auth/react';
+import { useForm } from 'react-hook-form';
 
 export default function RegisterPage() {
-  const [form, setForm] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirm: '',
-  });
   const [showPass, setShowPass] = useState(false);
   const [showConf, setShowConf] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [agree, setAgree] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm();
+
+  const password = watch('password', '');
+  const confirm = watch('confirm', '');
 
   const strength = (() => {
-    const p = form.password;
-    if (!p) return 0;
+    if (!password) return 0;
     let s = 0;
-    if (p.length >= 8) s++;
-    if (/[A-Z]/.test(p)) s++;
-    if (/[0-9]/.test(p)) s++;
-    if (/[^A-Za-z0-9]/.test(p)) s++;
+    if (password.length >= 8) s++;
+    if (/[A-Z]/.test(password)) s++;
+    if (/[0-9]/.test(password)) s++;
+    if (/[^A-Za-z0-9]/.test(password)) s++;
     return s;
   })();
 
@@ -36,41 +39,43 @@ export default function RegisterPage() {
     { label: 'Strong', bar: 'bg-emerald-400', text: 'text-emerald-400' },
   ][strength];
 
-  const handleChange = (e) =>
-    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const onSubmit = async (data) => {
     setError('');
-    if (form.password !== form.confirm) {
-      setError('Passwords do not match.');
-      return;
-    }
-    if (!agree) {
-      setError('Please accept the terms to continue.');
-      return;
-    }
     setLoading(true);
+
     try {
+      // ── 1. MongoDB তে save করো ──
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: form.name,
-          email: form.email,
-          password: form.password,
+          name: data.name,
+          identifier: data.identifier,
+          password: data.password,
         }),
       });
-      const data = await res.json();
+
+      const result = await res.json();
+
       if (!res.ok) {
-        setError(data.message || 'Registration failed.');
+        setError(result.message || 'Registration failed');
         return;
       }
-      await signIn('credentials', {
-        email: form.email,
-        password: form.password,
+
+      // ── 2. Auto login ──
+      const signInResult = await signIn('credentials', {
+        identifier: data.identifier,
+        password: data.password,
+        redirect: false,
         callbackUrl: '/',
       });
+
+      if (signInResult?.error) {
+        setError('Account created! Please login manually.');
+        return;
+      }
+
+      window.location.href = signInResult?.url || '/';
     } catch {
       setError('Something went wrong. Please try again.');
     } finally {
@@ -170,7 +175,7 @@ export default function RegisterPage() {
       <div className="flex items-center gap-3 mb-5">
         <div className="flex-1 h-px bg-white/[0.08]" />
         <span className="text-white/25 text-[11px] font-medium tracking-widest uppercase">
-          or with email
+          or with number/email
         </span>
         <div className="flex-1 h-px bg-white/[0.08]" />
       </div>
@@ -192,7 +197,7 @@ export default function RegisterPage() {
       )}
 
       {/* ── Form ── */}
-      <form onSubmit={handleSubmit} className="space-y-3.5">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-3.5">
         {/* Full name */}
         <div>
           <label className="block text-[11px] font-medium tracking-[0.06em] uppercase text-white/40 mb-1.5">
@@ -216,22 +221,29 @@ export default function RegisterPage() {
             </span>
             <input
               type="text"
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              placeholder="Rafiq Islam"
-              required
+              placeholder="Rafiq Islam..."
               autoComplete="name"
               className={inputBase}
+              {...register('name', {
+                required: 'Full name is required',
+                minLength: {
+                  value: 2,
+                  message: 'Enter a valid name',
+                },
+              })}
             />
           </div>
+          {errors.name && (
+            <p className="mt-1 text-sm text-red-500">{errors.name.message}</p>
+          )}
         </div>
 
-        {/* Email */}
+        {/* Phone number / Email */}
         <div>
           <label className="block text-[11px] font-medium tracking-[0.06em] uppercase text-white/40 mb-1.5">
-            Email address
+            Phone Number or Email
           </label>
+
           <div className="relative">
             <span className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-white/30">
               <svg
@@ -248,17 +260,33 @@ export default function RegisterPage() {
                 />
               </svg>
             </span>
+
             <input
-              type="email"
-              name="email"
-              value={form.email}
-              onChange={handleChange}
-              placeholder="you@example.com"
-              required
-              autoComplete="email"
+              type="text"
+              placeholder="Phone number or email address"
+              autoComplete="username"
               className={inputBase}
+              {...register('identifier', {
+                required: 'Email or phone number is required',
+                validate: (value) => {
+                  const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+                  const isPhone = /^(\+880|880|0)?1[3-9]\d{8}$/.test(value);
+
+                  return (
+                    isEmail ||
+                    isPhone ||
+                    'Please enter a valid phone number or email address'
+                  );
+                },
+              })}
             />
           </div>
+
+          {errors.identifier && (
+            <p className="mt-1 text-sm text-red-500">
+              {errors.identifier.message}
+            </p>
+          )}
         </div>
 
         {/* Password */}
@@ -284,19 +312,27 @@ export default function RegisterPage() {
             </span>
             <input
               type={showPass ? 'text' : 'password'}
-              name="password"
-              value={form.password}
-              onChange={handleChange}
               placeholder="Min. 8 characters"
-              required
               autoComplete="new-password"
               className={`${inputBase} !pr-11`}
+              {...register('password', {
+                required: 'Password is required',
+                minLength: {
+                  value: 8,
+                  message: 'Password must be at least 8 characters',
+                },
+              })}
             />
             <EyeBtn show={showPass} toggle={() => setShowPass((s) => !s)} />
           </div>
+          {errors.password && (
+            <p className="mt-1 text-sm text-red-500">
+              {errors.password.message}
+            </p>
+          )}
 
           {/* Strength bar */}
-          {form.password && (
+          {password && (
             <div className="mt-2">
               <div className="flex gap-1 mb-1">
                 {[1, 2, 3, 4].map((i) => (
@@ -337,25 +373,29 @@ export default function RegisterPage() {
             </span>
             <input
               type={showConf ? 'text' : 'password'}
-              name="confirm"
-              value={form.confirm}
-              onChange={handleChange}
               placeholder="Re-enter your password"
-              required
               autoComplete="new-password"
               className={`${inputBase} !pr-24`}
+              {...register('confirm', {
+                required: 'Please confirm your password',
+              })}
             />
             {/* Match badge */}
-            {form.confirm && (
+            {confirm && (
               <span
                 className={`absolute right-10 top-1/2 -translate-y-1/2 text-[11px] font-medium
-                ${form.password === form.confirm ? 'text-emerald-400' : 'text-red-400'}`}
+                ${password === confirm ? 'text-emerald-400' : 'text-red-400'}`}
               >
-                {form.password === form.confirm ? '✓ Match' : '✗'}
+                {password === confirm ? '✓ Match' : '✗'}
               </span>
             )}
             <EyeBtn show={showConf} toggle={() => setShowConf((s) => !s)} />
           </div>
+          {errors.confirm && (
+            <p className="mt-1 text-sm text-red-500">
+              {errors.confirm.message}
+            </p>
+          )}
         </div>
 
         {/* Agree */}
@@ -363,9 +403,10 @@ export default function RegisterPage() {
           <input
             type="checkbox"
             id="agree"
-            checked={agree}
-            onChange={(e) => setAgree(e.target.checked)}
             className="w-4 h-4 mt-0.5 rounded accent-sky-400 cursor-pointer shrink-0"
+            {...register('agree', {
+              required: 'You must accept the terms',
+            })}
           />
           <label
             htmlFor="agree"
@@ -387,6 +428,9 @@ export default function RegisterPage() {
             </Link>
           </label>
         </div>
+        {errors.agree && (
+          <p className="mt-1 text-sm text-red-500">{errors.agree.message}</p>
+        )}
 
         {/* Submit */}
         <button

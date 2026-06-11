@@ -3,36 +3,53 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { signIn } from 'next-auth/react';
+import { useForm } from 'react-hook-form';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+
+  const onSubmit = async (data) => {
     setLoading(true);
+
     try {
-      const res = await signIn('credentials', {
-        email,
-        password,
+      const result = await signIn('credentials', {
+        identifier: data.identifier,
+        password: data.password,
         redirect: false,
         callbackUrl: '/',
       });
-      if (res?.error) setError('Invalid email or password.');
-      else window.location.href = res?.url || '/';
+
+      console.log('Login result:', result);
+
+      if (result?.error) {
+        const errorMap = {
+          'User not found':
+            'এই email/phone দিয়ে কোনো account নেই। দয়া করে রেজিস্ট্রেশন করুন।',
+
+          'Please login with Google or Facebook':
+            'এই account টি Google/Facebook দিয়ে তৈরি। সেটা দিয়ে login করুন।',
+        };
+        setError(errorMap[result.error] || 'Login failed. Please try again.');
+        return;
+      }
+
+      window.location.href = result?.url || '/';
     } catch {
       setError('Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
   };
-
   const inputBase =
-    'w-full h-11 pl-10 pr-4 rounded-xl bg-white/[0.05] border border-white/10 text-white text-sm placeholder-white/25 outline-none transition-all focus:border-sky-400/50 focus:bg-sky-400/[0.05] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.10)]';
+    'w-full h-11 pl-10 pr-4 rounded-xl bg-white/[0.05] border border-white/10 text-white text-sm placeholder-white/25 outline-none transition-all focus:border-sky-400/50 focus:bg-sky-400/[0.05] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.10)] ';
 
   return (
     <>
@@ -79,7 +96,7 @@ export default function LoginPage() {
       <div className="flex items-center gap-3 mb-5">
         <div className="flex-1 h-px bg-white/[0.08]" />
         <span className="text-white/25 text-[11px] font-medium tracking-widest uppercase">
-          or with email
+          or with number/email
         </span>
         <div className="flex-1 h-px bg-white/[0.08]" />
       </div>
@@ -101,12 +118,13 @@ export default function LoginPage() {
       )}
 
       {/* ── Form ── */}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Email */}
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        {/* Phone number / Email */}
         <div>
           <label className="block text-[11px] font-medium tracking-[0.06em] uppercase text-white/40 mb-1.5">
-            Email address
+            Phone Number or Email
           </label>
+
           <div className="relative">
             <span className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-white/30">
               <svg
@@ -123,16 +141,33 @@ export default function LoginPage() {
                 />
               </svg>
             </span>
+
             <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              required
-              autoComplete="email"
+              type="text"
+              placeholder="Phone number or email address"
+              autoComplete="username"
               className={inputBase}
+              {...register('identifier', {
+                required: 'Email or phone number is required',
+                validate: (value) => {
+                  const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+                  const isPhone = /^(\+880|880|0)?1[3-9]\d{8}$/.test(value);
+
+                  return (
+                    isEmail ||
+                    isPhone ||
+                    'Please enter a valid phone number or email address'
+                  );
+                },
+              })}
             />
           </div>
+
+          {errors.identifier && (
+            <p className="mt-1 text-sm text-red-500">
+              {errors.identifier.message}
+            </p>
+          )}
         </div>
 
         {/* Password */}
@@ -166,12 +201,16 @@ export default function LoginPage() {
             </span>
             <input
               type={showPass ? 'text' : 'password'}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
               placeholder="Min. 8 characters"
-              required
               autoComplete="current-password"
               className={`${inputBase} !pr-11`}
+              {...register('password', {
+                required: 'Password is required',
+                minLength: {
+                  value: 8,
+                  message: 'Password must be at least 8 characters',
+                },
+              })}
             />
             <button
               type="button"
@@ -215,21 +254,11 @@ export default function LoginPage() {
               )}
             </button>
           </div>
-        </div>
-
-        {/* Remember me */}
-        <div className="flex items-center gap-2.5">
-          <input
-            type="checkbox"
-            id="remember"
-            className="w-4 h-4 rounded accent-sky-400 cursor-pointer"
-          />
-          <label
-            htmlFor="remember"
-            className="text-[12.5px] text-white/40 cursor-pointer select-none"
-          >
-            Keep me signed in for 30 days
-          </label>
+          {errors.password && (
+            <p className="mt-1 text-sm text-red-500">
+              {errors.password.message}
+            </p>
+          )}
         </div>
 
         {/* Submit */}

@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.100.10",
+    "bcryptjs": "^3.0.3",
     "cloudinary": "^2.10.0",
     "daisyui": "^5.5.19",
     "dotenv": "^17.4.2",
