@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import { ObjectId } from 'mongodb';
 import { NextResponse } from 'next/server';
 import { connect } from '@/app/lib/dbConnect';
 
@@ -66,14 +67,16 @@ export async function POST(req) {
 
     // password hash
     const hashedPassword = await bcrypt.hash(password, 12);
+    const providerAccountId = new ObjectId().toString();
 
     await usersCollection.insertOne({
       name,
       email: isEmail ? identifier : '',
       phone: isPhone ? identifier : '',
+      userId: providerAccountId,
       password: hashedPassword,
       provider: 'register',
-      authType: isEmail ? 'email' : 'number',
+      authType: isEmail ? 'email' : 'phone',
       image: null,
       address: '',
       role: 'user',

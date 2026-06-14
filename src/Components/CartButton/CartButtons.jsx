@@ -62,7 +62,7 @@ export default function CartButtons({
 
   // ── Buy Now ──
   const handleBuyNow = () => {
-    dispatch(setBuyNow(itemPayload)); // cart এ add হবে না
+    dispatch(setBuyNow(itemPayload));
     router.push('/checkout');
   };
 

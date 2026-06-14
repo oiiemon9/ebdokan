@@ -39,6 +39,8 @@ const handler = NextAuth({
           image: user.image,
           phone: user.phone,
           role: user.role,
+          providerAccountId:
+            user.providerAccountId || user.userId || user._id.toString(),
         };
       },
     }),
@@ -94,12 +96,16 @@ const handler = NextAuth({
       if (user) {
         token.id = user.id;
         token.role = user.role;
+        token.phone = user.phone || '';
+        token.providerAccountId = user.providerAccountId || user.userId;
       }
       return token;
     },
     async session({ session, token }) {
       session.user.id = token.id;
       session.user.role = token.role;
+      session.user.phone = token.phone || '';
+      session.user.providerAccountId = token.providerAccountId;
       return session;
     },
   },
