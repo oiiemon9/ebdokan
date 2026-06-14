@@ -1,6 +1,7 @@
 'use client';
 import Image from 'next/image';
 import React, { useState } from 'react';
+import CartButtons from '../CartButton/CartButtons';
 
 function StarIcon({ filled, half }) {
   return (
@@ -308,12 +309,12 @@ export default function ProductHero({ data }) {
             </div>
 
             {/* Add to cart */}
-            <button
-              onClick={handleAddToCart}
-              className={`flex-1 h-11 rounded-xl font-semibold text-sm tracking-wide transition-all ${addedToCart ? 'bg-emerald-500 text-white' : 'bg-[#1a1a2e] text-white hover:bg-[#2d2d4e] active:scale-95'}`}
-            >
-              {addedToCart ? '✓ Added to Cart!' : '+ Add to Cart'}
-            </button>
+            <CartButtons
+              product={product}
+              selectedColor={selectedColor}
+              selectedSize={selectedSize}
+              quantity={quantity}
+            />
 
             {/* Wishlist */}
             <button

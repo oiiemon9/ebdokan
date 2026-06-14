@@ -3,6 +3,7 @@ import './globals.css';
 import RootWrapper from './RootWrapper';
 import QueryProvider from '@/providers/QueryProvider';
 import AuthProvider from '@/providers/AuthProvider';
+import ReduxProvider from '@/store/ReduxProvider';
 
 const poppins = Poppins({
   variable: '--font-poppins',
@@ -19,11 +20,13 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${poppins.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
-        <QueryProvider>
-          <AuthProvider>
-            <RootWrapper>{children}</RootWrapper>
-          </AuthProvider>
-        </QueryProvider>
+        <ReduxProvider>
+          <QueryProvider>
+            <AuthProvider>
+              <RootWrapper>{children}</RootWrapper>
+            </AuthProvider>
+          </QueryProvider>
+        </ReduxProvider>
       </body>
     </html>
   );

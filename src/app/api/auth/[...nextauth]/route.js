@@ -59,6 +59,8 @@ const handler = NextAuth({
           email: profile.email,
           provider: account.provider,
         });
+
+        console.log(account);
         if (!existingUser) {
           const providerImage =
             account.provider === 'google'
@@ -67,6 +69,7 @@ const handler = NextAuth({
           const newUser = {
             name: profile.name,
             email: profile.email,
+            userId: account.providerAccountId,
             provider: account.provider,
             authType: account.provider,
             image: providerImage,
