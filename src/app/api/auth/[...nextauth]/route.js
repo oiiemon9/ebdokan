@@ -62,7 +62,7 @@ const handler = NextAuth({
           provider: account.provider,
         });
 
-        console.log(account);
+        console.log(account, profile);
         if (!existingUser) {
           const providerImage =
             account.provider === 'google'
