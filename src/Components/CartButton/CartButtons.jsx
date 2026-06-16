@@ -31,8 +31,22 @@ export default function CartButtons({
 
   const [addedFeedback, setAddedFeedback] = useState(false);
 
+  const generateItemId = (cartItems) => {
+    for (let i = 1; ; i++) {
+      const itemId = `EB-${i}`;
+
+      const exists = cartItems.some((item) => item.cartItemId === itemId);
+
+      if (!exists) {
+        return itemId;
+      }
+    }
+  };
+  const itemId = generateItemId(cartItems);
+
   const itemPayload = {
     productId: product._id?.toString(),
+    cartItemId: itemId,
     name: product.productName,
     price: Number(product.price),
     image: product.images?.[0] || null,
@@ -46,13 +60,10 @@ export default function CartButtons({
   const handleAddToCart = async () => {
     dispatch(addToCart(itemPayload));
 
-    console.log(session.user);
-
     // MongoDB sync (logged-in user only)
     if (session?.user?.id) {
       const updatedItems = [...cartItems];
       updatedItems.push(itemPayload);
-      console.log('Added to cart:', updatedItems);
       dispatch(syncCartToDB({ userId: session.user.id, items: updatedItems }));
     }
 

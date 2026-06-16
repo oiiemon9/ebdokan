@@ -4,7 +4,12 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { clearCart, clearBuyNow, selectBuyNowItem } from '@/store/cartSlice';
+import {
+  clearCart,
+  clearBuyNow,
+  removeMultipleFromCart,
+  selectBuyNowItem,
+} from '@/store/cartSlice';
 
 const PAYMENT_METHODS = [
   {
@@ -99,10 +104,16 @@ export default function PaymentPage() {
       if (!res.ok) throw new Error('Order failed');
       const { orderId } = await res.json();
 
-      // Clear cart/buyNow
-      if (buyNow) dispatch(clearBuyNow());
-      else dispatch(clearCart());
+      // Clear buy now or remove only the ordered cart items
+      if (buyNow) {
+        dispatch(clearBuyNow());
+      } else if (orderData?.selectedCartKeys?.length > 0) {
+        dispatch(removeMultipleFromCart(orderData.selectedCartKeys));
+      } else {
+        dispatch(clearCart());
+      }
       sessionStorage.removeItem('orderData');
+      sessionStorage.removeItem('selectedCartKeys');
 
       router.push(`/checkout/success/${orderId}`);
     } catch (err) {

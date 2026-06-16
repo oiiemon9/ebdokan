@@ -60,7 +60,11 @@ const cartSlice = createSlice({
 
     // ── Remove from cart ──
     removeFromCart(state, action) {
-      const { productId, color, size } = action.payload;
+      const { cartItemId, productId, color, size } = action.payload;
+      if (cartItemId) {
+        state.items = state.items.filter((i) => i.cartItemId !== cartItemId);
+        return;
+      }
       state.items = state.items.filter(
         (i) =>
           !(i.productId === productId && i.color === color && i.size === size),
@@ -69,11 +73,13 @@ const cartSlice = createSlice({
 
     // ── Update quantity ──
     updateQuantity(state, action) {
-      const { productId, color, size, quantity } = action.payload;
-      const item = state.items.find(
-        (i) =>
-          i.productId === productId && i.color === color && i.size === size,
-      );
+      const { cartItemId, productId, color, size, quantity } = action.payload;
+      const item = cartItemId
+        ? state.items.find((i) => i.cartItemId === cartItemId)
+        : state.items.find(
+            (i) =>
+              i.productId === productId && i.color === color && i.size === size,
+          );
       if (item) {
         item.quantity = Math.max(1, Math.min(quantity, item.stock ?? 99));
       }
@@ -83,6 +89,14 @@ const cartSlice = createSlice({
     clearCart(state) {
       state.items = [];
       state.buyNowItem = null;
+    },
+
+    // ── Remove multiple selected items ──
+    removeMultipleFromCart(state, action) {
+      const keys = action.payload;
+      state.items = state.items.filter(
+        (item) => !keys.includes(item.cartItemId),
+      );
     },
 
     // ── Buy Now (checkout এ সরাসরি যাবে, cart এ add হবে না) ──
@@ -104,7 +118,10 @@ const cartSlice = createSlice({
       })
       .addCase(loadCartFromDB.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = action.payload;
+        state.items = action.payload.map((item) => ({
+          ...item,
+          cartItemId: item.cartItemId,
+        }));
       })
       .addCase(loadCartFromDB.rejected, (state, action) => {
         state.loading = false;
@@ -119,6 +136,7 @@ const cartSlice = createSlice({
 export const {
   addToCart,
   removeFromCart,
+  removeMultipleFromCart,
   updateQuantity,
   clearCart,
   setBuyNow,

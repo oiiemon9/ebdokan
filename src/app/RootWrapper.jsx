@@ -15,7 +15,6 @@ export default function RootWrapper({ children }) {
   const showNavbar = !pathname?.startsWith('/dashboard');
 
   useEffect(() => {
-    console.log(session);
     if (
       (status === 'authenticated' && session?.user?.providerAccountId) ||
       session?.user?.id

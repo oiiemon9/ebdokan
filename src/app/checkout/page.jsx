@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
@@ -45,12 +45,7 @@ export default function CheckoutPage() {
   const buyNowItem = useSelector(selectBuyNowItem);
   const cartTotal = useSelector(selectCartTotal);
 
-  // Buy Now হলে শুধু সেটা, না হলে cart
-  const orderItems = buyNowItem ? [buyNowItem] : cartItems;
-  const subtotal = buyNowItem
-    ? buyNowItem.price * buyNowItem.quantity
-    : cartTotal;
-
+  const [selectedCartKeys, setSelectedCartKeys] = useState([]);
   const [shipping, setShipping] = useState('standard');
   const [coupon, setCoupon] = useState('');
   const [discount, setDiscount] = useState(0);
@@ -59,6 +54,24 @@ export default function CheckoutPage() {
 
   const shippingCost =
     SHIPPING_OPTIONS.find((s) => s.id === shipping)?.price ?? 60;
+  const selectedCartItems = useMemo(
+    () =>
+      cartItems.filter((item) => selectedCartKeys.includes(item.cartItemId)),
+    [cartItems, selectedCartKeys],
+  );
+
+  const orderItems = buyNowItem
+    ? [buyNowItem]
+    : selectedCartKeys.length > 0
+      ? selectedCartItems
+      : cartItems;
+
+  const subtotal = buyNowItem
+    ? buyNowItem.price * buyNowItem.quantity
+    : selectedCartKeys.length > 0
+      ? selectedCartItems.reduce((sum, i) => sum + i.price * i.quantity, 0)
+      : cartTotal;
+
   const total = subtotal + shippingCost - discount;
 
   const {
@@ -75,6 +88,18 @@ export default function CheckoutPage() {
       setValue('email', session.user.email || '');
     }
   }, [session, setValue]);
+
+  // Load selected cart items from cart page
+  useEffect(() => {
+    const stored = sessionStorage.getItem('selectedCartKeys');
+    if (stored) {
+      try {
+        setSelectedCartKeys(JSON.parse(stored));
+      } catch (err) {
+        setSelectedCartKeys([]);
+      }
+    }
+  }, []);
 
   // Coupon check
   const applyCoupon = async () => {
@@ -104,6 +129,7 @@ export default function CheckoutPage() {
       discount,
       total,
       items: orderItems,
+      selectedCartKeys,
     };
     sessionStorage.setItem('orderData', JSON.stringify(orderData));
     router.push('/checkout/payment');

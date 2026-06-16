@@ -6,7 +6,7 @@ import React from 'react';
 
 export default function NavBar() {
   const { data: sessionData, status } = useSession();
-  console.log(sessionData);
+
   return (
     <div className="navbar bg-base-100 shadow-sm sticky top-0 z-50">
       <div className="navbar-start">
@@ -93,8 +93,8 @@ export default function NavBar() {
             Login
           </Link>
         )}
-        <Link href="/checkout" className="btn">
-          Checkout
+        <Link href="/my-card" className="btn">
+          Card
         </Link>
         <Link href="/dashboard" className="btn">
           Dashboard
