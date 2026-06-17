@@ -218,14 +218,17 @@ export default function ProductHero({ data }) {
           {/* Price */}
           <div className="flex items-end gap-3">
             <span className="text-4xl font-bold text-[#1a1a2e] font-['Fraunces']">
-              ৳{product.price}
+              ৳{Number(product.price).toLocaleString()}
             </span>
             <span className="text-xl text-gray-400 line-through mb-1">
-              ৳{product.comparePrice}
+              ৳{Number(product?.comparePrice).toLocaleString()}
             </span>
             {product?.price < product?.comparePrice && (
               <span className="mb-1 bg-rose-100 text-rose-600 text-xs font-bold px-2.5 py-1 rounded-full">
-                Save ৳ {Number(product.comparePrice) - Number(product.price)}
+                Save ৳{' '}
+                {(
+                  Number(product.comparePrice) - Number(product.price)
+                ).toLocaleString()}
               </span>
             )}
           </div>

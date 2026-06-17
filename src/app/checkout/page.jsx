@@ -36,6 +36,72 @@ const SHIPPING_OPTIONS = [
   },
 ];
 
+const DISTRICTS = [
+  'Dhaka',
+  'Faridpur',
+  'Gazipur',
+  'Gopalganj',
+  'Kishoreganj',
+  'Madaripur',
+  'Manikganj',
+  'Munshiganj',
+  'Narayanganj',
+  'Narsingdi',
+  'Rajbari',
+  'Shariatpur',
+  'Tangail',
+  'Brahmanbaria',
+  'Chandpur',
+  'Cumilla',
+  'Noakhali',
+  'Feni',
+  'Lakshmipur',
+  'Chattogram',
+  "Cox's Bazar",
+  'Bandarban',
+  'Khagrachhari',
+  'Rangamati',
+  'Sylhet',
+  'Habiganj',
+  'Moulvibazar',
+  'Sunamganj',
+  'Rajshahi',
+  'Bogura',
+  'Chapainawabganj',
+  'Naogaon',
+  'Natore',
+  'Pabna',
+  'Sirajganj',
+  'Kushtia',
+  'Jhenaidah',
+  'Magura',
+  'Meherpur',
+  'Narail',
+  'Satkhira',
+  'Jashore',
+  'Khulna',
+  'Bagerhat',
+  'Chuadanga',
+  'Pirojpur',
+  'Barguna',
+  'Bhola',
+  'Jhalokathi',
+  'Patuakhali',
+  'Barishal',
+  'Mymensingh',
+  'Jamalpur',
+  'Sherpur',
+  'Netrokona',
+  'Rangpur',
+  'Dinajpur',
+  'Gaibandha',
+  'Kurigram',
+  'Lalmonirhat',
+  'Nilphamari',
+  'Panchagarh',
+  'Thakurgaon',
+];
+
 export default function CheckoutPage() {
   const dispatch = useDispatch();
   const router = useRouter();
@@ -120,7 +186,6 @@ export default function CheckoutPage() {
   };
 
   const onSubmit = (data) => {
-    // শিপিং info + order summary session storage এ রাখো
     const orderData = {
       shippingInfo: data,
       shippingMethod: shipping,
@@ -131,6 +196,7 @@ export default function CheckoutPage() {
       items: orderItems,
       selectedCartKeys,
     };
+    console.log(orderData);
     sessionStorage.setItem('orderData', JSON.stringify(orderData));
     router.push('/checkout/payment');
   };
@@ -166,10 +232,8 @@ export default function CheckoutPage() {
           {/* Contact info */}
           <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6">
             <h2 className="text-white font-semibold text-base mb-5 flex items-center gap-2">
-              <span className="w-6 h-6 rounded-full bg-sky-500/20 text-sky-400 text-xs flex items-center justify-center font-bold">
-                1
-              </span>
-              Contact Information
+              <span className="w-6 h-6 rounded-full bg-sky-500/20 text-sky-400 text-xs flex items-center justify-center font-bold"></span>
+              Delivery Information
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -224,26 +288,17 @@ export default function CheckoutPage() {
                   </p>
                 )}
               </div>
-            </div>
-          </div>
 
-          {/* Shipping address */}
-          <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6">
-            <h2 className="text-white font-semibold text-base mb-5 flex items-center gap-2">
-              <span className="w-6 h-6 rounded-full bg-sky-500/20 text-sky-400 text-xs flex items-center justify-center font-bold">
-                2
-              </span>
-              Delivery Address
-            </h2>
-            <div className="space-y-4">
-              <div>
+              <div className="sm:col-span-2">
                 <label className="block text-[11px] uppercase tracking-widest text-white/35 mb-1.5 font-medium">
                   Street Address
                 </label>
                 <input
                   className={inputCls}
                   placeholder="House/Road/Block"
-                  {...register('address', { required: 'Address is required' })}
+                  {...register('address', {
+                    required: 'Address is required',
+                  })}
                 />
                 {errors.address && (
                   <p className="text-red-400 text-xs mt-1">
@@ -251,36 +306,53 @@ export default function CheckoutPage() {
                   </p>
                 )}
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="sm:col-span-2 grid sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-[11px] uppercase tracking-widest text-white/35 mb-1.5 font-medium">
-                    City
+                    District
                   </label>
-                  <input
-                    className={inputCls}
-                    placeholder="Dhaka"
-                    {...register('city', { required: 'City is required' })}
-                  />
-                  {errors.city && (
+
+                  <select
+                    className={`select ${inputCls}`}
+                    defaultValue=""
+                    {...register('district', {
+                      required: 'District is required',
+                    })}
+                  >
+                    <option value="" disabled>
+                      Pick a district
+                    </option>
+                    {DISTRICTS.map((district) => (
+                      <option key={district} value={district}>
+                        {district}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.district && (
                     <p className="text-red-400 text-xs mt-1">
-                      {errors.city.message}
+                      {errors.district.message}
                     </p>
                   )}
                 </div>
                 <div>
                   <label className="block text-[11px] uppercase tracking-widest text-white/35 mb-1.5 font-medium">
-                    District
+                    Post Code
                   </label>
                   <input
                     className={inputCls}
-                    placeholder="Dhaka"
-                    {...register('district', {
-                      required: 'District is required',
+                    placeholder="1234"
+                    {...register('postalCode', {
+                      required: 'Post Code is required',
                     })}
                   />
+                  {errors.postalCode && (
+                    <p className="text-red-400 text-xs mt-1">
+                      {errors.postalCode.message}
+                    </p>
+                  )}
                 </div>
               </div>
-              <div>
+              <div className="sm:col-span-2">
                 <label className="block text-[11px] uppercase tracking-widest text-white/35 mb-1.5 font-medium">
                   Order Note (Optional)
                 </label>
@@ -297,9 +369,7 @@ export default function CheckoutPage() {
           {/* Shipping method */}
           <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6">
             <h2 className="text-white font-semibold text-base mb-5 flex items-center gap-2">
-              <span className="w-6 h-6 rounded-full bg-sky-500/20 text-sky-400 text-xs flex items-center justify-center font-bold">
-                3
-              </span>
+              <span className="w-6 h-6 rounded-full bg-sky-500/20 text-sky-400 text-xs flex items-center justify-center font-bold"></span>
               Shipping Method
             </h2>
             <div className="space-y-2.5">
@@ -374,13 +444,23 @@ export default function CheckoutPage() {
                     <p className="text-white text-sm font-medium truncate">
                       {item.name}
                     </p>
-                    {(item.color || item.size) && (
-                      <p className="text-white/35 text-xs mt-0.5">
-                        {item.color && <span>Color: {item.color}</span>}
-                        {item.color && item.size && <span> · </span>}
-                        {item.size && <span>Size: {item.size}</span>}
-                      </p>
-                    )}
+                    <div className="flex items-center gap-1">
+                      {item.color && (
+                        <span className="flex items-center gap-1 text-[11px] text-white/40">
+                          Color:
+                          <span
+                            className="w-3 h-3 rounded-full border border-white/20 shrink-0"
+                            style={{ backgroundColor: item.color }}
+                          />
+                        </span>
+                      )}
+                      {item.size && (
+                        <p className="text-white/35 text-xs mt-0.5">
+                          {item.color && item.size && <span> · </span>}
+                          {item.size && <span>Size: {item.size}</span>}
+                        </p>
+                      )}
+                    </div>
                     <p className="text-white/40 text-xs mt-0.5">
                       Qty: {item.quantity}
                     </p>

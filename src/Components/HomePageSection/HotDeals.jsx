@@ -59,11 +59,11 @@ const HotDeals = async () => {
             {/* Pricing */}
             <div className="flex items-center gap-2">
               <span className="text-lg font-bold text-gray-900">
-                TK {parseInt(deal.price)}
+                TK {parseInt(deal.price).toLocaleString()}
               </span>
               {deal.comparePrice && (
                 <span className="text-sm text-gray-400 line-through">
-                  TK {parseInt(deal.comparePrice)}
+                  TK {parseInt(deal.comparePrice).toLocaleString()}
                 </span>
               )}
             </div>

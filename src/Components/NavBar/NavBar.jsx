@@ -80,7 +80,7 @@ export default function NavBar() {
         <img
           height={40}
           width={40}
-          src={sessionData?.user?.image || '/default-avatar.png'}
+          src={sessionData?.user?.image || 'http://www.w3.org/2000/svg'}
           className="h-10 w-10 rounded-full object-cover bg-green-800"
           alt="User Avatar"
         />
