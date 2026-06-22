@@ -2,10 +2,19 @@
 const nextConfig = {
   /* config options here */
   images: {
-    domains: [
-      'res.cloudinary.com',
-      'lh3.googleusercontent.com',
-      'platform-lookaside.fbsbx.com',
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'platform-lookaside.fbsbx.com',
+      },
     ],
   },
 };
