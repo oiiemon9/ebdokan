@@ -20,25 +20,11 @@ const PAYMENT_METHODS = [
     color: 'emerald',
   },
   {
-    id: 'bkash',
-    label: 'bKash',
-    sub: 'Mobile banking payment',
+    id: 'sslpay',
+    label: 'Online Payment',
+    sub: 'Mobile banking payment (bkash, Nagad, Visa, Mastercard and Etc.)',
     icon: '📱',
     color: 'pink',
-  },
-  {
-    id: 'nagad',
-    label: 'Nagad',
-    sub: 'Digital financial service',
-    icon: '🟠',
-    color: 'orange',
-  },
-  {
-    id: 'card',
-    label: 'Debit / Credit Card',
-    sub: 'Visa, Mastercard',
-    icon: '💳',
-    color: 'sky',
   },
 ];
 
@@ -50,13 +36,6 @@ export default function PaymentPage() {
   const [orderData, setOrderData] = useState(null);
   const [method, setMethod] = useState('cod');
   const [loading, setLoading] = useState(false);
-  const [cardData, setCardData] = useState({
-    number: '',
-    name: '',
-    expiry: '',
-    cvv: '',
-  });
-  const [mobileNum, setMobileNum] = useState('');
 
   useEffect(() => {
     const stored = sessionStorage.getItem('orderData');
@@ -67,59 +46,28 @@ export default function PaymentPage() {
     setOrderData(JSON.parse(stored));
   }, [router]);
 
-  const formatCard = (val) =>
-    val
-      .replace(/\D/g, '')
-      .slice(0, 16)
-      .replace(/(.{4})/g, '$1 ')
-      .trim();
-  const formatExpiry = (val) =>
-    val
-      .replace(/\D/g, '')
-      .slice(0, 4)
-      .replace(/^(.{2})(.+)/, '$1/$2');
-
   const placeOrder = async () => {
-    setLoading(true);
-    try {
-      const payload = {
-        ...orderData,
-        paymentMethod: method,
-        paymentDetails:
-          method === 'card'
-            ? { last4: cardData.number.replace(/\s/g, '').slice(-4) }
-            : method !== 'cod'
-              ? { mobileNumber: mobileNum }
-              : {},
-        status: method === 'cod' ? 'pending' : 'processing',
-        createdAt: new Date().toISOString(),
-      };
+    if (method === 'sslpay') {
+      setLoading(true);
 
-      const res = await fetch('/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
+      try {
+        const res = await fetch('/api/payment/init', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ orderData }),
+        });
 
-      if (!res.ok) throw new Error('Order failed');
-      const { orderId } = await res.json();
+        const data = await res.json();
 
-      // Clear buy now or remove only the ordered cart items
-      if (buyNow) {
-        dispatch(clearBuyNow());
-      } else if (orderData?.selectedCartKeys?.length > 0) {
-        dispatch(removeMultipleFromCart(orderData.selectedCartKeys));
-      } else {
-        dispatch(clearCart());
+        if (data.url) {
+          window.location.href = data.url;
+        }
+      } catch (error) {
+        console.log(error);
       }
-      sessionStorage.removeItem('orderData');
-      sessionStorage.removeItem('selectedCartKeys');
-
-      router.push(`/checkout/success/${orderId}`);
-    } catch (err) {
-      alert('Order placement failed. Please try again.');
-    } finally {
-      setLoading(false);
+    } else {
     }
   };
 
@@ -182,173 +130,6 @@ export default function PaymentPage() {
                 Pay ৳{total?.toLocaleString()} in cash when your order arrives.
                 Our delivery agent will collect the payment.
               </p>
-            </div>
-          </div>
-        )}
-
-        {(method === 'bkash' || method === 'nagad') && (
-          <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6">
-            <h3 className="text-white font-semibold text-sm mb-4">
-              {method === 'bkash' ? 'bKash' : 'Nagad'} Payment Details
-            </h3>
-            <div className="bg-white/[0.04] border border-white/[0.07] rounded-xl p-4 mb-4 text-center">
-              <p className="text-white/40 text-xs mb-1">
-                Send money to this number
-              </p>
-              <p className="text-white font-bold text-xl tracking-widest">
-                {method === 'bkash' ? '01XXXXXXXXX' : '01XXXXXXXXX'}
-              </p>
-              <p className="text-white/30 text-xs mt-1">
-                ({method === 'bkash' ? 'bKash' : 'Nagad'} Merchant)
-              </p>
-            </div>
-            <div>
-              <label className="block text-[11px] uppercase tracking-widest text-white/35 mb-1.5 font-medium">
-                Your {method === 'bkash' ? 'bKash' : 'Nagad'} Number
-              </label>
-              <input
-                value={mobileNum}
-                onChange={(e) => setMobileNum(e.target.value)}
-                placeholder="01XXXXXXXXX"
-                className="w-full h-11 px-4 rounded-xl bg-white/[0.05] border border-white/10 text-white text-sm placeholder-white/25 outline-none focus:border-sky-400/50"
-              />
-              <p className="text-white/30 text-xs mt-2">
-                Enter the number you used for the payment
-              </p>
-            </div>
-          </div>
-        )}
-
-        {method === 'card' && (
-          <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6">
-            <h3 className="text-white font-semibold text-sm mb-5">
-              Card Details
-            </h3>
-
-            {/* Card preview */}
-            <div className="w-full h-44 rounded-2xl bg-gradient-to-br from-sky-500 via-indigo-500 to-violet-600 p-5 mb-5 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-48 h-48 rounded-full bg-white/[0.08] -translate-y-12 translate-x-12" />
-              <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full bg-white/[0.06] translate-y-10 -translate-x-6" />
-              <div className="relative z-10 h-full flex flex-col justify-between">
-                <div className="flex justify-between items-start">
-                  <div className="text-white/60 text-xs font-medium tracking-widest uppercase">
-                    Debit / Credit
-                  </div>
-                  <svg
-                    className="w-10 h-7 text-white/80"
-                    viewBox="0 0 40 28"
-                    fill="none"
-                  >
-                    <circle
-                      cx="15"
-                      cy="14"
-                      r="10"
-                      fill="currentColor"
-                      fillOpacity="0.7"
-                    />
-                    <circle
-                      cx="25"
-                      cy="14"
-                      r="10"
-                      fill="currentColor"
-                      fillOpacity="0.5"
-                    />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-white font-mono text-lg tracking-[0.2em] mb-3">
-                    {cardData.number || '•••• •••• •••• ••••'}
-                  </p>
-                  <div className="flex justify-between items-end">
-                    <div>
-                      <p className="text-white/50 text-[9px] uppercase tracking-widest">
-                        Card Holder
-                      </p>
-                      <p className="text-white text-sm font-medium">
-                        {cardData.name || 'YOUR NAME'}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-white/50 text-[9px] uppercase tracking-widest">
-                        Expires
-                      </p>
-                      <p className="text-white text-sm font-medium">
-                        {cardData.expiry || 'MM/YY'}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-[11px] uppercase tracking-widest text-white/35 mb-1.5 font-medium">
-                  Card Number
-                </label>
-                <input
-                  value={cardData.number}
-                  onChange={(e) =>
-                    setCardData((p) => ({
-                      ...p,
-                      number: formatCard(e.target.value),
-                    }))
-                  }
-                  placeholder="0000 0000 0000 0000"
-                  className="w-full h-11 px-4 rounded-xl bg-white/[0.05] border border-white/10 text-white text-sm placeholder-white/25 outline-none focus:border-sky-400/50 font-mono tracking-widest"
-                />
-              </div>
-              <div>
-                <label className="block text-[11px] uppercase tracking-widest text-white/35 mb-1.5 font-medium">
-                  Cardholder Name
-                </label>
-                <input
-                  value={cardData.name}
-                  onChange={(e) =>
-                    setCardData((p) => ({
-                      ...p,
-                      name: e.target.value.toUpperCase(),
-                    }))
-                  }
-                  placeholder="AS ON CARD"
-                  className="w-full h-11 px-4 rounded-xl bg-white/[0.05] border border-white/10 text-white text-sm placeholder-white/25 outline-none focus:border-sky-400/50 uppercase"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-[11px] uppercase tracking-widest text-white/35 mb-1.5 font-medium">
-                    Expiry
-                  </label>
-                  <input
-                    value={cardData.expiry}
-                    onChange={(e) =>
-                      setCardData((p) => ({
-                        ...p,
-                        expiry: formatExpiry(e.target.value),
-                      }))
-                    }
-                    placeholder="MM/YY"
-                    className="w-full h-11 px-4 rounded-xl bg-white/[0.05] border border-white/10 text-white text-sm placeholder-white/25 outline-none focus:border-sky-400/50 font-mono"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] uppercase tracking-widest text-white/35 mb-1.5 font-medium">
-                    CVV
-                  </label>
-                  <input
-                    value={cardData.cvv}
-                    onChange={(e) =>
-                      setCardData((p) => ({
-                        ...p,
-                        cvv: e.target.value.replace(/\D/g, '').slice(0, 4),
-                      }))
-                    }
-                    placeholder="•••"
-                    type="password"
-                    className="w-full h-11 px-4 rounded-xl bg-white/[0.05] border border-white/10 text-white text-sm placeholder-white/25 outline-none focus:border-sky-400/50 font-mono"
-                  />
-                </div>
-              </div>
             </div>
           </div>
         )}

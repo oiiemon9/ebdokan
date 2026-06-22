@@ -39,8 +39,6 @@ const handler = NextAuth({
           image: user.image,
           phone: user.phone,
           role: user.role,
-          providerAccountId:
-            user.providerAccountId || user.userId || user._id.toString(),
         };
       },
     }),
@@ -62,7 +60,6 @@ const handler = NextAuth({
           provider: account.provider,
         });
 
-        console.log(account, profile);
         if (!existingUser) {
           const providerImage =
             account.provider === 'google'
@@ -71,7 +68,6 @@ const handler = NextAuth({
           const newUser = {
             name: profile.name,
             email: profile.email,
-            userId: account.providerAccountId,
             provider: account.provider,
             authType: account.provider,
             image: providerImage,
@@ -97,7 +93,6 @@ const handler = NextAuth({
         token.id = user.id;
         token.role = user.role;
         token.phone = user.phone || '';
-        token.providerAccountId = user.providerAccountId || user.userId;
       }
       return token;
     },
@@ -105,7 +100,6 @@ const handler = NextAuth({
       session.user.id = token.id;
       session.user.role = token.role;
       session.user.phone = token.phone || '';
-      session.user.providerAccountId = token.providerAccountId;
       return session;
     },
   },

@@ -67,13 +67,11 @@ export async function POST(req) {
 
     // password hash
     const hashedPassword = await bcrypt.hash(password, 12);
-    const providerAccountId = new ObjectId().toString();
 
     await usersCollection.insertOne({
       name,
       email: isEmail ? identifier : '',
       phone: isPhone ? identifier : '',
-      userId: providerAccountId,
       password: hashedPassword,
       provider: 'register',
       authType: isEmail ? 'email' : 'phone',

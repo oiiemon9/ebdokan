@@ -19,7 +19,7 @@ export default function CartPage() {
   const router = useRouter();
   const items = useSelector(selectCartItems);
   const { data: session } = useSession();
-  const userId = session?.user?.providerAccountId || session?.user?.id;
+  const userId = session?.user?.id;
 
   // selected item keys: unique cartItemId for each cart row
   const [selected, setSelected] = useState(new Set());

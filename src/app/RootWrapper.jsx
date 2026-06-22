@@ -15,14 +15,9 @@ export default function RootWrapper({ children }) {
   const showNavbar = !pathname?.startsWith('/dashboard');
 
   useEffect(() => {
-    if (
-      (status === 'authenticated' && session?.user?.providerAccountId) ||
-      session?.user?.id
-    ) {
+    if (status === 'authenticated' && session?.user?.id) {
       dispatch(clearCart());
-      dispatch(
-        loadCartFromDB(session.user.providerAccountId || session?.user?.id),
-      );
+      dispatch(loadCartFromDB(session?.user?.id));
       return;
     }
 
