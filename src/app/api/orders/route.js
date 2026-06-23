@@ -32,11 +32,21 @@ export async function POST(req) {
 
 // GET — user orders
 export async function GET(req) {
+  const tran_id = req.nextUrl.searchParams.get('tran_id');
+  const col = await connect('orders');
+
+  if (tran_id) {
+    const order = await col.findOne({ tran_id });
+    if (!order)
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+
+    return NextResponse.json(order);
+  }
+
   const session = await getServerSession();
   if (!session)
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const col = await connect('orders');
   const orders = await col
     .find({ userEmail: session.user.email })
     .sort({ createdAt: -1 })
