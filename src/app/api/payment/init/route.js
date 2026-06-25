@@ -1,3 +1,4 @@
+export const runtime = 'nodejs';
 import { getLoggedInToken } from '@/app/lib/auth';
 import { connect } from '@/app/lib/dbConnect';
 import axios from 'axios';
@@ -6,6 +7,7 @@ import { ObjectId } from 'mongodb';
 export async function POST(req) {
   const body = await req.json();
   const orderInfo = body.orderData;
+  console.log(orderInfo);
   const token = await getLoggedInToken(req);
   if (!token) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
@@ -16,32 +18,30 @@ export async function POST(req) {
   const userCollections = await connect('users');
 
   const loginUserData = await userCollections.findOne({
-    _id: new ObjectId(token.id),
+    userId: token.id,
   });
-  console.log(token);
-  console.log('login user', loginUserData._id);
-  console.log(orderInfo);
 
   const cartCollections = await connect('carts');
   const cart = await cartCollections.findOne({
-    userId: loginUserData?._id.toString(),
+    userId: loginUserData?.userId,
   });
-  console.log(cart.items);
 
   // Fetch product details for all items in cart
   let cartItems = [];
   let subtotal = 0;
 
-  if (cart?.items && cart.items.length > 0) {
+  if (orderInfo?.items && orderInfo.items.length > 0) {
     const productCollections = await connect('products');
-    const productIds = cart.items.map((item) => new ObjectId(item.productId));
+    const productIds = orderInfo.items.map(
+      (item) => new ObjectId(item.productId),
+    );
 
     const products = await productCollections
       .find({ _id: { $in: productIds } })
       .toArray();
 
     // Map products back to cart items with product details
-    cartItems = cart.items.map((item) => {
+    cartItems = orderInfo.items.map((item) => {
       const product = products.find((p) => p._id.toString() === item.productId);
       const itemTotal = (product?.price || 0) * item.quantity;
       subtotal += itemTotal;
@@ -60,8 +60,6 @@ export async function POST(req) {
       };
     });
   }
-
-  console.log('order cart', cartItems);
 
   const tran_id = `TXN-${Date.now()}`;
   const oderObj = {
@@ -134,8 +132,6 @@ export async function POST(req) {
       );
 
       const result = await response.json();
-
-      console.log(result);
 
       return Response.json({
         url: result.GatewayPageURL,

@@ -1,5 +1,3 @@
-import { connect } from '@/app/lib/dbConnect';
-
 const getTranId = async (req) => {
   let tran_id = null;
 
@@ -18,11 +16,6 @@ const getTranId = async (req) => {
 
 export async function handleRequest(req) {
   const tran_id = await getTranId(req);
-  const db = await connect('orders');
-
-  if (tran_id) {
-    await db.updateOne({ tran_id }, { $set: { paymentStatus: 'paid' } });
-  }
 
   return Response.redirect(
     `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/order-success?type=ssl&tran_id=${tran_id ?? ''}`,

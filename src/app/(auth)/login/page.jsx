@@ -4,11 +4,14 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { signIn } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
+import { useSearchParams } from 'next/navigation';
 
 export default function LoginPage() {
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get('callbackUrl') || '/';
 
   const {
     register,
@@ -24,7 +27,7 @@ export default function LoginPage() {
         identifier: data.identifier,
         password: data.password,
         redirect: false,
-        callbackUrl: '/',
+        callbackUrl,
       });
 
       console.log('Login result:', result);
@@ -41,7 +44,7 @@ export default function LoginPage() {
         return;
       }
 
-      window.location.href = result?.url || '/';
+      window.location.href = result?.url || callbackUrl;
     } catch {
       setError('Something went wrong. Please try again.');
     } finally {
@@ -57,7 +60,7 @@ export default function LoginPage() {
       <div className="grid grid-cols-2 gap-2.5 mb-5">
         <button
           type="button"
-          onClick={() => signIn('google', { callbackUrl: '/' })}
+          onClick={() => signIn('google', { callbackUrl })}
           className="flex items-center justify-center gap-2 h-11 rounded-xl bg-white/[0.05] border border-white/10 text-white/75 text-[13px] font-medium hover:bg-white/[0.09] hover:border-white/20 hover:-translate-y-px transition-all"
         >
           <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
@@ -82,7 +85,7 @@ export default function LoginPage() {
         </button>
         <button
           type="button"
-          onClick={() => signIn('facebook', { callbackUrl: '/' })}
+          onClick={() => signIn('facebook', { callbackUrl })}
           className="flex items-center justify-center gap-2 h-11 rounded-xl bg-white/[0.05] border border-white/10 text-white/75 text-[13px] font-medium hover:bg-white/[0.09] hover:border-white/20 hover:-translate-y-px transition-all"
         >
           <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="#1877F2">

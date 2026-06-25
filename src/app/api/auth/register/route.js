@@ -68,13 +68,14 @@ export async function POST(req) {
     // password hash
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    await usersCollection.insertOne({
+    const result = await usersCollection.insertOne({
       name,
       email: isEmail ? identifier : '',
       phone: isPhone ? identifier : '',
       password: hashedPassword,
       provider: 'register',
       authType: isEmail ? 'email' : 'phone',
+      userId: '',
       image: null,
       address: '',
       role: 'user',
@@ -82,6 +83,11 @@ export async function POST(req) {
       emailVerified: false,
       createdAt: new Date(),
     });
+
+    await usersCollection.updateOne(
+      { _id: result.insertedId },
+      { $set: { userId: result.insertedId.toString() } },
+    );
 
     return NextResponse.json(
       { message: 'Account created successfully' },

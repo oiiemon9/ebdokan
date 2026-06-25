@@ -47,6 +47,26 @@ export default function SuccessPage() {
     fetchOrder();
   }, [tran_id]);
 
+  // useEffect(() => {
+  //   if (!tran_id) return;
+  //   if (order?.paymentStatus === 'paid') return;
+
+  //   const interval = setInterval(async () => {
+  //     try {
+  //       const res = await fetch(`/api/orders?tran_id=${tran_id}`, {
+  //         cache: 'no-store',
+  //       });
+  //       const data = await res.json();
+  //       if (data.paymentStatus === 'paid') {
+  //         setOrder(data);
+  //       }
+  //     } catch (err) {
+  //       console.error(err);
+  //     }
+  //   }, 3000);
+  //   return () => clearInterval(interval);
+  // }, [tran_id, order?.paymentStatus]);
+
   const orderId = order?.orderId || order?.tran_id || 'N/A';
 
   const paymentLabel =

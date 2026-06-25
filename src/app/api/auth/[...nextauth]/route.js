@@ -53,6 +53,7 @@ const handler = NextAuth({
   callbacks: {
     async signIn({ account, profile }) {
       if (account.type === 'credentials') return true;
+      console.log('login use:', account, profile);
       try {
         const usersCollection = await connect('users');
         const existingUser = await usersCollection.findOne({
@@ -70,6 +71,7 @@ const handler = NextAuth({
             email: profile.email,
             provider: account.provider,
             authType: account.provider,
+            userId: account.providerAccountId,
             image: providerImage,
             phone: '',
             address: '',
@@ -88,8 +90,9 @@ const handler = NextAuth({
         return false;
       }
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       if (user) {
+        console.log(user, account);
         token.id = user.id;
         token.role = user.role;
         token.phone = user.phone || '';
