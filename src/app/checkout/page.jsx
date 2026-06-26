@@ -106,6 +106,7 @@ export default function CheckoutPage() {
   const dispatch = useDispatch();
   const router = useRouter();
   const { data: session } = useSession();
+  const [loginUser, setLoginUser] = useState({});
 
   const cartItems = useSelector(selectCartItems);
   const buyNowItem = useSelector(selectBuyNowItem);
@@ -150,10 +151,27 @@ export default function CheckoutPage() {
   // Session থেকে user info pre-fill
   useEffect(() => {
     if (session?.user) {
-      setValue('name', session.user.name || '');
-      setValue('email', session.user.email || '');
+      const userdata = async () => {
+        try {
+          const res = await fetch(`/api/user/${session?.user?.id}`, {
+            cache: 'no-store',
+          });
+          const data = await res.json();
+          console.log(data);
+          setValue('name', data.name || '');
+          setValue('email', data.email || '');
+          setValue('phone', data.phone || '');
+          setValue('address', data.address || '');
+          setValue('district', data.district || '');
+          setValue('postalCode', data.postalCode || '');
+          setLoginUser(data);
+        } catch (error) {
+          console.log(error);
+        }
+      };
+      userdata();
     }
-  }, [session, setValue]);
+  }, [session]);
 
   // Load selected cart items from cart page
   useEffect(() => {

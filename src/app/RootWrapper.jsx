@@ -16,16 +16,9 @@ export default function RootWrapper({ children }) {
 
   useEffect(() => {
     if (status === 'authenticated' && session?.user?.id) {
-      dispatch(clearCart());
-      dispatch(loadCartFromDB(session?.user?.id));
-      return;
+      dispatch(loadCartFromDB(session.user.id));
     }
-
-    if (status === 'unauthenticated') {
-      dispatch(clearCart());
-      persistor.purge();
-    }
-  }, [dispatch, session, status]);
+  }, [status, session?.user?.id, dispatch]);
 
   return (
     <>
