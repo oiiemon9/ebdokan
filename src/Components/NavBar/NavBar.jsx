@@ -1,11 +1,21 @@
 'use client';
+import { clearUser } from '@/store/userSlice';
 import { signOut, useSession } from 'next-auth/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
+import { useDispatch } from 'react-redux';
 
 export default function NavBar() {
   const { data: sessionData, status } = useSession();
+  const dispatch = useDispatch();
+
+  const logout = async () => {
+    dispatch(clearUser());
+    await signOut({
+      callbackUrl: '/',
+    });
+  };
 
   return (
     <div className="navbar bg-base-100 shadow-sm sticky top-0 z-50">
@@ -85,7 +95,7 @@ export default function NavBar() {
           alt="User Avatar"
         />
         {sessionData?.user?.name ? (
-          <button onClick={() => signOut()} className="btn">
+          <button onClick={logout} className="btn">
             logout
           </button>
         ) : (

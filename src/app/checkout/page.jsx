@@ -118,6 +118,8 @@ export default function CheckoutPage() {
   const [discount, setDiscount] = useState(0);
   const [couponMsg, setCouponMsg] = useState('');
   const [couponLoading, setCouponLoading] = useState(false);
+  const { user, loading, error } = useSelector((state) => state.user);
+  console.log(user);
 
   const shippingCost =
     SHIPPING_OPTIONS.find((s) => s.id === shipping)?.price ?? 60;
@@ -150,28 +152,15 @@ export default function CheckoutPage() {
 
   // Session থেকে user info pre-fill
   useEffect(() => {
-    if (session?.user) {
-      const userdata = async () => {
-        try {
-          const res = await fetch(`/api/user/${session?.user?.id}`, {
-            cache: 'no-store',
-          });
-          const data = await res.json();
-          console.log(data);
-          setValue('name', data.name || '');
-          setValue('email', data.email || '');
-          setValue('phone', data.phone || '');
-          setValue('address', data.address || '');
-          setValue('district', data.district || '');
-          setValue('postalCode', data.postalCode || '');
-          setLoginUser(data);
-        } catch (error) {
-          console.log(error);
-        }
-      };
-      userdata();
-    }
-  }, [session]);
+    if (!user) return;
+
+    setValue('name', user.name || '');
+    setValue('email', user.email || '');
+    setValue('phone', user.phone || '');
+    setValue('address', user.address || '');
+    setValue('district', user.district || '');
+    setValue('postalCode', user.postalCode || '');
+  }, [user, setValue]);
 
   // Load selected cart items from cart page
   useEffect(() => {
@@ -203,7 +192,17 @@ export default function CheckoutPage() {
     setCouponLoading(false);
   };
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
+    const res = await fetch('/api/me', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    const updateUser = await res.json();
+    console.log('update data', updateUser);
+
     const orderData = {
       shippingInfo: data,
       shippingMethod: shipping,
@@ -218,6 +217,12 @@ export default function CheckoutPage() {
     sessionStorage.setItem('orderData', JSON.stringify(orderData));
     router.push('/checkout/payment');
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-96">Loading...</div>
+    );
+  }
 
   if (orderItems.length === 0) {
     return (
@@ -277,6 +282,7 @@ export default function CheckoutPage() {
                   className={inputCls}
                   placeholder="you@example.com"
                   type="email"
+                  readOnly={user?.authType === 'phone' ? false : true}
                   {...register('email', { required: 'Email is required' })}
                 />
                 {errors.email && (
@@ -292,6 +298,7 @@ export default function CheckoutPage() {
                 <input
                   className={inputCls}
                   placeholder="01XXXXXXXXX"
+                  readOnly={user?.authType === 'phone' ? true : false}
                   {...register('phone', {
                     required: 'Phone is required',
                     pattern: {

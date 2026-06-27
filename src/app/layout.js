@@ -20,13 +20,13 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${poppins.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
-        <ReduxProvider>
-          <QueryProvider>
-            <AuthProvider>
+        <QueryProvider>
+          <AuthProvider>
+            <ReduxProvider>
               <RootWrapper>{children}</RootWrapper>
-            </AuthProvider>
-          </QueryProvider>
-        </ReduxProvider>
+            </ReduxProvider>
+          </AuthProvider>
+        </QueryProvider>
       </body>
     </html>
   );

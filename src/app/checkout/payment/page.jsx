@@ -36,7 +36,6 @@ export default function PaymentPage() {
   const [orderData, setOrderData] = useState(null);
   const [method, setMethod] = useState('cod');
   const [loading, setLoading] = useState(false);
-  console.log(orderData);
 
   useEffect(() => {
     const stored = sessionStorage.getItem('orderData');
