@@ -134,11 +134,19 @@ export default function SuccessPage() {
         <p className="text-white/45 text-base">
           Thank you for your purchase. We'll get it to you soon!
         </p>
-        <div className="inline-flex items-center gap-2 bg-white/[0.04] border border-white/[0.08] rounded-full px-4 py-2 mt-4">
-          <span className="text-white/40 text-xs">Order ID:</span>
-          <span className="text-sky-400 font-mono text-sm font-semibold">
-            {orderId}
-          </span>
+        <div className="flex justify-center gap-5 flex-wrap">
+          <div className="inline-flex items-center gap-2 bg-white/[0.04] border border-white/[0.08] rounded-full px-4 py-2 mt-4">
+            <span className="text-white/40 text-xs">Order ID:</span>
+            <span className="text-sky-400 font-mono text-sm font-semibold">
+              {orderId}
+            </span>
+          </div>
+          <div className="inline-flex items-center gap-2 bg-white/[0.04] border border-white/[0.08] rounded-full px-4 py-2 mt-4">
+            <span className="text-white/40 text-xs">Payment Method:</span>
+            <span className="text-sky-400 font-mono text-sm font-semibold">
+              {order.paymentMethod}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -332,7 +340,7 @@ export default function SuccessPage() {
       {/* ── Actions ── */}
       <div className="grid grid-cols-2 gap-3">
         <Link
-          href="/orders"
+          href={`/my-orders/${order.orderId}`}
           className="flex items-center justify-center gap-2 h-11 rounded-xl bg-white/[0.05] border border-white/[0.08] text-white/70 text-sm font-medium hover:bg-white/[0.09] hover:border-white/20 transition-all"
         >
           📋 My Orders

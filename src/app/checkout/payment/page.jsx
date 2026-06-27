@@ -66,8 +66,30 @@ export default function PaymentPage() {
         }
       } catch (error) {
         console.log(error);
+      } finally {
+        setLoading(false);
       }
-    } else {
+    } else if (method === 'cod') {
+      setLoading(true);
+      try {
+        const res = await fetch('/api/payment/cash-on-delivery', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ orderData }),
+        });
+
+        const result = await res.json();
+
+        if (result.success) {
+          router.push(result.redirectUrl);
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
