@@ -5,7 +5,14 @@ import { authOptions } from '../auth/[...nextauth]/route';
 export async function GET() {
   const usersCollection = await connect('users');
   const session = await getServerSession(authOptions);
-  const result = await usersCollection.findOne({ userId: session?.user?.id });
+  const result = await usersCollection.findOne(
+    { userId: session?.user?.id },
+    {
+      projection: {
+        password: 0,
+      },
+    },
+  );
   return Response.json(result);
 }
 export async function PATCH(req) {
@@ -38,8 +45,25 @@ export async function PATCH(req) {
     );
   }
 
-  return Response.json({
-    updated: Object.keys(updateData).length > 0,
-    updatedUser,
-  });
+  if (Object.keys(updateData).length > 0) {
+    const update = await users.findOne(
+      {
+        userId: session.user.id,
+      },
+      {
+        projection: {
+          password: 0,
+        },
+      },
+    );
+    return Response.json({
+      updated: Object.keys(updateData).length > 0,
+      update,
+    });
+  } else {
+    return Response.json({
+      updated: Object.keys(updateData).length > 0,
+      update: {},
+    });
+  }
 }

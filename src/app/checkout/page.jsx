@@ -11,6 +11,7 @@ import {
   selectBuyNowItem,
   selectCartTotal,
 } from '@/store/cartSlice';
+import { updateUser } from '@/store/userSlice';
 
 const SHIPPING_OPTIONS = [
   {
@@ -105,8 +106,6 @@ const DISTRICTS = [
 export default function CheckoutPage() {
   const dispatch = useDispatch();
   const router = useRouter();
-  const { data: session } = useSession();
-  const [loginUser, setLoginUser] = useState({});
 
   const cartItems = useSelector(selectCartItems);
   const buyNowItem = useSelector(selectBuyNowItem);
@@ -119,7 +118,6 @@ export default function CheckoutPage() {
   const [couponMsg, setCouponMsg] = useState('');
   const [couponLoading, setCouponLoading] = useState(false);
   const { user, loading, error } = useSelector((state) => state.user);
-  console.log(user);
 
   const shippingCost =
     SHIPPING_OPTIONS.find((s) => s.id === shipping)?.price ?? 60;
@@ -200,8 +198,11 @@ export default function CheckoutPage() {
       },
       body: JSON.stringify(data),
     });
-    const updateUser = await res.json();
-    console.log('update data', updateUser);
+    const result = await res.json();
+
+    if (result.updated) {
+      dispatch(updateUser(result.update));
+    }
 
     const orderData = {
       shippingInfo: data,
