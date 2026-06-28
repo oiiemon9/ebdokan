@@ -106,6 +106,9 @@ export default function NavBar() {
         <Link href="/my-card" className="btn">
           Card
         </Link>
+        <Link href="/my-orders" className="btn">
+          My orders
+        </Link>
         <Link href="/dashboard" className="btn">
           Dashboard
         </Link>

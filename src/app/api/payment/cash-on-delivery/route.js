@@ -61,7 +61,7 @@ export async function POST(req) {
     name: loginUserData.name,
     email: loginUserData?.email || orderInfo?.shippingInfo?.email,
     phone: loginUserData?.phone || orderInfo?.shippingInfo?.phone,
-    userId: loginUserData._id.toString(),
+    userId: loginUserData.userId,
     address: orderInfo?.shippingInfo?.address,
     district: orderInfo?.shippingInfo?.district,
     postalCode: orderInfo?.shippingInfo?.postalCode,
@@ -82,8 +82,6 @@ export async function POST(req) {
       },
     ],
   };
-
-  console.log(oderObj);
 
   const orderCollections = await connect('orders');
   const order = await orderCollections.insertOne(oderObj);
