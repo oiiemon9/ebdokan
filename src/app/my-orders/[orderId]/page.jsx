@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 
@@ -140,6 +141,15 @@ export default function OrderDetailPage() {
 
   const savings = order.discount ?? 0;
 
+  const handelCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(orderId);
+      toast.success('Order ID Copied Successfully!');
+    } catch (err) {
+      toast.error('Failed to copy');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 font-[system-ui,sans-serif]">
       {/* ── Breadcrumb ── */}
@@ -194,9 +204,27 @@ export default function OrderDetailPage() {
                 <p className="text-xs text-gray-400 font-medium uppercase tracking-wider mb-0.5">
                   Order ID
                 </p>
-                <p className="text-gray-900 font-bold text-base font-mono">
-                  {order.orderId}
-                </p>
+
+                <div className="flex items-center gap-2 bg-indigo-50 border border-indigo-100 rounded-xl px-2 py-1">
+                  <p className="text-indigo-700 text-xs font-medium">
+                    {order.orderId}
+                  </p>
+                  <button onClick={handelCopy} className="cursor-pointer">
+                    <svg
+                      className="w-4 h-4 text-indigo-500 shrink-0"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 8H6a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-2M10 4h8a2 2 0 012 2v8a2 2 0 01-2 2h-8a2 2 0 01-2-2V6a2 2 0 012-2z"
+                      />
+                    </svg>
+                  </button>
+                </div>
                 <p className="text-gray-400 text-xs mt-0.5">
                   {order.items?.length} item
                   {order.items?.length !== 1 ? 's' : ''}

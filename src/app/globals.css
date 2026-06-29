@@ -28,3 +28,30 @@ select:-webkit-autofill {
   -webkit-box-shadow: 0 0 0px 1000px #1f2937 inset;
   transition: background-color 5000s ease-in-out 0s;
 }
+
+@plugin "daisyui/theme" {
+  name: 'mytheme';
+  default: true;
+
+  /* Brand Colors */
+  --color-primary: #a70000;
+  --color-primary-content: #ffffff;
+
+  --color-secondary: #05472a;
+  --color-secondary-content: #ffffff;
+
+  --color-accent: #1a1a2e;
+  --color-accent-content: #ffffff;
+
+  /* Base Colors */
+  --color-base-100: #ffffff;
+  --color-base-200: #f8f8f8;
+  --color-base-300: #eeeeee;
+  --color-base-content: #1f2937;
+
+  /* Status Colors */
+  --color-info: #0ea5e9;
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+}

@@ -4,6 +4,7 @@ import RootWrapper from './RootWrapper';
 import QueryProvider from '@/providers/QueryProvider';
 import AuthProvider from '@/providers/AuthProvider';
 import ReduxProvider from '@/store/ReduxProvider';
+import { Toaster } from 'sonner';
 
 const poppins = Poppins({
   variable: '--font-poppins',
@@ -23,7 +24,10 @@ export default function RootLayout({ children }) {
         <QueryProvider>
           <AuthProvider>
             <ReduxProvider>
-              <RootWrapper>{children}</RootWrapper>
+              <RootWrapper>
+                {children}
+                <Toaster position="bottom-right" />
+              </RootWrapper>
             </ReduxProvider>
           </AuthProvider>
         </QueryProvider>

@@ -1,15 +1,16 @@
 import Image from 'next/image';
-import SliderSection from '../Components/HomePageSection/SliderSection';
+
 import PopularProductsSection from '../Components/HomePageSection/PopularProductsSection';
 import BannerSection from '../Components/HomePageSection/BannerSection';
 import HotDeals from '@/Components/HomePageSection/HotDeals';
 import { Suspense } from 'react';
 import HotDealsLoader from '@/Components/Loader/HotDealsLoader';
+import HeroSection from '@/Components/HomePageSection/HeroSection';
 
 export default function Home() {
   return (
     <main>
-      <SliderSection />
+      <HeroSection />
       <PopularProductsSection />
       <BannerSection />
       <Suspense fallback={<HotDealsLoader />}>
