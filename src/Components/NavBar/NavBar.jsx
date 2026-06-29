@@ -2,11 +2,12 @@
 
 import { clearUser } from '@/store/userSlice';
 import { signOut, useSession } from 'next-auth/react';
-import Link from 'next/link';
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectCartCount } from '@/store/cartSlice';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 
 // ── Category data ─────────────────────────────────────────────────────────
 const CATEGORIES = [
@@ -384,7 +385,7 @@ export default function NavBar() {
               <Badge count={3} />
             </Link>
             <Link
-              href="/cart"
+              href="/my-cart"
               className="relative p-2.5 rounded-xl text-gray-600 hover:bg-gray-100 hover:text-secondary transition-all"
             >
               <CartIcon />

@@ -8,6 +8,7 @@ import { Autoplay, Pagination, EffectFade } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/effect-fade';
+import { Headphones, RotateCcw, ShieldCheck, Truck } from 'lucide-react';
 
 // ── Data ──────────────────────────────────────────────────────────────────
 
@@ -312,6 +313,54 @@ function PromoCard({ card, index, vertical }) {
   );
 }
 
+// ─── Features Bar Component ───────────────────────────────────────────────────
+function FeaturesBar() {
+  const features = [
+    {
+      icon: <Truck size={26} className="text-blue-600" />,
+      title: 'Free Shipping',
+      desc: 'On orders over $49',
+      bg: 'bg-blue-50',
+    },
+    {
+      icon: <ShieldCheck size={26} className="text-red-500" />,
+      title: 'Buyer Protection',
+      desc: '100% secure payments',
+      bg: 'bg-red-50',
+    },
+    {
+      icon: <RotateCcw size={26} className="text-purple-500" />,
+      title: 'Easy Returns',
+      desc: '30-day hassle-free returns',
+      bg: 'bg-purple-50',
+    },
+    {
+      icon: <Headphones size={26} className="text-green-500" />,
+      title: '24/7 Support',
+      desc: 'Expert help anytime',
+      bg: 'bg-green-50',
+    },
+  ];
+
+  return (
+    <div className="bg-white border border-gray-100 rounded-xl shadow-sm px-6 py-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 divide-x divide-gray-100">
+        {features.map((f, i) => (
+          <div key={i} className="flex items-center gap-3 px-4 first:pl-0">
+            <div className={`${f.bg} p-2.5 rounded-full shrink-0`}>
+              {f.icon}
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-gray-800">{f.title}</p>
+              <p className="text-xs text-gray-400">{f.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ── Main HeroSection ───────────────────────────────────────────────────────
 
 export default function HeroSection() {
@@ -462,6 +511,9 @@ export default function HeroSection() {
               <PromoCard key={card.title} card={card} index={i} vertical />
             ))}
           </div>
+        </div>
+        <div className="mt-3">
+          <FeaturesBar />
         </div>
       </section>
     </>

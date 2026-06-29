@@ -1,4 +1,4 @@
-import { Poppins } from 'next/font/google';
+import { Fraunces, Inter } from 'next/font/google';
 import './globals.css';
 import RootWrapper from './RootWrapper';
 import QueryProvider from '@/providers/QueryProvider';
@@ -6,9 +6,14 @@ import AuthProvider from '@/providers/AuthProvider';
 import ReduxProvider from '@/store/ReduxProvider';
 import { Toaster } from 'sonner';
 
-const poppins = Poppins({
-  variable: '--font-poppins',
+const inter = Inter({
   subsets: ['latin'],
+  variable: '--font-inter',
+});
+
+const fraunces = Fraunces({
+  subsets: ['latin'],
+  variable: '--font-fraunces',
   weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
 });
 
@@ -19,8 +24,13 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${poppins.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">
+    <html
+      lang="en"
+      className={`${inter.variable} ${fraunces.variable} h-full antialiased`}
+    >
+      <body
+        className={`${inter.className} min-h-full flex flex-col bg-[#F9FAFB]`}
+      >
         <QueryProvider>
           <AuthProvider>
             <ReduxProvider>
