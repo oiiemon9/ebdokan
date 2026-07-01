@@ -9,7 +9,10 @@ import {
   Star,
   Truck,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { motion, useMotionValue, useSpring } from 'framer-motion';
+import { usePopularProducts } from '@/hooks/useProducts';
+import Link from 'next/link';
 
 // ─── Product Data ──────────────────────────────────────────────────────────────
 const popularProducts = [
@@ -202,7 +205,7 @@ function StarRating({ rating, count }) {
           );
         })}
       </div>
-      <span className="text-xs text-gray-400">({count.toLocaleString()})</span>
+      <span className="text-xs text-gray-400">({count?.toLocaleString()})</span>
     </div>
   );
 }
@@ -218,102 +221,167 @@ function ProductCard({ product }) {
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col group">
-      {/* Image Area */}
-      <div className="relative overflow-hidden bg-gray-50">
-        {/* Discount & Badge */}
-        <div className="absolute top-3 left-3 z-10 flex flex-col gap-1">
-          <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded">
-            -{product.discount}%
-          </span>
-          {product.badge && (
+    <div className="relative bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300">
+      <Link
+        href={`/products/${product._id}`}
+        className="absolute inset-0 z-10"
+      />
+
+      <div className=" flex flex-col group">
+        {/* Image Area */}
+        <div className="relative overflow-hidden bg-gray-50">
+          {/* Discount & Badge */}
+          <div className="absolute top-3 left-3 z-10 flex flex-col gap-1">
+            <span className="bg-primary text-white text-xs font-bold px-2 py-0.5 rounded">
+              -{product?.discountPercentage}%
+            </span>
+            {/* {product.badge && (
             <span
               className={`${product.badgeColor} text-white text-xs font-semibold px-2 py-0.5 rounded`}
             >
               {product.badge}
             </span>
-          )}
+          )} */}
+          </div>
+
+          {/* Wishlist Button */}
+          <button
+            onClick={() => setWishlisted(!wishlisted)}
+            className="absolute top-3 right-3 z-10 bg-white rounded-full p-1.5 shadow-sm hover:scale-110 transition-transform duration-200 cursor-pointer"
+          >
+            <Heart
+              size={16}
+              className={wishlisted ? 'text-red-500' : 'text-gray-400'}
+              fill={wishlisted ? 'currentColor' : 'none'}
+            />
+          </button>
+
+          {/* Product Image */}
+          <img
+            src={product.images[0]}
+            alt={product.productName}
+            className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"
+          />
         </div>
 
-        {/* Wishlist Button */}
-        <button
-          onClick={() => setWishlisted(!wishlisted)}
-          className="absolute top-3 right-3 z-10 bg-white rounded-full p-1.5 shadow-sm hover:scale-110 transition-transform duration-200"
-        >
-          <Heart
-            size={16}
-            className={wishlisted ? 'text-red-500' : 'text-gray-400'}
-            fill={wishlisted ? 'currentColor' : 'none'}
-          />
-        </button>
+        {/* Info Area */}
+        <div className="p-4 flex flex-col flex-1">
+          {/* Category */}
+          <span
+            className={`text-[10px] font-bold tracking-widest ${product.categoryColor || 'text-secondary'} mb-1`}
+          >
+            {product.category}
+          </span>
 
-        {/* Product Image */}
-        <img
-          src={product.image}
-          alt={product.name}
-          className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"
-        />
+          {/* Product Name */}
+          <h3 className="text-sm font-semibold text-gray-800 leading-snug mb-2 line-clamp-2 min-h-[2.5rem]">
+            {product.productName}
+          </h3>
+
+          {/* Stars */}
+          <StarRating
+            // rating={product.rating}
+            // count={product.reviewCount}
+            rating="4.5"
+            count="150"
+          />
+
+          {/* Price */}
+          <div className="flex items-center gap-2 mt-2">
+            <span className="text-lg font-bold text-gray-900">
+              ${Number(product?.price).toFixed(2)}
+            </span>
+            <span className="text-sm text-gray-400 line-through">
+              ${Number(product?.comparePrice).toFixed(2)}
+            </span>
+          </div>
+
+          {/* Stock Level Bar */}
+          <div className="mt-3 mb-1">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[10px] text-gray-400 font-medium">
+                Stock Level
+              </span>
+              <span
+                className={`text-[10px] font-semibold ${product.stockLabelColor || 'text-green-500'}`}
+              >
+                {product.stock}
+              </span>
+            </div>
+            <div className="w-full bg-gray-100 rounded-full h-1.5">
+              <div
+                className={`h-1.5 rounded-full ${product.stockBarColor || 'bg-green-500'} transition-all duration-300`}
+                style={{ width: `${product.stockLevel || 95}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Add to Cart Button */}
+          <button
+            onClick={handleAddToCart}
+            className={`relative z-20 mt-3 w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 cursor-pointer ${
+              addedToCart
+                ? 'bg-green-500 text-white'
+                : 'bg-[#0f172a] hover:bg-[#1e293b] text-white'
+            }`}
+          >
+            <ShoppingCart size={15} />
+            {addedToCart ? 'Added!' : 'Add to Cart'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ProductCardSkeleton() {
+  return (
+    <div className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm">
+      {/* Image */}
+      <div className="relative">
+        <div className="skeleton h-48 w-full"></div>
+
+        {/* Discount */}
+        <div className="absolute top-3 left-3 skeleton h-5 w-12 rounded"></div>
+
+        {/* Wishlist */}
+        <div className="absolute top-3 right-3 skeleton h-8 w-8 rounded-full"></div>
       </div>
 
-      {/* Info Area */}
-      <div className="p-4 flex flex-col flex-1">
+      <div className="p-4">
         {/* Category */}
-        <span
-          className={`text-[10px] font-bold tracking-widest ${product.categoryColor} mb-1`}
-        >
-          {product.category}
-        </span>
+        <div className="skeleton h-3 w-20 mb-3"></div>
 
-        {/* Product Name */}
-        <h3 className="text-sm font-semibold text-gray-800 leading-snug mb-2 line-clamp-2 min-h-[2.5rem]">
-          {product.name}
-        </h3>
+        {/* Title */}
+        <div className="space-y-2">
+          <div className="skeleton h-4 w-full"></div>
+          <div className="skeleton h-4 w-3/4"></div>
+        </div>
 
-        {/* Stars */}
-        <StarRating rating={product.rating} count={product.reviewCount} />
+        {/* Rating */}
+        <div className="flex items-center gap-2 mt-3">
+          <div className="skeleton h-4 w-24"></div>
+          <div className="skeleton h-4 w-10"></div>
+        </div>
 
         {/* Price */}
-        <div className="flex items-center gap-2 mt-2">
-          <span className="text-lg font-bold text-gray-900">
-            ${product.price.toFixed(2)}
-          </span>
-          <span className="text-sm text-gray-400 line-through">
-            ${product.originalPrice.toFixed(2)}
-          </span>
+        <div className="flex gap-3 mt-4">
+          <div className="skeleton h-6 w-20"></div>
+          <div className="skeleton h-5 w-16"></div>
         </div>
 
-        {/* Stock Level Bar */}
-        <div className="mt-3 mb-1">
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-[10px] text-gray-400 font-medium">
-              Stock Level
-            </span>
-            <span
-              className={`text-[10px] font-semibold ${product.stockLabelColor}`}
-            >
-              {product.stockLabel}
-            </span>
+        {/* Stock */}
+        <div className="mt-4">
+          <div className="flex justify-between mb-2">
+            <div className="skeleton h-3 w-20"></div>
+            <div className="skeleton h-3 w-10"></div>
           </div>
-          <div className="w-full bg-gray-100 rounded-full h-1.5">
-            <div
-              className={`h-1.5 rounded-full ${product.stockBarColor} transition-all duration-300`}
-              style={{ width: `${product.stockLevel}%` }}
-            />
-          </div>
+
+          <div className="skeleton h-2 w-full rounded-full"></div>
         </div>
 
-        {/* Add to Cart Button */}
-        <button
-          onClick={handleAddToCart}
-          className={`mt-3 w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 ${
-            addedToCart
-              ? 'bg-green-500 text-white'
-              : 'bg-[#0f172a] hover:bg-[#1e293b] text-white'
-          }`}
-        >
-          <ShoppingCart size={15} />
-          {addedToCart ? 'Added!' : 'Add to Cart'}
-        </button>
+        {/* Button */}
+        <div className="skeleton h-10 w-full rounded-lg mt-5"></div>
       </div>
     </div>
   );
@@ -321,29 +389,37 @@ function ProductCard({ product }) {
 
 // ─── Main Popular Products Section ───────────────────────────────────────────
 export default function PopularProducts() {
-  const [activeTab, setActiveTab] = useState('All');
+  const [activeTab, setActiveTab] = useState('all');
+  const [isHovered, setIsHovered] = useState(false);
+  const {
+    data,
+    isPending,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = usePopularProducts(activeTab);
 
-  const tabs = ['All', 'Electronics', 'Fashion', 'Sports', 'Home', 'Beauty'];
+  const products = useMemo(() => {
+    return data?.pages.flatMap((page) => page.products) ?? [];
+  }, [data]);
 
-  const filtered =
-    activeTab === 'All'
-      ? popularProducts
-      : popularProducts.filter(
-          (p) => p.category.toLowerCase() === activeTab.toLowerCase(),
-        );
+  const tabs = ['all', 'electronics', 'fashion', 'sports', 'home', 'beauty'];
 
   return (
     <section className="container mx-auto px-4 py-10">
       {/* Section Header */}
       <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
-            Popular{' '}
-            <span className="italic font-bold text-gray-700">Products</span>
-          </h2>
-          <p className="text-sm text-gray-400 mt-1">
-            Trending picks loved by thousands of shoppers
-          </p>
+        <div className="flex items-center gap-1">
+          <div className=" w-2 self-stretch bg-primary rounded-2xl"></div>
+          <div>
+            <p className="text-sm text-primary mt-1">
+              Trending picks loved by thousands of shoppers
+            </p>
+            <h2 className="text-2xl md:text-3xl font-bold text-accent font-fraunces">
+              Popular Products
+            </h2>
+          </div>
         </div>
         <a
           href="#"
@@ -360,7 +436,7 @@ export default function PopularProducts() {
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 border ${
+            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 border first-letter:uppercase ${
               activeTab === tab
                 ? 'bg-[#0f172a] text-white border-[#0f172a]'
                 : 'bg-white text-gray-500 border-gray-200 hover:border-gray-400 hover:text-gray-700'
@@ -372,10 +448,16 @@ export default function PopularProducts() {
       </div>
 
       {/* Product Grid */}
-      {filtered.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
-          {filtered.map((product) => (
-            <ProductCard key={product.id} product={product} />
+      {isLoading || isPending ? (
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+          {Array.from({ length: 10 }).map((_, index) => (
+            <ProductCardSkeleton key={index} />
+          ))}
+        </div>
+      ) : products.length > 0 ? (
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+          {products.map((product) => (
+            <ProductCard key={product._id} product={product} />
           ))}
         </div>
       ) : (
@@ -385,12 +467,45 @@ export default function PopularProducts() {
       )}
 
       {/* Load More */}
-      <div className="flex justify-center mt-10">
-        <button className="flex items-center gap-2 px-8 py-3 rounded-full border-2 border-gray-200 text-sm font-semibold text-gray-600 hover:border-gray-900 hover:text-gray-900 transition-all duration-200">
-          Load More Products
-          <ChevronRight size={15} />
-        </button>
-      </div>
+      {hasNextPage && (
+        <div className="flex justify-center mt-10">
+          <motion.button
+            onHoverStart={() => setIsHovered(true)}
+            onHoverEnd={() => setIsHovered(false)}
+            whileHover={{ y: -2 }}
+            whileTap={{ scale: 0.98 }}
+            transition={{
+              duration: 0.22,
+              ease: 'easeOut',
+            }}
+            onClick={() => fetchNextPage()}
+            disabled={isFetchingNextPage}
+            className="group relative overflow-hidden rounded-full border border-gray-300 bg-white px-8 py-3.5 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer"
+          >
+            {/* Shine */}
+            <span className="absolute inset-0 overflow-hidden rounded-full">
+              <span className="absolute -left-20 top-0 h-full w-10 rotate-12 bg-white/50 blur-md transition-all duration-700 group-hover:left-[120%]" />
+            </span>
+
+            <span className="relative flex items-center gap-2 text-sm font-medium text-gray-800">
+              {isFetchingNextPage ? 'Loading...' : 'Load More Products'}
+              <motion.span
+                animate={{ x: isHovered ? 4 : 0 }}
+                transition={{
+                  type: 'spring',
+                  stiffness: 300,
+                  damping: 20,
+                }}
+              >
+                <ChevronRight
+                  size={17}
+                  className="text-gray-500 group-hover:text-primary transition-colors duration-300"
+                />
+              </motion.span>
+            </span>
+          </motion.button>
+        </div>
+      )}
     </section>
   );
 }
