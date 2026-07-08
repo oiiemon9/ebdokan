@@ -12,6 +12,7 @@ import {
   updateQuantity,
   setBuyNow,
   syncCartToDB,
+  loadCartFromDB,
 } from '@/store/cartSlice';
 
 export default function CartPage() {
@@ -102,13 +103,27 @@ export default function CartPage() {
   };
 
   const handleQty = (item, qty) => {
+    const updatedItems = items.map((i) =>
+      i.cartItemId === item.cartItemId ? { ...i, quantity: qty } : i,
+    );
+
     dispatch(
       updateQuantity({
         cartItemId: item.cartItemId,
         quantity: qty,
       }),
     );
+
+    if (userId) {
+      dispatch(syncCartToDB({ userId, items: updatedItems }));
+    }
   };
+
+  useEffect(() => {
+    if (userId) {
+      dispatch(loadCartFromDB(userId));
+    }
+  }, [userId, dispatch]);
 
   const handleCheckout = () => {
     if (noneSelected) return;

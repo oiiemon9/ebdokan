@@ -169,22 +169,25 @@ export async function POST(req) {
 
     console.log('✅ Order updated:', updateResult);
 
-    // Clear user cart
-    // try {
-    //   const cartCollection = await connect('carts');
-    //   await cartCollection.updateOne(
-    //     { userId: order.userId },
-    //     {
-    //       $set: {
-    //         items: [],
-    //         updatedAt: new Date()
-    //       }
-    //     }
-    //   );
-    //   console.log('🛒 Cart cleared for user:', order.userId);
-    // } catch (cartError) {
-    //   console.error('⚠️ Cart clear failed:', cartError);
-    // }
+    if (
+      Array.isArray(order.selectedCartKeys) &&
+      order.selectedCartKeys.length > 0
+    ) {
+      try {
+        const cartCollection = await connect('carts');
+        const userCart = await cartCollection.findOne({ userId: order.userId });
+        const remainingItems = (userCart?.items || []).filter(
+          (item) => !order.selectedCartKeys.includes(item.cartItemId),
+        );
+        await cartCollection.updateOne(
+          { userId: order.userId },
+          { $set: { items: remainingItems, updatedAt: new Date() } },
+        );
+        console.log('🛒 Ordered cart items removed for user:', order.userId);
+      } catch (cartError) {
+        console.error('⚠️ Failed to clear ordered cart items:', cartError);
+      }
+    }
 
     console.log('✅ IPN processed successfully:', tran_id);
     return new Response('SUCCESS', { status: 200 });

@@ -86,6 +86,24 @@ export async function POST(req) {
   const orderCollections = await connect('orders');
   const order = await orderCollections.insertOne(oderObj);
 
+  if (order.insertedId && orderInfo.selectedCartKeys?.length > 0) {
+    try {
+      const cartCollection = await connect('carts');
+      const userCart = await cartCollection.findOne({
+        userId: loginUserData.userId,
+      });
+      const remainingItems = (userCart?.items || []).filter(
+        (item) => !orderInfo.selectedCartKeys.includes(item.cartItemId),
+      );
+      await cartCollection.updateOne(
+        { userId: loginUserData.userId },
+        { $set: { items: remainingItems, updatedAt: new Date() } },
+      );
+    } catch (err) {
+      console.error('Failed to clear ordered cart items after COD:', err);
+    }
+  }
+
   return Response.json({
     success: true,
     order,

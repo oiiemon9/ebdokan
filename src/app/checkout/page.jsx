@@ -162,6 +162,12 @@ export default function CheckoutPage() {
 
   // Load selected cart items from cart page
   useEffect(() => {
+    if (buyNowItem) {
+      setSelectedCartKeys([]);
+      sessionStorage.removeItem('selectedCartKeys');
+      return;
+    }
+
     const stored = sessionStorage.getItem('selectedCartKeys');
     if (stored) {
       try {
@@ -170,7 +176,7 @@ export default function CheckoutPage() {
         setSelectedCartKeys([]);
       }
     }
-  }, []);
+  }, [buyNowItem]);
 
   // Coupon check
   const applyCoupon = async () => {

@@ -80,6 +80,7 @@ export async function POST(req) {
     total: subtotal + 60, // subtotal + shipping cost
     createAt: new Date(),
     items: cartItems,
+    selectedCartKeys: orderInfo?.selectedCartKeys || [],
     paymentMethod: 'pending',
     paymentStatus: 'pending',
     orderStatus: [

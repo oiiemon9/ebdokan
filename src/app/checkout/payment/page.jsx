@@ -4,12 +4,7 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import {
-  clearCart,
-  clearBuyNow,
-  removeMultipleFromCart,
-  selectBuyNowItem,
-} from '@/store/cartSlice';
+import { selectBuyNowItem } from '@/store/cartSlice';
 
 const PAYMENT_METHODS = [
   {
@@ -36,6 +31,7 @@ export default function PaymentPage() {
   const [orderData, setOrderData] = useState(null);
   const [method, setMethod] = useState('cod');
   const [loading, setLoading] = useState(false);
+  console.log('orderData:', orderData);
 
   useEffect(() => {
     const stored = sessionStorage.getItem('orderData');

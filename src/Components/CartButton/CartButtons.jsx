@@ -79,6 +79,8 @@ export default function CartButtons({
 
   // ── Buy Now ──
   const handleBuyNow = () => {
+    // If the user wants direct buy now, clear any previous cart selection.
+    sessionStorage.removeItem('selectedCartKeys');
     dispatch(setBuyNow(itemPayload));
     router.push('/checkout');
   };

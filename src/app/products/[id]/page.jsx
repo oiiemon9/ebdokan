@@ -1,6 +1,7 @@
 import { getProduct } from '@/app/lib/api';
 import ProductHero from '@/Components/ProductDetails/ProductHero';
 import Tab from '@/Components/ProductDetails/Tab';
+import { notFound } from 'next/navigation';
 
 const relatedProducts = [
   {
@@ -78,6 +79,9 @@ function StarRating({ rating, size = 'sm' }) {
 export default async function Page({ params }) {
   const { id } = await params;
   const data = await getProduct(id);
+  if (!data) {
+    notFound();
+  }
 
   return (
     <div className="min-h-screen  font-['DM_Sans',sans-serif]">

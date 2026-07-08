@@ -6,7 +6,6 @@ import { useSession } from 'next-auth/react';
 import { useDispatch } from 'react-redux';
 import NavBar from '@/Components/NavBar/NavBar';
 import { clearCart, loadCartFromDB } from '@/store/cartSlice';
-import { persistor } from '@/store/store';
 import Footer from '@/Components/Footer/Footer';
 
 export default function RootWrapper({ children }) {
@@ -23,9 +22,8 @@ export default function RootWrapper({ children }) {
 
   return (
     <>
-      {showNavbar && <NavBar />}
-
       <main className="relative z-10 bg-[#F9FAFB] min-h-screen">
+        {showNavbar && <NavBar />}
         {children}
       </main>
 

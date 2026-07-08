@@ -1,6 +1,9 @@
 'use client';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { useSession } from 'next-auth/react';
+import { loadCartFromDB } from '@/store/cartSlice';
 
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
@@ -11,6 +14,8 @@ export default function SuccessPage() {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const dispatch = useDispatch();
+  const { data: session } = useSession();
 
   console.log(order);
 
@@ -37,6 +42,10 @@ export default function SuccessPage() {
 
         const data = await res.json();
         setOrder(data);
+
+        if (session?.user?.id) {
+          dispatch(loadCartFromDB(session.user.id));
+        }
       } catch (err) {
         setError(err?.message || 'Failed to fetch order details.');
       } finally {
@@ -45,7 +54,7 @@ export default function SuccessPage() {
     };
 
     fetchOrder();
-  }, [tran_id]);
+  }, [tran_id, dispatch, session?.user?.id]);
 
   // useEffect(() => {
   //   if (!tran_id) return;

@@ -126,7 +126,7 @@ function ProductCardSkeleton() {
 }
 
 // ─── Main Popular Products Section ───────────────────────────────────────────
-export default function PopularProducts() {
+export default function PopularProductsSection() {
   const [activeTab, setActiveTab] = useState('all');
   const [isHovered, setIsHovered] = useState(false);
   const {

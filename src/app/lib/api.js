@@ -10,5 +10,20 @@ export async function getProduct(id) {
     `${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}`,
     { cache: 'no-store' },
   );
-  return res.json();
+  if (res.status === 404) return null;
+
+  if (!res.ok) throw new Error('Failed to fetch product');
+
+  return await res.json();
+}
+
+export async function getProducts() {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products`, {
+    cache: 'no-store',
+  });
+  if (res.status === 404) return null;
+
+  if (!res.ok) throw new Error('Failed to fetch product');
+
+  return await res.json();
 }

@@ -29,7 +29,7 @@ const CATEGORIES = [
 
 const NAV_LINKS = [
   { label: 'Home', href: '/' },
-  { label: 'Shop', href: '/shop' },
+  { label: 'Shop', href: '/products' },
   { label: 'Deals', href: '/deals', badge: '🔥', hot: true },
   { label: 'Vendors', href: '/vendors' },
   { label: 'About', href: '/about' },
@@ -309,7 +309,7 @@ export default function NavBar() {
     <>
       {/* ══ ANNOUNCEMENT BAR — slides down on mount ══ */}
       <motion.div
-        className="bg-accent text-white text-xs py-2 hidden sm:block overflow-hidden"
+        className="bg-accent text-white text-xs py-2 hidden sm:block overflow-hidden z-40 "
         variants={announcementVariants}
         initial="hidden"
         animate="visible"
@@ -771,31 +771,3 @@ export default function NavBar() {
     </>
   );
 }
-
-//  <div className="navbar-end gap-2">
-//       <img
-//         height={40}
-//         width={40}
-//         src={sessionData?.user?.image || 'http://www.w3.org/2000/svg'}
-//         className="h-10 w-10 rounded-full object-cover bg-green-800"
-//         alt="User Avatar"
-//       />
-//       {sessionData?.user?.name ? (
-//         <button onClick={logout} className="btn">
-//           logout
-//         </button>
-//       ) : (
-//         <Link href="/login" className="btn">
-//           Login
-//         </Link>
-//       )}
-//       <Link href="/my-card" className="btn">
-//         Card
-//       </Link>
-//       <Link href="/my-orders" className="btn">
-//         My orders
-//       </Link>
-//       <Link href="/dashboard" className="btn">
-//         Dashboard
-//       </Link>
-//     </div>
