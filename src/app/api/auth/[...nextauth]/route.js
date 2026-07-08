@@ -6,7 +6,7 @@ import bcrypt from 'bcryptjs';
 import { connect } from '@/app/lib/dbConnect';
 
 export const authOptions = {
-  secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET,
   trustHost: true,
   providers: [
     GoogleProvider({

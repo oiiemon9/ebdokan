@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import {
   addToCart,
@@ -28,6 +28,7 @@ export default function CartButtons({
   const router = useRouter();
   const { data: session } = useSession();
   const cartItems = useSelector(selectCartItems);
+  const pathname = usePathname();
 
   const [addedFeedback, setAddedFeedback] = useState(false);
 
@@ -58,6 +59,11 @@ export default function CartButtons({
 
   // ── Add to Cart ──
   const handleAddToCart = async () => {
+    if (!session?.user?.id) {
+      router.push(`/login?callbackUrl=${encodeURIComponent(pathname)}`);
+      return;
+    }
+
     dispatch(addToCart(itemPayload));
 
     // MongoDB sync (logged-in user only)

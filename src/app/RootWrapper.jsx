@@ -7,6 +7,7 @@ import { useDispatch } from 'react-redux';
 import NavBar from '@/Components/NavBar/NavBar';
 import { clearCart, loadCartFromDB } from '@/store/cartSlice';
 import { persistor } from '@/store/store';
+import Footer from '@/Components/Footer/Footer';
 
 export default function RootWrapper({ children }) {
   const pathname = usePathname();
@@ -23,7 +24,14 @@ export default function RootWrapper({ children }) {
   return (
     <>
       {showNavbar && <NavBar />}
-      {children}
+
+      <main className="relative z-10 bg-[#F9FAFB] min-h-screen">
+        {children}
+      </main>
+
+      <div className="sticky -bottom-[1100px] sm:-bottom-[600px] md:-bottom-64 lg:-bottom-32 z-0">
+        <Footer />
+      </div>
     </>
   );
 }

@@ -2,6 +2,7 @@
 
 import { clearUser } from '@/store/userSlice';
 import { signOut, useSession } from 'next-auth/react';
+import { clearCart } from '@/store/cartSlice';
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -299,6 +300,7 @@ export default function NavBar() {
 
   const logout = async () => {
     dispatch(clearUser());
+    dispatch(clearCart());
     await signOut({ callbackUrl: '/' });
     setAccountOpen(false);
   };
