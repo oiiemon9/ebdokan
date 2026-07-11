@@ -2,7 +2,7 @@ import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import React from 'react';
 import CheckoutLProgress from './CheckoutProgress';
-import { authOptions } from '../api/auth/[...nextauth]/route';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 export default async function layout({ children }) {
   const session = await getServerSession(authOptions);

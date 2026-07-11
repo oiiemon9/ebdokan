@@ -32,10 +32,8 @@ export default function RootLayout({ children }) {
         <QueryProvider>
           <AuthProvider>
             <ReduxProvider>
-              <RootWrapper>
-                {children}
-                <Toaster position="bottom-right" />
-              </RootWrapper>
+              {children}
+              <Toaster position="bottom-right" />
             </ReduxProvider>
           </AuthProvider>
         </QueryProvider>

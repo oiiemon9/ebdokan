@@ -1,6 +1,6 @@
+import { getProducts } from '@/app/lib/api';
 import ProductsPage from '@/Components/ProductsPage/ProductsPage';
 import React from 'react';
-import { getProducts } from '../lib/api';
 
 export default async function page() {
   const products = await getProducts();
@@ -10,7 +10,7 @@ export default async function page() {
       products={products}
       totalCount={127}
       searchQuery="Jacket & Coats"
-      currentPage={1}
+      currentPage={3}
       totalPages={15}
     />
   );
