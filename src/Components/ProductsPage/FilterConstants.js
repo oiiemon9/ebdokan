@@ -1,8 +1,6 @@
-// components/ProductsPage/filterConstants.js
-
 export const CATEGORIES = [
   {
-    name: 'Man Fashion',
+    name: 'electronics',
     children: [
       { name: 'Jackets & Coats', count: 127 },
       { name: 'Shirts', count: 108 },
@@ -16,6 +14,8 @@ export const CATEGORIES = [
   { name: 'Shoes & Bag', children: [] },
   { name: 'Accessories', children: [] },
 ];
+
+export const MAXPRICE = 100000;
 
 export const COLORS = [
   { name: 'Black', hex: '#1a1a1a' },

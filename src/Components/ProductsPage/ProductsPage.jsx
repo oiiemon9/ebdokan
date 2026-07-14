@@ -7,16 +7,16 @@ import FilterSidebar from './FilterSidebar';
 import { SORT_OPTIONS } from './FilterConstants';
 
 export default function ProductsPage({
-  products = [],
-  totalCount = 0,
-  searchQuery = '',
-  currentPage = 1,
-  totalPages = 1,
+  products,
+  totalCount,
+  totalPages,
+  currentPage,
+  selectedCategory,
 }) {
   // ── Filter state ─────────────────────────────────────────────────────────
-  const [selectedCategories, setSelectedCategories] = useState([
-    'Jackets & Coats',
-  ]);
+  const [selectedCategories, setSelectedCategories] = useState(
+    selectedCategory === 'all' ? [] : [selectedCategory],
+  );
   const [priceRange, setPriceRange] = useState([100, 800]);
   const [selectedColors, setSelectedColors] = useState([]);
   const [selectedSizes, setSelectedSizes] = useState(['L']);
@@ -201,7 +201,7 @@ export default function ProductsPage({
                 <span className="font-semibold text-gray-800">
                   {totalCount}
                 </span>
-                {searchQuery && (
+                {/* {searchQuery && (
                   <>
                     {' '}
                     for{' '}
@@ -209,7 +209,7 @@ export default function ProductsPage({
                       "{searchQuery}"
                     </span>
                   </>
-                )}
+                )} */}
               </p>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-400 hidden sm:inline">

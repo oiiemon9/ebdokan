@@ -58,14 +58,14 @@ export default function AddProductPage() {
       category: '',
       subCategory: '',
       brand: '',
-      price: '',
-      comparePrice: '',
-      discountPercentage: '',
-      costPerItem: '',
-      stock: '',
+      price: 0,
+      comparePrice: 0,
+      discountPercentage: 0,
+      costPerItem: 0,
+      stock: 0,
       sku: '',
       barcode: '',
-      weight: '',
+      weight: 0,
       weightUnit: 'kg',
       status: 'draft',
       colors: [],
@@ -73,6 +73,7 @@ export default function AddProductPage() {
       tags: [],
       images: [],
       isFeatured: false,
+      createdAt: new Date(),
     },
   });
 
@@ -114,9 +115,19 @@ export default function AddProductPage() {
       : null;
 
   const onSubmit = async (data) => {
+    const normalizedData = {
+      ...data,
+      price: Number(data.price) || 0,
+      comparePrice: Number(data.comparePrice) || 0,
+      discountPercentage: Number(discount) || 0,
+      costPerItem: Number(data.costPerItem) || 0,
+      stock: Number(data.stock) || 0,
+      weight: Number(data.weight) || 0,
+    };
+
     try {
       const uploadedImages = await Promise.all(
-        data.images.map(async (img) => {
+        normalizedData.images.map(async (img) => {
           const formData = new FormData();
 
           formData.append('file', img.file);
@@ -138,8 +149,7 @@ export default function AddProductPage() {
 
       // Final payload
       const payload = {
-        ...data,
-        discountPercentage: discount,
+        ...normalizedData,
         images: uploadedImages,
       };
 
@@ -257,6 +267,7 @@ export default function AddProductPage() {
                       <input
                         {...register('price', {
                           required: 'Price is required',
+                          valueAsNumber: true,
                           min: { value: 0, message: 'Must be positive' },
                         })}
                         type="number"
@@ -273,7 +284,9 @@ export default function AddProductPage() {
                         $
                       </span>
                       <input
-                        {...register('comparePrice')}
+                        {...register('comparePrice', {
+                          valueAsNumber: true,
+                        })}
                         type="number"
                         step="0.01"
                         placeholder="0.00"
@@ -288,7 +301,9 @@ export default function AddProductPage() {
                         $
                       </span>
                       <input
-                        {...register('costPerItem')}
+                        {...register('costPerItem', {
+                          valueAsNumber: true,
+                        })}
                         type="number"
                         step="0.01"
                         placeholder="0.00"
@@ -370,6 +385,7 @@ export default function AddProductPage() {
                   <Field label="Stock Quantity" error={errors.stock?.message}>
                     <input
                       {...register('stock', {
+                        valueAsNumber: true,
                         min: { value: 0, message: 'Must be positive' },
                       })}
                       type="number"
@@ -406,7 +422,9 @@ export default function AddProductPage() {
                   <Field label="Weight">
                     <label className="input input-bordered flex items-center gap-2 rounded-xl focus-within:border-blue-400 transition-colors">
                       <input
-                        {...register('weight')}
+                        {...register('weight', {
+                          valueAsNumber: true,
+                        })}
                         type="number"
                         step="0.01"
                         placeholder="0.00"
@@ -464,15 +482,17 @@ export default function AddProductPage() {
                   >
                     <option value="">Select category…</option>
                     <option value="electronics">Electronics</option>
-                    <option value="clothing">Clothing & Apparel</option>
+                    <option value="clothing-&-Apparel">
+                      Clothing & Apparel
+                    </option>
                     <option value="footwear">Footwear</option>
                     <option value="accessories">Accessories</option>
-                    <option value="home">Home & Living</option>
-                    <option value="beauty">Beauty & Health</option>
-                    <option value="sports">Sports & Outdoors</option>
-                    <option value="books">Books & Media</option>
-                    <option value="toys">Toys & Games</option>
-                    <option value="food">Food & Grocery</option>
+                    <option value="home-&-living">Home & Living</option>
+                    <option value="beauty-&-health">Beauty & Health</option>
+                    <option value="sports-&-outdoors">Sports & Outdoors</option>
+                    <option value="books-&-media">Books & Media</option>
+                    <option value="toys-&-games">Toys & Games</option>
+                    <option value="food-&-grocery">Food & Grocery</option>
                   </select>
                 </Field>
 

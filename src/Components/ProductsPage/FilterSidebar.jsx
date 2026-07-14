@@ -1,13 +1,15 @@
-// components/ProductsPage/FilterSidebar.jsx
 'use client';
 
-import { BRANDS, CATEGORIES, COLORS, SIZES } from './FilterConstants';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { BRANDS, CATEGORIES, COLORS, MAXPRICE, SIZES } from './FilterConstants';
 import { FilterSection, StarRating, ChevronIcon } from './ui';
+import { useState } from 'react';
+import * as Slider from '@radix-ui/react-slider';
 
 export default function FilterSidebar({
   // state values
   selectedCategories,
-  priceRange,
+
   selectedColors,
   selectedSizes,
   selectedBrands,
@@ -18,7 +20,7 @@ export default function FilterSidebar({
   appliedFilters,
   // setters
   setSelectedCategories,
-  setPriceRange,
+
   setSelectedColors,
   setSelectedSizes,
   setSelectedBrands,
@@ -29,6 +31,50 @@ export default function FilterSidebar({
   toggleArr,
   clearAll,
 }) {
+  const [priceRange, setPriceRange] = useState([0, MAXPRICE]);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const selectedCategory = searchParams.get('category') || '';
+  const selectedSubCategories = searchParams.getAll('subCategory');
+
+  const handleCategoryChange = (category) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (params.get('category') === category) {
+      params.delete('category');
+    } else {
+      params.set('category', category);
+    }
+
+    params.delete('subCategory');
+    params.set('page', '1');
+
+    router.push(`/products?${params.toString()}`);
+  };
+
+  const handleSubCategoryChange = (subCategory) => {
+    const params = new URLSearchParams(searchParams.toString());
+    const selected = params.getAll('subCategory');
+    params.delete('subCategory');
+
+    if (selected.includes(subCategory)) {
+      selected
+        .filter((item) => item !== subCategory)
+        .forEach((item) => params.append('subCategory', item));
+    } else {
+      [...selected, subCategory].forEach((item) =>
+        params.append('subCategory', item),
+      );
+    }
+
+    params.set('page', '1');
+    router.push(`/products?${params.toString()}`);
+  };
+
+  const handleValueChange = (newValues) => {
+    setPriceRange(newValues);
+  };
+
   return (
     <div className="w-full">
       {/* Header */}
@@ -47,60 +93,63 @@ export default function FilterSidebar({
       {/* ── Category ── */}
       <FilterSection title="Category">
         {CATEGORIES.map((cat) => (
-          <div key={cat.name} className="mb-1">
-            <button
-              onClick={() =>
-                setCatExpanded((p) => ({ ...p, [cat.name]: !p[cat.name] }))
-              }
-              className="flex items-center justify-between w-full py-1.5 text-left"
-            >
-              <span
-                className={`text-sm font-semibold ${catExpanded[cat.name] ? 'text-gray-900' : 'text-gray-600'}`}
-              >
-                {cat.name}
-              </span>
-              {cat.children.length > 0 ? (
-                <ChevronIcon open={!!catExpanded[cat.name]} />
-              ) : (
-                <svg
-                  className="w-4 h-4 text-gray-300"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              )}
-            </button>
+          <div key={cat.name} className="mb-2">
+            {/* Main Category */}
+            <div className="flex items-center justify-between py-1.5">
+              <label className="flex items-center gap-2.5 flex-1 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={selectedCategory === cat.name}
+                  onChange={() => handleCategoryChange(cat.name)}
+                  className="w-4 h-4 rounded accent-indigo-600 cursor-pointer"
+                />
 
-            {catExpanded[cat.name] && cat.children.length > 0 && (
-              <div className="ml-3 mt-1 space-y-1 pb-1">
+                <span
+                  className={`text-sm font-semibold transition-colors ${
+                    selectedCategory === cat.name
+                      ? 'text-gray-900'
+                      : 'text-gray-600 group-hover:text-gray-900'
+                  }`}
+                >
+                  {cat.name}
+                </span>
+              </label>
+
+              {cat.children.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setCatExpanded((prev) => ({
+                      ...prev,
+                      [cat.slug]: !prev[cat.slug],
+                    }))
+                  }
+                  className="p-1"
+                >
+                  <ChevronIcon open={!!catExpanded[cat.slug]} />
+                </button>
+              )}
+            </div>
+
+            {/* Sub Categories */}
+            {catExpanded[cat.slug] && cat.children.length > 0 && (
+              <div className="ml-6 mt-2 space-y-2 border-l border-gray-200 pl-3">
                 {cat.children.map((sub) => (
                   <label
                     key={sub.name}
-                    className="flex items-center justify-between cursor-pointer py-1 group"
+                    className="flex items-center justify-between cursor-pointer group"
                   >
                     <div className="flex items-center gap-2.5">
                       <input
                         type="checkbox"
-                        checked={selectedCategories.includes(sub.name)}
-                        onChange={() =>
-                          toggleArr(
-                            selectedCategories,
-                            setSelectedCategories,
-                            sub.name,
-                          )
-                        }
+                        checked={selectedSubCategories.includes(sub.name)}
+                        onChange={() => handleSubCategoryChange(sub.name)}
                         className="w-4 h-4 rounded accent-indigo-600 cursor-pointer"
                       />
+
                       <span
                         className={`text-sm transition-colors ${
-                          selectedCategories.includes(sub.name)
+                          selectedSubCategories.includes(sub.name)
                             ? 'text-gray-900 font-semibold'
                             : 'text-gray-500 group-hover:text-gray-800'
                         }`}
@@ -108,6 +157,7 @@ export default function FilterSidebar({
                         {sub.name}
                       </span>
                     </div>
+
                     <span className="text-gray-400 text-xs">{sub.count}</span>
                   </label>
                 ))}
@@ -120,17 +170,47 @@ export default function FilterSidebar({
       {/* ── Price ── */}
       <FilterSection title="Price">
         <div className="px-1">
-          <input
+          {/* Radix Slider */}
+          <div className="relative flex items-center select-none touch-none w-full h-5">
+            <Slider.Root
+              className="relative flex items-center select-none touch-none w-full h-5 cursor-pointer"
+              value={priceRange}
+              onValueChange={handleValueChange}
+              max={MAXPRICE}
+              step={500}
+              minStepsBetweenThumbs={1}
+            >
+              {/* Slider Track (The gray background line) */}
+              <Slider.Track className="bg-gray-100 relative grow rounded-full h-1.5 border border-gray-200/30">
+                {/* Active Range (The beautiful indigo gradient line) */}
+                <Slider.Range className="absolute bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-full h-full" />
+              </Slider.Track>
+
+              {/* Left Thumb (Min Price) */}
+              <Slider.Thumb
+                className="block w-5 h-5 bg-white border-2 border-indigo-600 rounded-full shadow-md hover:scale-110 focus:outline-none focus:ring-4 focus:ring-indigo-100 transition-all cursor-grab active:cursor-grabbing"
+                aria-label="Minimum price"
+              />
+
+              {/* Right Thumb (Max Price) */}
+              <Slider.Thumb
+                className="block w-5 h-5 bg-white border-2 border-indigo-600 rounded-full shadow-md hover:scale-110 focus:outline-none focus:ring-4 focus:ring-indigo-100 transition-all cursor-grab active:cursor-grabbing"
+                aria-label="Maximum price"
+              />
+            </Slider.Root>
+          </div>
+
+          {/* <input
             type="range"
             min={0}
-            max={1000}
+            max={MAXPRICE}
             step={10}
             value={priceRange[1]}
             onChange={(e) =>
               setPriceRange([priceRange[0], Number(e.target.value)])
             }
             className="w-full accent-indigo-600 h-1.5 rounded-full cursor-pointer"
-          />
+          /> */}
           <div className="flex items-center justify-between mt-3 gap-2">
             <div className="flex-1">
               <label className="text-[10px] text-gray-400 uppercase tracking-wider block mb-1">
