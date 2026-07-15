@@ -3,26 +3,17 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { BRANDS, CATEGORIES, COLORS, MAXPRICE, SIZES } from './FilterConstants';
 import { FilterSection, StarRating, ChevronIcon } from './ui';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import * as Slider from '@radix-ui/react-slider';
 
 export default function FilterSidebar({
-  // state values
-  selectedCategories,
-
-  selectedColors,
-  selectedSizes,
   selectedBrands,
   minRating,
   inStock,
   onSale,
   catExpanded,
   appliedFilters,
-  // setters
-  setSelectedCategories,
 
-  setSelectedColors,
-  setSelectedSizes,
   setSelectedBrands,
   setMinRating,
   setInStock,
@@ -30,12 +21,15 @@ export default function FilterSidebar({
   setCatExpanded,
   toggleArr,
   clearAll,
+  availableSizes,
 }) {
   const [priceRange, setPriceRange] = useState([0, MAXPRICE]);
   const router = useRouter();
   const searchParams = useSearchParams();
   const selectedCategory = searchParams.get('category') || '';
   const selectedSubCategories = searchParams.getAll('subCategory');
+  const selectedColors = searchParams.getAll('color');
+  const selectedSizes = searchParams.getAll('size');
 
   const handleCategoryChange = (category) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -73,6 +67,78 @@ export default function FilterSidebar({
 
   const handleValueChange = (newValues) => {
     setPriceRange(newValues);
+
+    const params = new URLSearchParams(searchParams.toString());
+
+    params.set('minPrice', newValues[0]);
+    params.set('maxPrice', newValues[1]);
+    params.set('page', '1');
+
+    router.push(`/products?${params.toString()}`);
+  };
+
+  const handleMinPriceChange = (value) => {
+    const min = Number(value);
+
+    setPriceRange([min, priceRange[1]]);
+
+    const params = new URLSearchParams(searchParams.toString());
+
+    params.set('minPrice', min);
+    params.set('maxPrice', priceRange[1]);
+    params.set('page', '1');
+
+    router.push(`/products?${params.toString()}`);
+  };
+
+  const handleMaxPriceChange = (value) => {
+    const max = Number(value);
+
+    setPriceRange([priceRange[0], max]);
+
+    const params = new URLSearchParams(searchParams.toString());
+
+    params.set('minPrice', priceRange[0]);
+    params.set('maxPrice', max);
+    params.set('page', '1');
+
+    router.push(`/products?${params.toString()}`);
+  };
+
+  useEffect(() => {
+    const min = Number(searchParams.get('minPrice')) || 0;
+    const max = Number(searchParams.get('maxPrice')) || MAXPRICE;
+
+    setPriceRange([min, max]);
+  }, [searchParams]);
+
+  const handleColorChange = (color) => {
+    const params = new URLSearchParams(searchParams.toString());
+    const selected = params.getAll('color');
+    params.delete('color');
+    if (selected.includes(color)) {
+      selected
+        .filter((c) => c !== color)
+        .forEach((c) => params.append('color', c));
+    } else {
+      [...selected, color].forEach((c) => params.append('color', c));
+    }
+    params.set('page', '1');
+    router.push(`/products?${params.toString()}`);
+  };
+  const handleSizeChange = (size) => {
+    const params = new URLSearchParams(searchParams.toString());
+    const selected = params.getAll('size');
+    params.delete('size');
+    if (selected.includes(size)) {
+      selected
+        .filter((s) => s !== size)
+        .forEach((s) => params.append('size', s));
+    } else {
+      [...selected, size].forEach((s) => params.append('size', s));
+    }
+    params.set('page', '1');
+    router.push(`/products?${params.toString()}`);
   };
 
   return (
@@ -200,17 +266,6 @@ export default function FilterSidebar({
             </Slider.Root>
           </div>
 
-          {/* <input
-            type="range"
-            min={0}
-            max={MAXPRICE}
-            step={10}
-            value={priceRange[1]}
-            onChange={(e) =>
-              setPriceRange([priceRange[0], Number(e.target.value)])
-            }
-            className="w-full accent-indigo-600 h-1.5 rounded-full cursor-pointer"
-          /> */}
           <div className="flex items-center justify-between mt-3 gap-2">
             <div className="flex-1">
               <label className="text-[10px] text-gray-400 uppercase tracking-wider block mb-1">
@@ -219,9 +274,7 @@ export default function FilterSidebar({
               <input
                 type="number"
                 value={priceRange[0]}
-                onChange={(e) =>
-                  setPriceRange([Number(e.target.value), priceRange[1]])
-                }
+                onChange={(e) => handleMinPriceChange(e.target.value)}
                 className="w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm text-gray-700
                   focus:outline-none focus:border-indigo-400 transition-colors"
               />
@@ -233,9 +286,7 @@ export default function FilterSidebar({
               <input
                 type="number"
                 value={priceRange[1]}
-                onChange={(e) =>
-                  setPriceRange([priceRange[0], Number(e.target.value)])
-                }
+                onChange={(e) => handleMaxPriceChange(e.target.value)}
                 className="w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm text-gray-700
                   focus:outline-none focus:border-indigo-400 transition-colors"
               />
@@ -250,19 +301,17 @@ export default function FilterSidebar({
           {COLORS.map((c) => (
             <button
               key={c.name}
-              onClick={() =>
-                toggleArr(selectedColors, setSelectedColors, c.name)
-              }
+              onClick={() => handleColorChange(c.hex)}
               title={c.name}
               className={`relative w-7 h-7 rounded-full border-2 transition-all hover:scale-110
                 ${
-                  selectedColors.includes(c.name)
+                  selectedColors.includes(c.hex)
                     ? 'border-indigo-600 ring-2 ring-indigo-200 scale-110'
                     : 'border-transparent hover:border-gray-300'
                 }`}
               style={{ background: c.hex }}
             >
-              {selectedColors.includes(c.name) && (
+              {selectedColors.includes(c.hex) && (
                 <svg
                   className="absolute inset-0 m-auto w-3 h-3"
                   fill="none"
@@ -296,10 +345,10 @@ export default function FilterSidebar({
       {/* ── Size ── */}
       <FilterSection title="Size">
         <div className="grid grid-cols-3 gap-1.5">
-          {SIZES.map((s) => (
+          {availableSizes.map((s) => (
             <button
               key={s}
-              onClick={() => toggleArr(selectedSizes, setSelectedSizes, s)}
+              onClick={() => handleSizeChange(s)}
               className={`py-1.5 text-xs font-semibold rounded-lg border transition-all
                 ${
                   selectedSizes.includes(s)

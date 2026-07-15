@@ -26,6 +26,10 @@ export async function getProducts({
   limit = 20,
   category = '',
   subCategories,
+  minPrice,
+  maxPrice,
+  colors = [],
+  sizes = [],
   sort = 'latest',
 }) {
   const collection = await connect('products');
@@ -37,6 +41,26 @@ export async function getProducts({
   if (subCategories.length > 0) {
     query.subCategory = {
       $in: subCategories,
+    };
+  }
+  if (minPrice !== undefined || maxPrice !== undefined) {
+    query.price = {};
+    if (minPrice !== undefined) {
+      query.price.$gte = minPrice;
+    }
+    if (maxPrice !== undefined) {
+      query.price.$lte = maxPrice;
+    }
+  }
+
+  if (colors.length > 0) {
+    query.colors = {
+      $in: colors,
+    };
+  }
+  if (sizes.length > 0) {
+    query.sizes = {
+      $in: sizes,
     };
   }
 
@@ -58,6 +82,15 @@ export async function getProducts({
 
   const skip = (page - 1) * limit;
 
+  const availableSizes = await collection
+    .aggregate([
+      { $match: query },
+      { $unwind: '$sizes' },
+      { $group: { _id: '$sizes' } },
+      { $sort: { _id: 1 } },
+    ])
+    .toArray();
+  const findSizes = availableSizes.map((item) => item._id);
   const products = await collection
     .find(query)
     .sort(sortQuery)
@@ -77,5 +110,6 @@ export async function getProducts({
     totalProducts,
     currentPage: page,
     totalPages: Math.ceil(totalProducts / limit),
+    findSizes,
   };
 }

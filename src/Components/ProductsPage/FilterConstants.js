@@ -18,16 +18,16 @@ export const CATEGORIES = [
 export const MAXPRICE = 100000;
 
 export const COLORS = [
-  { name: 'Black', hex: '#1a1a1a' },
-  { name: 'Grey', hex: '#888888' },
-  { name: 'Red', hex: '#c0392b' },
-  { name: 'Tasco', hex: '#1a6b6b' },
-  { name: 'Brown', hex: '#8b6914' },
-  { name: 'Purple', hex: '#7c3aed' },
-  { name: 'Green', hex: '#1a6b3a' },
-  { name: 'Yellow', hex: '#d4a017' },
-  { name: 'Blue', hex: '#1a3a7a' },
-  { name: 'Cream', hex: '#f5f0eb' },
+  { name: 'Midnight', hex: '#1a1a2e' },
+  { name: 'Crimson', hex: '#e63946' },
+  { name: 'Ocean', hex: '#0077b6' },
+  { name: 'Forest', hex: '#2d6a4f' },
+  { name: 'Amber', hex: '#f4a261' },
+  { name: 'Lavender', hex: '#9b72cf' },
+  { name: 'Slate', hex: '#64748b' },
+  { name: 'Teal', hex: '#14b8a6' },
+  { name: 'Sand', hex: '#d4a574' },
+  { name: 'White', hex: '#ffffff' },
 ];
 
 export const SIZES = [

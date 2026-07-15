@@ -1,4 +1,5 @@
 import { getProducts } from '@/app/lib/products';
+import { MAXPRICE } from '@/Components/ProductsPage/FilterConstants';
 import ProductsPage from '@/Components/ProductsPage/ProductsPage';
 import React from 'react';
 
@@ -14,10 +15,31 @@ export default async function page({ searchParams }) {
     : [];
 
   const sort = params.sort || 'latest';
+
+  const minPrice =
+    params.minPrice !== undefined ? Number(params.minPrice) : undefined;
+  const maxPrice =
+    params.maxPrice !== undefined ? Number(params.maxPrice) : undefined;
+
+  const colors = params.color
+    ? Array.isArray(params.color)
+      ? params.color
+      : [params.color]
+    : [];
+  const sizes = params.size
+    ? Array.isArray(params.size)
+      ? params.size
+      : [params.size]
+    : [];
+
   const data = await getProducts({
     page,
     category,
     subCategories,
+    minPrice,
+    maxPrice,
+    colors,
+    sizes,
     sort,
   });
 
@@ -28,6 +50,7 @@ export default async function page({ searchParams }) {
       currentPage={data.currentPage}
       totalPages={data.totalPages}
       selectedCategory={category}
+      availableSizes={data.findSizes}
     />
   );
 }

@@ -12,6 +12,7 @@ export default function ProductsPage({
   totalPages,
   currentPage,
   selectedCategory,
+  availableSizes,
 }) {
   // ── Filter state ─────────────────────────────────────────────────────────
   const [selectedCategories, setSelectedCategories] = useState(
@@ -89,6 +90,7 @@ export default function ProductsPage({
     setCatExpanded,
     toggleArr,
     clearAll,
+    availableSizes,
   };
 
   return (
