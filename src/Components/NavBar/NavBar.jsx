@@ -9,6 +9,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { selectCartCount } from '@/store/cartSlice';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { useForm } from 'react-hook-form';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 // ── Category data ─────────────────────────────────────────────────────────
 const CATEGORIES = [
@@ -268,6 +270,9 @@ export default function NavBar() {
   const accountRef = useRef(null);
   const catRef = useRef(null);
 
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 4);
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -292,10 +297,26 @@ export default function NavBar() {
     };
   }, [sidebarOpen]);
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchVal.trim())
-      window.location.href = `/search?q=${encodeURIComponent(searchVal.trim())}`;
+  const { register, handleSubmit, reset } = useForm({
+    defaultValues: {
+      search: searchParams.get('search') || '',
+    },
+  });
+
+  const onSubmit = ({ search }) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (search.trim()) {
+      params.set('search', search.trim());
+    } else {
+      params.delete('search');
+    }
+
+    params.set('page', '1');
+
+    router.push(`/products?${params.toString()}`);
+
+    setSidebarOpen(false);
   };
 
   const logout = async () => {
@@ -356,15 +377,17 @@ export default function NavBar() {
           </div>
 
           {/* Search */}
-          <form onSubmit={handleSearch} className="col-span-4 flex-1 max-w-2xl">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="col-span-4 flex-1 max-w-2xl"
+          >
             <div className="relative flex items-center">
               <span className="absolute left-3.5 text-gray-400 pointer-events-none">
                 <SearchIcon />
               </span>
               <input
+                {...register('search')}
                 type="text"
-                value={searchVal}
-                onChange={(e) => setSearchVal(e.target.value)}
                 placeholder="Search for products, brands and more..."
                 className="w-full h-11 pl-10 pr-4 rounded-xl border-2 border-indigo-100 bg-gray-50 text-gray-800 text-sm placeholder-gray-400 outline-none focus:border-secondary focus:bg-white transition-all"
               />
@@ -581,20 +604,14 @@ export default function NavBar() {
                   animate="visible"
                   className="px-4 py-4 border-b border-gray-100"
                 >
-                  <form
-                    onSubmit={(e) => {
-                      handleSearch(e);
-                      setSidebarOpen(false);
-                    }}
-                  >
+                  <form onSubmit={handleSubmit(onSubmit)}>
                     <div className="relative">
                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
                         <SearchIcon />
                       </span>
                       <input
+                        {...register('search')}
                         type="text"
-                        value={searchVal}
-                        onChange={(e) => setSearchVal(e.target.value)}
                         placeholder="Search products..."
                         className="w-full h-10 pl-9 pr-4 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-800 placeholder-gray-400 outline-none focus:border-indigo-400 focus:bg-white transition-all"
                       />

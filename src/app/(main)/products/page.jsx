@@ -6,6 +6,7 @@ import React from 'react';
 export default async function page({ searchParams }) {
   const params = await searchParams;
   const page = Number(params.page) || 1;
+  const search = params.search || '';
 
   const category = params.category || '';
   const subCategories = params.subCategory
@@ -34,6 +35,7 @@ export default async function page({ searchParams }) {
 
   const data = await getProducts({
     page,
+    search,
     category,
     subCategories,
     minPrice,
@@ -51,6 +53,13 @@ export default async function page({ searchParams }) {
       totalPages={data.totalPages}
       selectedCategory={category}
       availableSizes={data.findSizes}
+      search={search}
+      category={category}
+      subCategories={subCategories}
+      minPrice={minPrice}
+      maxPrice={maxPrice}
+      colors={colors}
+      sizes={sizes}
     />
   );
 }

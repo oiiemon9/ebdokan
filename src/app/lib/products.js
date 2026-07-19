@@ -23,6 +23,7 @@ export async function getPopularProductsFromDB(category = 'all', page = 1) {
 
 export async function getProducts({
   page = 1,
+  search = '',
   limit = 20,
   category = '',
   subCategories,
@@ -34,6 +35,54 @@ export async function getProducts({
 }) {
   const collection = await connect('products');
   const query = {};
+
+  if (search) {
+    query.$or = [
+      {
+        productName: {
+          $regex: search,
+          $options: 'i',
+        },
+      },
+      {
+        brand: {
+          $regex: search,
+          $options: 'i',
+        },
+      },
+      {
+        category: {
+          $regex: search,
+          $options: 'i',
+        },
+      },
+      {
+        subCategory: {
+          $regex: search,
+          $options: 'i',
+        },
+      },
+
+      {
+        shortDescription: {
+          $regex: search,
+          $options: 'i',
+        },
+      },
+      {
+        shortDescription: {
+          $regex: search,
+          $options: 'i',
+        },
+      },
+      {
+        tags: {
+          $regex: search,
+          $options: 'i',
+        },
+      },
+    ];
+  }
 
   if (category) {
     query.category = category;

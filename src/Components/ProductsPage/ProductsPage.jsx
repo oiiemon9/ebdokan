@@ -1,10 +1,10 @@
-// components/ProductsPage/index.jsx
 'use client';
 
 import { useState, useCallback } from 'react';
 import ProductCard from '@/components/ProductCard/ProductCard';
 import FilterSidebar from './FilterSidebar';
 import { SORT_OPTIONS } from './FilterConstants';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function ProductsPage({
   products,
@@ -13,6 +13,13 @@ export default function ProductsPage({
   currentPage,
   selectedCategory,
   availableSizes,
+  search,
+  category,
+  subCategories,
+  minPrice,
+  maxPrice,
+  colors,
+  sizes,
 }) {
   // ── Filter state ─────────────────────────────────────────────────────────
   const [selectedCategories, setSelectedCategories] = useState(
@@ -28,36 +35,118 @@ export default function ProductsPage({
   const [sortBy, setSortBy] = useState('Popularity');
   const [catExpanded, setCatExpanded] = useState({ 'Man Fashion': true });
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   // ── Applied filter chips ─────────────────────────────────────────────────
-  const appliedFilters = [
-    ...selectedCategories.map((c) => ({ type: 'category', label: c })),
-    ...(priceRange[0] > 0 || priceRange[1] < 1000
-      ? [{ type: 'price', label: `$${priceRange[0]} - $${priceRange[1]}` }]
-      : []),
-    ...selectedColors.map((c) => ({ type: 'color', label: c })),
-    ...selectedSizes.map((s) => ({ type: 'size', label: `Size ${s}` })),
-  ];
+
+  const appliedFilters = [];
+  if (category) {
+    appliedFilters.push({
+      type: 'category',
+      value: category,
+    });
+  }
+  subCategories.forEach((subCategory) => {
+    appliedFilters.push({
+      type: 'subCategory',
+      value: subCategory,
+    });
+  });
+  colors.forEach((color) => {
+    appliedFilters.push({
+      type: 'color',
+      value: color,
+    });
+  });
+  sizes.forEach((size) => {
+    appliedFilters.push({
+      type: 'size',
+      value: size,
+    });
+  });
+  if (minPrice !== undefined || maxPrice !== undefined) {
+    appliedFilters.push({
+      type: 'price',
+      value: `${minPrice ?? 0} - ${maxPrice ?? '∞'}`,
+    });
+  }
 
   const removeFilter = (filter) => {
-    if (filter.type === 'category')
-      setSelectedCategories((p) => p.filter((c) => c !== filter.label));
-    else if (filter.type === 'price') setPriceRange([0, 1000]);
-    else if (filter.type === 'color')
-      setSelectedColors((p) => p.filter((c) => c !== filter.label));
-    else if (filter.type === 'size')
-      setSelectedSizes((p) => p.filter((s) => `Size ${s}` !== filter.label));
+    const params = new URLSearchParams(searchParams.toString());
+
+    switch (filter.type) {
+      case 'category':
+        params.delete('category');
+        params.delete('subCategory'); // category remove হলে subCategory-ও remove
+        break;
+
+      case 'subCategory': {
+        const subCategories = params.getAll('subCategory');
+
+        params.delete('subCategory');
+
+        subCategories
+          .filter((item) => item !== filter.value)
+          .forEach((item) => params.append('subCategory', item));
+
+        break;
+      }
+
+      case 'color': {
+        const colors = params.getAll('color');
+
+        params.delete('color');
+
+        colors
+          .filter((item) => item !== filter.value)
+          .forEach((item) => params.append('color', item));
+
+        break;
+      }
+
+      case 'size': {
+        const sizes = params.getAll('size');
+
+        params.delete('size');
+
+        sizes
+          .filter((item) => item !== filter.value)
+          .forEach((item) => params.append('size', item));
+
+        break;
+      }
+
+      case 'price':
+        params.delete('minPrice');
+        params.delete('maxPrice');
+        break;
+    }
+
+    params.set('page', '1');
+
+    router.push(`/products?${params.toString()}`);
   };
 
   const clearAll = () => {
-    setSelectedCategories([]);
-    setPriceRange([0, 1000]);
-    setSelectedColors([]);
-    setSelectedSizes([]);
-    setSelectedBrands([]);
-    setMinRating(0);
-    setInStock(false);
-    setOnSale(false);
+    const params = new URLSearchParams(searchParams.toString());
+
+    // সব filter remove
+
+    params.delete('category');
+    params.delete('subCategory');
+    params.delete('color');
+    params.delete('size');
+    params.delete('minPrice');
+    params.delete('maxPrice');
+    params.delete('brand');
+    params.delete('rating');
+    params.delete('inStock');
+    params.delete('onSale');
+
+    params.set('page', '1');
+
+    router.push(`/products?${params.toString()}`);
   };
 
   // Generic array toggle helper
@@ -203,15 +292,15 @@ export default function ProductsPage({
                 <span className="font-semibold text-gray-800">
                   {totalCount}
                 </span>
-                {/* {searchQuery && (
+                {search && (
                   <>
                     {' '}
                     for{' '}
                     <span className="font-semibold text-gray-800 italic">
-                      "{searchQuery}"
+                      "{search}"
                     </span>
                   </>
-                )} */}
+                )}
               </p>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-400 hidden sm:inline">
@@ -244,10 +333,10 @@ export default function ProductsPage({
                     className="flex items-center gap-1.5 bg-white border border-gray-200
                       text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-full
                       hover:border-red-300 hover:bg-red-50 hover:text-red-600
-                      transition-all group"
+                      transition-all group cursor-pointer"
                   >
                     <span className="uppercase tracking-wide text-[10px]">
-                      {f.label}
+                      {f.value}
                     </span>
                     <svg
                       className="w-3 h-3 text-gray-400 group-hover:text-red-500"
@@ -266,7 +355,7 @@ export default function ProductsPage({
                 ))}
                 <button
                   onClick={clearAll}
-                  className="text-xs text-red-500 font-semibold hover:text-red-700 ml-1 transition-colors"
+                  className="text-xs text-red-500 font-semibold hover:text-red-700 ml-1 transition-colors cursor-pointer"
                 >
                   Clear all
                 </button>
