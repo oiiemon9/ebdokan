@@ -31,6 +31,7 @@ export async function getProducts({
   maxPrice,
   colors = [],
   sizes = [],
+  rating = 0,
   sort = 'latest',
 }) {
   const collection = await connect('products');
@@ -112,6 +113,11 @@ export async function getProducts({
       $in: sizes,
     };
   }
+  if (rating > 0) {
+    query.rating = {
+      $gte: rating,
+    };
+  }
 
   let sortQuery = {};
 
@@ -131,6 +137,16 @@ export async function getProducts({
 
   const skip = (page - 1) * limit;
 
+  const availableColors = await collection
+    .aggregate([
+      { $match: query },
+      { $unwind: '$colors' },
+      { $group: { _id: '$colors' } },
+      { $sort: { _id: 1 } },
+    ])
+    .toArray();
+  const findColors = availableColors.map((item) => item._id);
+
   const availableSizes = await collection
     .aggregate([
       { $match: query },
@@ -140,6 +156,7 @@ export async function getProducts({
     ])
     .toArray();
   const findSizes = availableSizes.map((item) => item._id);
+
   const products = await collection
     .find(query)
     .sort(sortQuery)
@@ -159,6 +176,7 @@ export async function getProducts({
     totalProducts,
     currentPage: page,
     totalPages: Math.ceil(totalProducts / limit),
+    findColors,
     findSizes,
   };
 }

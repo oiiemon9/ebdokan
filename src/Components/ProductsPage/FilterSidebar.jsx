@@ -21,12 +21,15 @@ export default function FilterSidebar({
   setCatExpanded,
   toggleArr,
   clearAll,
+  availableColors,
   availableSizes,
+  search,
 }) {
   const [priceRange, setPriceRange] = useState([0, MAXPRICE]);
   const router = useRouter();
   const searchParams = useSearchParams();
   const selectedCategory = searchParams.get('category') || '';
+  const selectedRating = Number(searchParams.get('minRating')) || 0;
   const selectedSubCategories = searchParams.getAll('subCategory');
   const selectedColors = searchParams.getAll('color');
   const selectedSizes = searchParams.getAll('size');
@@ -140,6 +143,23 @@ export default function FilterSidebar({
     params.set('page', '1');
     router.push(`/products?${params.toString()}`);
   };
+  const handleRatingChange = (minRating) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (params.get('minRating') === minRating) {
+      params.delete('minRating');
+    } else {
+      params.set('minRating', minRating);
+    }
+
+    params.set('page', '1');
+    router.push(`/products?${params.toString()}`);
+  };
+
+  const showSizeFilter =
+    (search || selectedCategory) && availableSizes.length > 0;
+  const showColorFilter =
+    (search || selectedCategory) && availableSizes.length > 0;
 
   return (
     <div className="w-full">
@@ -296,71 +316,64 @@ export default function FilterSidebar({
       </FilterSection>
 
       {/* ── Color ── */}
-      <FilterSection title="Color">
-        <div className="flex flex-wrap gap-2">
-          {COLORS.map((c) => (
-            <button
-              key={c.name}
-              onClick={() => handleColorChange(c.hex)}
-              title={c.name}
-              className={`relative w-7 h-7 rounded-full border-2 transition-all hover:scale-110
+      {showColorFilter && (
+        <FilterSection title="Color">
+          <div className="flex flex-wrap gap-2">
+            {availableColors.map((c, i) => (
+              <button
+                key={i}
+                onClick={() => handleColorChange(c)}
+                title={c.name}
+                className={`relative w-7 h-7 rounded-full border-2 transition-all hover:scale-110
                 ${
-                  selectedColors.includes(c.hex)
+                  selectedColors.includes(c)
                     ? 'border-indigo-600 ring-2 ring-indigo-200 scale-110'
                     : 'border-transparent hover:border-gray-300'
                 }`}
-              style={{ background: c.hex }}
-            >
-              {selectedColors.includes(c.hex) && (
-                <svg
-                  className="absolute inset-0 m-auto w-3 h-3"
-                  fill="none"
-                  stroke="white"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={3}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-              )}
-            </button>
-          ))}
-        </div>
-        <div className="flex flex-wrap gap-1 mt-2">
-          {COLORS.map((c) => (
-            <span
-              key={c.name}
-              className="text-[10px] text-gray-400"
-              style={{ width: '28px', textAlign: 'center' }}
-            >
-              {c.name}
-            </span>
-          ))}
-        </div>
-      </FilterSection>
+                style={{ background: c }}
+              >
+                {selectedColors.includes(c) && (
+                  <svg
+                    className="absolute inset-0 m-auto w-3 h-3"
+                    fill="none"
+                    stroke="white"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={3}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                )}
+              </button>
+            ))}
+          </div>
+        </FilterSection>
+      )}
 
       {/* ── Size ── */}
-      <FilterSection title="Size">
-        <div className="grid grid-cols-3 gap-1.5">
-          {availableSizes.map((s) => (
-            <button
-              key={s}
-              onClick={() => handleSizeChange(s)}
-              className={`py-1.5 text-xs font-semibold rounded-lg border transition-all
+      {showSizeFilter && (
+        <FilterSection title="Size">
+          <div className="grid grid-cols-3 gap-1.5">
+            {availableSizes.map((s) => (
+              <button
+                key={s}
+                onClick={() => handleSizeChange(s)}
+                className={`py-1.5 text-xs font-semibold rounded-lg border transition-all
                 ${
                   selectedSizes.includes(s)
                     ? 'bg-[#1a1a2e] text-white border-[#1a1a2e]'
                     : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
                 }`}
-            >
-              {s}
-            </button>
-          ))}
-        </div>
-      </FilterSection>
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        </FilterSection>
+      )}
 
       {/* ── Rating ── */}
       <FilterSection title="Min Rating">
@@ -373,8 +386,8 @@ export default function FilterSidebar({
               <input
                 type="radio"
                 name="rating"
-                checked={minRating === r}
-                onChange={() => setMinRating(r)}
+                checked={selectedRating === r}
+                onChange={() => handleRatingChange(r)}
                 className="w-4 h-4 accent-indigo-600 cursor-pointer"
               />
               <div className="flex items-center gap-1.5">

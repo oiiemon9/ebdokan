@@ -11,7 +11,7 @@ export default function ProductsPage({
   totalCount,
   totalPages,
   currentPage,
-  selectedCategory,
+  availableColors,
   availableSizes,
   search,
   category,
@@ -22,12 +22,7 @@ export default function ProductsPage({
   sizes,
 }) {
   // ── Filter state ─────────────────────────────────────────────────────────
-  const [selectedCategories, setSelectedCategories] = useState(
-    selectedCategory === 'all' ? [] : [selectedCategory],
-  );
-  const [priceRange, setPriceRange] = useState([100, 800]);
-  const [selectedColors, setSelectedColors] = useState([]);
-  const [selectedSizes, setSelectedSizes] = useState(['L']);
+
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [minRating, setMinRating] = useState(0);
   const [inStock, setInStock] = useState(false);
@@ -158,20 +153,13 @@ export default function ProductsPage({
 
   // Shared props passed down to FilterSidebar
   const filterProps = {
-    selectedCategories,
-    priceRange,
-    selectedColors,
-    selectedSizes,
     selectedBrands,
     minRating,
     inStock,
     onSale,
     catExpanded,
     appliedFilters,
-    setSelectedCategories,
-    setPriceRange,
-    setSelectedColors,
-    setSelectedSizes,
+
     setSelectedBrands,
     setMinRating,
     setInStock,
@@ -179,7 +167,9 @@ export default function ProductsPage({
     setCatExpanded,
     toggleArr,
     clearAll,
+    availableColors,
     availableSizes,
+    search,
   };
 
   return (

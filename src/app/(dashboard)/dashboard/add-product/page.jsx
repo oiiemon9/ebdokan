@@ -72,6 +72,8 @@ export default function AddProductPage() {
       sizes: [],
       tags: [],
       images: [],
+      rating: 0,
+      sales: 0,
       isFeatured: false,
       createdAt: new Date(),
     },

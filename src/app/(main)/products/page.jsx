@@ -9,6 +9,7 @@ export default async function page({ searchParams }) {
   const search = params.search || '';
 
   const category = params.category || '';
+
   const subCategories = params.subCategory
     ? Array.isArray(params.subCategory)
       ? params.subCategory
@@ -33,6 +34,8 @@ export default async function page({ searchParams }) {
       : [params.size]
     : [];
 
+  const rating = Number(params.minRating) || 0;
+
   const data = await getProducts({
     page,
     search,
@@ -42,6 +45,7 @@ export default async function page({ searchParams }) {
     maxPrice,
     colors,
     sizes,
+    rating,
     sort,
   });
 
@@ -52,6 +56,7 @@ export default async function page({ searchParams }) {
       currentPage={data.currentPage}
       totalPages={data.totalPages}
       selectedCategory={category}
+      availableColors={data.findColors}
       availableSizes={data.findSizes}
       search={search}
       category={category}
