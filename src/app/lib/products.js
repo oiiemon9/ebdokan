@@ -32,6 +32,7 @@ export async function getProducts({
   colors = [],
   sizes = [],
   rating = 0,
+  brands = [],
   sort = 'latest',
 }) {
   const collection = await connect('products');
@@ -118,6 +119,11 @@ export async function getProducts({
       $gte: rating,
     };
   }
+  if (brands.length > 0) {
+    query.brand = {
+      $in: brands,
+    };
+  }
 
   let sortQuery = {};
 
@@ -137,9 +143,18 @@ export async function getProducts({
 
   const skip = (page - 1) * limit;
 
+  const colorQuery = { ...query };
+  delete colorQuery.colors;
+
+  const sizeQuery = { ...query };
+  delete sizeQuery.sizes;
+
+  const brandQuery = { ...query };
+  delete brandQuery.brand;
+
   const availableColors = await collection
     .aggregate([
-      { $match: query },
+      { $match: colorQuery },
       { $unwind: '$colors' },
       { $group: { _id: '$colors' } },
       { $sort: { _id: 1 } },
@@ -149,13 +164,31 @@ export async function getProducts({
 
   const availableSizes = await collection
     .aggregate([
-      { $match: query },
+      { $match: sizeQuery },
       { $unwind: '$sizes' },
       { $group: { _id: '$sizes' } },
       { $sort: { _id: 1 } },
     ])
     .toArray();
   const findSizes = availableSizes.map((item) => item._id);
+
+  const availableBrands = await collection
+    .aggregate([
+      { $match: brandQuery },
+      {
+        $match: {
+          brand: {
+            $exists: true,
+            $nin: ['', null],
+          },
+        },
+      },
+      { $group: { _id: '$brand' } },
+      { $sort: { _id: 1 } },
+    ])
+    .toArray();
+
+  const findBrands = availableBrands.map((item) => item._id);
 
   const products = await collection
     .find(query)
@@ -178,5 +211,6 @@ export async function getProducts({
     totalPages: Math.ceil(totalProducts / limit),
     findColors,
     findSizes,
+    findBrands,
   };
 }

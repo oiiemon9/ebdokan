@@ -33,6 +33,11 @@ export default async function page({ searchParams }) {
       ? params.size
       : [params.size]
     : [];
+  const brands = params.brand
+    ? Array.isArray(params.brand)
+      ? params.brand
+      : [params.brand]
+    : [];
 
   const rating = Number(params.minRating) || 0;
 
@@ -45,6 +50,7 @@ export default async function page({ searchParams }) {
     maxPrice,
     colors,
     sizes,
+    brands,
     rating,
     sort,
   });
@@ -58,6 +64,7 @@ export default async function page({ searchParams }) {
       selectedCategory={category}
       availableColors={data.findColors}
       availableSizes={data.findSizes}
+      availableBrands={data.findBrands}
       search={search}
       category={category}
       subCategories={subCategories}
@@ -65,6 +72,7 @@ export default async function page({ searchParams }) {
       maxPrice={maxPrice}
       colors={colors}
       sizes={sizes}
+      brands={brands}
     />
   );
 }

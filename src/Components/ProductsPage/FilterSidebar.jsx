@@ -23,6 +23,7 @@ export default function FilterSidebar({
   clearAll,
   availableColors,
   availableSizes,
+  availableBrands,
   search,
 }) {
   const [priceRange, setPriceRange] = useState([0, MAXPRICE]);
@@ -30,6 +31,7 @@ export default function FilterSidebar({
   const searchParams = useSearchParams();
   const selectedCategory = searchParams.get('category') || '';
   const selectedRating = Number(searchParams.get('minRating')) || 0;
+  const selectedBrand = searchParams.getAll('brand');
   const selectedSubCategories = searchParams.getAll('subCategory');
   const selectedColors = searchParams.getAll('color');
   const selectedSizes = searchParams.getAll('size');
@@ -152,6 +154,21 @@ export default function FilterSidebar({
       params.set('minRating', minRating);
     }
 
+    params.set('page', '1');
+    router.push(`/products?${params.toString()}`);
+  };
+
+  const handleBrandChange = (brand) => {
+    const params = new URLSearchParams(searchParams.toString());
+    const selected = params.getAll('brand');
+    params.delete('brand');
+    if (selected.includes(brand)) {
+      selected
+        .filter((b) => b !== brand)
+        .forEach((b) => params.append('brand', b));
+    } else {
+      [...selected, brand].forEach((b) => params.append('brand', b));
+    }
     params.set('page', '1');
     router.push(`/products?${params.toString()}`);
   };
@@ -405,46 +422,27 @@ export default function FilterSidebar({
         </div>
       </FilterSection>
 
-      {/* ── Availability ── */}
-      <FilterSection title="Availability" defaultOpen={false}>
-        <div className="space-y-2.5">
-          <label className="flex items-center gap-2.5 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={inStock}
-              onChange={(e) => setInStock(e.target.checked)}
-              className="w-4 h-4 rounded accent-indigo-600 cursor-pointer"
-            />
-            <span className="text-sm text-gray-600">In Stock Only</span>
-          </label>
-          <label className="flex items-center gap-2.5 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={onSale}
-              onChange={(e) => setOnSale(e.target.checked)}
-              className="w-4 h-4 rounded accent-indigo-600 cursor-pointer"
-            />
-            <span className="text-sm text-gray-600">On Sale</span>
-          </label>
-        </div>
-      </FilterSection>
-
       {/* ── Brands ── */}
-      <FilterSection title="Brands" defaultOpen={false}>
-        <div className="space-y-1.5">
-          {BRANDS.map((b) => (
-            <label key={b} className="flex items-center gap-2.5 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={selectedBrands.includes(b)}
-                onChange={() => toggleArr(selectedBrands, setSelectedBrands, b)}
-                className="w-4 h-4 rounded accent-indigo-600 cursor-pointer"
-              />
-              <span className="text-sm text-gray-600">{b}</span>
-            </label>
-          ))}
-        </div>
-      </FilterSection>
+      {showSizeFilter && (
+        <FilterSection title="Brands" defaultOpen={true}>
+          <div className="space-y-1.5">
+            {availableBrands.map((b, i) => (
+              <label
+                key={i}
+                className="flex items-center gap-2.5 cursor-pointer"
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedBrand.includes(b)}
+                  onChange={() => handleBrandChange(b)}
+                  className="w-4 h-4 rounded accent-indigo-600 cursor-pointer"
+                />
+                <span className="text-sm text-gray-600">{b}</span>
+              </label>
+            ))}
+          </div>
+        </FilterSection>
+      )}
     </div>
   );
 }

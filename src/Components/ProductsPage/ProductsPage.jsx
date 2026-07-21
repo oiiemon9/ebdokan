@@ -13,6 +13,7 @@ export default function ProductsPage({
   currentPage,
   availableColors,
   availableSizes,
+  availableBrands,
   search,
   category,
   subCategories,
@@ -20,6 +21,7 @@ export default function ProductsPage({
   maxPrice,
   colors,
   sizes,
+  brands,
 }) {
   // ── Filter state ─────────────────────────────────────────────────────────
 
@@ -66,6 +68,12 @@ export default function ProductsPage({
       value: `${minPrice ?? 0} - ${maxPrice ?? '∞'}`,
     });
   }
+  brands.forEach((brand) => {
+    appliedFilters.push({
+      type: 'brand',
+      value: brand,
+    });
+  });
 
   const removeFilter = (filter) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -116,6 +124,18 @@ export default function ProductsPage({
         params.delete('minPrice');
         params.delete('maxPrice');
         break;
+
+      case 'brand': {
+        const brand = params.getAll('brand');
+
+        params.delete('brand');
+
+        brand
+          .filter((item) => item !== filter.value)
+          .forEach((item) => params.append('brand', item));
+
+        break;
+      }
     }
 
     params.set('page', '1');
@@ -169,6 +189,7 @@ export default function ProductsPage({
     clearAll,
     availableColors,
     availableSizes,
+    availableBrands,
     search,
   };
 
