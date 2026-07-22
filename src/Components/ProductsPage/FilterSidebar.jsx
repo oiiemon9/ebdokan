@@ -21,6 +21,7 @@ export default function FilterSidebar({
   setCatExpanded,
   toggleArr,
   clearAll,
+  categoryTree,
   availableColors,
   availableSizes,
   availableBrands,
@@ -37,39 +38,48 @@ export default function FilterSidebar({
   const selectedSizes = searchParams.getAll('size');
 
   const handleCategoryChange = (category) => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParams);
 
     if (params.get('category') === category) {
       params.delete('category');
+      params.delete('subCategory');
     } else {
       params.set('category', category);
+      params.delete('subCategory');
     }
 
-    params.delete('subCategory');
     params.set('page', '1');
 
     router.push(`/products?${params.toString()}`);
   };
 
-  const handleSubCategoryChange = (subCategory) => {
-    const params = new URLSearchParams(searchParams.toString());
+  const handleSubCategoryChange = (subCategory, category) => {
+    const params = new URLSearchParams(searchParams);
+
     const selected = params.getAll('subCategory');
+
     params.delete('subCategory');
 
     if (selected.includes(subCategory)) {
-      selected
-        .filter((item) => item !== subCategory)
-        .forEach((item) => params.append('subCategory', item));
+      const next = selected.filter((s) => s !== subCategory);
+
+      next.forEach((s) => params.append('subCategory', s));
+
+      if (next.length === 0) {
+        params.delete('category');
+      }
     } else {
-      [...selected, subCategory].forEach((item) =>
-        params.append('subCategory', item),
+      params.set('category', category);
+
+      [...selected, subCategory].forEach((s) =>
+        params.append('subCategory', s),
       );
     }
 
     params.set('page', '1');
+
     router.push(`/products?${params.toString()}`);
   };
-
   const handleValueChange = (newValues) => {
     setPriceRange(newValues);
 
@@ -195,79 +205,89 @@ export default function FilterSidebar({
 
       {/* ── Category ── */}
       <FilterSection title="Category">
-        {CATEGORIES.map((cat) => (
-          <div key={cat.name} className="mb-2">
-            {/* Main Category */}
-            <div className="flex items-center justify-between py-1.5">
-              <label className="flex items-center gap-2.5 flex-1 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  checked={selectedCategory === cat.name}
-                  onChange={() => handleCategoryChange(cat.name)}
-                  className="w-4 h-4 rounded accent-indigo-600 cursor-pointer"
-                />
+        {categoryTree.map((cat) => {
+          const isExpanded =
+            catExpanded[cat.slug] ||
+            selectedCategory === cat.name ||
+            cat.children.some((sub) =>
+              selectedSubCategories.includes(sub.name),
+            );
+          return (
+            <div key={cat.name} className="">
+              {/* Main Category */}
+              <div className="flex items-center justify-between py-1.5">
+                <label className="flex items-center gap-2.5 flex-1 cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    checked={selectedCategory === cat.name}
+                    onChange={() => handleCategoryChange(cat.name)}
+                    className="w-4 h-4 rounded accent-indigo-600 cursor-pointer"
+                  />
 
-                <span
-                  className={`text-sm font-semibold transition-colors ${
-                    selectedCategory === cat.name
-                      ? 'text-gray-900'
-                      : 'text-gray-600 group-hover:text-gray-900'
-                  }`}
-                >
-                  {cat.name}
-                </span>
-              </label>
+                  <span
+                    className={`text-sm font-semibold transition-colors ${
+                      selectedCategory === cat.name
+                        ? 'text-gray-900'
+                        : 'text-gray-600 group-hover:text-gray-900'
+                    }`}
+                  >
+                    {cat.name}
+                  </span>
+                </label>
 
-              {cat.children.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    setCatExpanded((prev) => ({
-                      ...prev,
-                      [cat.slug]: !prev[cat.slug],
-                    }))
-                  }
-                  className="p-1"
-                >
-                  <ChevronIcon open={!!catExpanded[cat.slug]} />
-                </button>
+                {cat.children.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setCatExpanded((prev) => ({
+                        ...prev,
+                        [cat.slug]: !prev[cat.slug],
+                      }))
+                    }
+                    className="p-1"
+                  >
+                    <ChevronIcon open={!!catExpanded[cat.slug]} />
+                  </button>
+                )}
+              </div>
+
+              {/* Sub Categories */}
+              {isExpanded && cat.children.length > 0 && (
+                <div className="ml-6 mt-2 space-y-2 border-l border-gray-200 pl-3">
+                  {cat.children.map((sub) => (
+                    <label
+                      key={sub.name}
+                      className="flex items-center justify-between cursor-pointer group"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <input
+                          type="checkbox"
+                          checked={selectedSubCategories.includes(sub.name)}
+                          onChange={() =>
+                            handleSubCategoryChange(sub.name, cat.name)
+                          }
+                          className="w-4 h-4 rounded accent-indigo-600 cursor-pointer"
+                        />
+
+                        <span
+                          className={`text-sm transition-colors ${
+                            selectedSubCategories.includes(sub.name)
+                              ? 'text-gray-900 font-semibold'
+                              : 'text-gray-500 group-hover:text-gray-800'
+                          }`}
+                        >
+                          {sub.name}
+                        </span>
+                      </div>
+
+                      <span className="text-gray-400 text-xs">{sub.count}</span>
+                    </label>
+                  ))}
+                </div>
               )}
             </div>
-
-            {/* Sub Categories */}
-            {catExpanded[cat.slug] && cat.children.length > 0 && (
-              <div className="ml-6 mt-2 space-y-2 border-l border-gray-200 pl-3">
-                {cat.children.map((sub) => (
-                  <label
-                    key={sub.name}
-                    className="flex items-center justify-between cursor-pointer group"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <input
-                        type="checkbox"
-                        checked={selectedSubCategories.includes(sub.name)}
-                        onChange={() => handleSubCategoryChange(sub.name)}
-                        className="w-4 h-4 rounded accent-indigo-600 cursor-pointer"
-                      />
-
-                      <span
-                        className={`text-sm transition-colors ${
-                          selectedSubCategories.includes(sub.name)
-                            ? 'text-gray-900 font-semibold'
-                            : 'text-gray-500 group-hover:text-gray-800'
-                        }`}
-                      >
-                        {sub.name}
-                      </span>
-                    </div>
-
-                    <span className="text-gray-400 text-xs">{sub.count}</span>
-                  </label>
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
+          );
+        })}
       </FilterSection>
 
       {/* ── Price ── */}

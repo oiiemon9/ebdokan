@@ -11,6 +11,7 @@ export default function ProductsPage({
   totalCount,
   totalPages,
   currentPage,
+  categoryTree,
   availableColors,
   availableSizes,
   availableBrands,
@@ -29,11 +30,11 @@ export default function ProductsPage({
   const [minRating, setMinRating] = useState(0);
   const [inStock, setInStock] = useState(false);
   const [onSale, setOnSale] = useState(false);
-  const [sortBy, setSortBy] = useState('Popularity');
+  const searchParams = useSearchParams();
+  const sortBy = searchParams.get('sort') || 'popularity';
   const [catExpanded, setCatExpanded] = useState({ 'Man Fashion': true });
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   // ── Applied filter chips ─────────────────────────────────────────────────
 
@@ -171,6 +172,15 @@ export default function ProductsPage({
     );
   }, []);
 
+  const handleSortChange = (sort) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    params.set('sort', sort);
+    params.set('page', '1');
+
+    router.push(`/products?${params.toString()}`);
+  };
+
   // Shared props passed down to FilterSidebar
   const filterProps = {
     selectedBrands,
@@ -187,6 +197,7 @@ export default function ProductsPage({
     setCatExpanded,
     toggleArr,
     clearAll,
+    categoryTree,
     availableColors,
     availableSizes,
     availableBrands,
@@ -319,13 +330,15 @@ export default function ProductsPage({
                 </span>
                 <select
                   value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
+                  onChange={(e) => handleSortChange(e.target.value)}
                   className="text-sm border border-gray-200 bg-white rounded-xl px-3 py-2
                     text-gray-700 focus:outline-none focus:border-indigo-400 cursor-pointer
                     hover:border-gray-300 transition-colors"
                 >
-                  {SORT_OPTIONS.map((o) => (
-                    <option key={o}>{o}</option>
+                  {SORT_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
                   ))}
                 </select>
               </div>

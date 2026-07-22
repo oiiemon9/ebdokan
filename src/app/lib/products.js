@@ -33,7 +33,7 @@ export async function getProducts({
   sizes = [],
   rating = 0,
   brands = [],
-  sort = 'latest',
+  sort = 'popularity',
 }) {
   const collection = await connect('products');
   const query = {};
@@ -86,9 +86,11 @@ export async function getProducts({
     ];
   }
 
-  if (category) {
+  if (category && subCategories.length === 0) {
     query.category = category;
   }
+
+  // এক বা একাধিক SubCategory filter
   if (subCategories.length > 0) {
     query.subCategory = {
       $in: subCategories,
@@ -128,12 +130,20 @@ export async function getProducts({
   let sortQuery = {};
 
   switch (sort) {
+    case 'popularity':
+      sortQuery = { sold: -1 }; // অথবা popularity field
+      break;
+
     case 'price-asc':
       sortQuery = { price: 1 };
       break;
 
     case 'price-desc':
       sortQuery = { price: -1 };
+      break;
+
+    case 'rating-desc':
+      sortQuery = { rating: -1 };
       break;
 
     case 'latest':
@@ -151,6 +161,9 @@ export async function getProducts({
 
   const brandQuery = { ...query };
   delete brandQuery.brand;
+
+  const categoryQuery = { ...query };
+  delete categoryQuery.subCategory;
 
   const availableColors = await collection
     .aggregate([
@@ -190,6 +203,54 @@ export async function getProducts({
 
   const findBrands = availableBrands.map((item) => item._id);
 
+  const allCategories = await collection
+    .aggregate([
+      {
+        $match: categoryQuery,
+      },
+      {
+        $group: {
+          _id: {
+            category: '$category',
+            subCategory: '$subCategory',
+          },
+          count: {
+            $sum: 1,
+          },
+        },
+      },
+      {
+        $group: {
+          _id: '$_id.category',
+          count: {
+            $sum: '$count',
+          },
+          children: {
+            $push: {
+              name: '$_id.subCategory',
+              count: '$count',
+            },
+          },
+        },
+      },
+      {
+        $sort: {
+          _id: 1,
+        },
+      },
+    ])
+    .toArray();
+
+  const categoryTree = allCategories.map((item) => ({
+    name: item._id,
+    slug: item._id.toLowerCase().replace(/\s+/g, '-'),
+    count: item.count,
+    children: item.children.map((sub) => ({
+      ...sub,
+      slug: sub.name.toLowerCase().replace(/\s+/g, '-'),
+    })),
+  }));
+
   const products = await collection
     .find(query)
     .sort(sortQuery)
@@ -209,6 +270,7 @@ export async function getProducts({
     totalProducts,
     currentPage: page,
     totalPages: Math.ceil(totalProducts / limit),
+    categoryTree,
     findColors,
     findSizes,
     findBrands,

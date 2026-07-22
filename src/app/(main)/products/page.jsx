@@ -16,7 +16,7 @@ export default async function page({ searchParams }) {
       : [params.subCategory]
     : [];
 
-  const sort = params.sort || 'latest';
+  const sort = params.sort || 'popularity';
 
   const minPrice =
     params.minPrice !== undefined ? Number(params.minPrice) : undefined;
@@ -68,6 +68,7 @@ export default async function page({ searchParams }) {
       search={search}
       category={category}
       subCategories={subCategories}
+      categoryTree={data.categoryTree}
       minPrice={minPrice}
       maxPrice={maxPrice}
       colors={colors}

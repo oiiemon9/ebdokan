@@ -44,11 +44,26 @@ export const SIZES = [
 ];
 
 export const SORT_OPTIONS = [
-  'Popularity',
-  'Price: Low to High',
-  'Price: High to Low',
-  'Newest',
-  'Rating',
+  {
+    label: 'Popularity',
+    value: 'popularity',
+  },
+  {
+    label: 'Price: Low to High',
+    value: 'price-asc',
+  },
+  {
+    label: 'Price: High to Low',
+    value: 'price-desc',
+  },
+  {
+    label: 'Newest',
+    value: 'latest',
+  },
+  {
+    label: 'Rating',
+    value: 'rating-desc',
+  },
 ];
 
 export const BRANDS = [

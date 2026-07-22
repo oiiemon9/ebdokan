@@ -73,7 +73,7 @@ export default function AddProductPage() {
       tags: [],
       images: [],
       rating: 0,
-      sales: 0,
+      sold: 0,
       isFeatured: false,
       createdAt: new Date(),
     },

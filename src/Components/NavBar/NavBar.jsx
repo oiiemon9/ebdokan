@@ -304,12 +304,10 @@ export default function NavBar() {
   });
 
   const onSubmit = ({ search }) => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams();
 
     if (search.trim()) {
       params.set('search', search.trim());
-    } else {
-      params.delete('search');
     }
 
     params.set('page', '1');
