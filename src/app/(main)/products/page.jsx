@@ -1,5 +1,5 @@
 import { getProducts } from '@/app/lib/products';
-import { MAXPRICE } from '@/Components/ProductsPage/FilterConstants';
+
 import ProductsPage from '@/Components/ProductsPage/ProductsPage';
 import React from 'react';
 

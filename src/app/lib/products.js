@@ -276,3 +276,15 @@ export async function getProducts({
     findBrands,
   };
 }
+
+// async function seedProducts() {
+//   const collection = await connect('products');
+
+//   const products =
+
+//   await collection.insertMany(products);
+
+//   console.log('Done');
+// }
+
+// seedProducts();

@@ -331,6 +331,7 @@ export default function FilterSidebar({
               <input
                 type="number"
                 value={priceRange[0]}
+                min={0}
                 onChange={(e) => handleMinPriceChange(e.target.value)}
                 className="w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm text-gray-700
                   focus:outline-none focus:border-indigo-400 transition-colors"
@@ -343,6 +344,7 @@ export default function FilterSidebar({
               <input
                 type="number"
                 value={priceRange[1]}
+                min={1}
                 onChange={(e) => handleMaxPriceChange(e.target.value)}
                 className="w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm text-gray-700
                   focus:outline-none focus:border-indigo-400 transition-colors"
