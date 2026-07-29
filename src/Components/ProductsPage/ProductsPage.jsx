@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import ProductCard from '@/components/ProductCard/ProductCard';
+
 import FilterSidebar from './FilterSidebar';
 import { SORT_OPTIONS } from './FilterConstants';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Pagination from './Pagination';
+import ProductCard from '../ProductCard/ProductCard';
 
 export default function ProductsPage({
   products,

@@ -7,19 +7,11 @@ import { useEffect, useState } from 'react';
 import * as Slider from '@radix-ui/react-slider';
 
 export default function FilterSidebar({
-  selectedBrands,
-  minRating,
-  inStock,
-  onSale,
   catExpanded,
   appliedFilters,
 
-  setSelectedBrands,
-  setMinRating,
-  setInStock,
-  setOnSale,
   setCatExpanded,
-  toggleArr,
+
   clearAll,
   categoryTree,
   availableColors,
@@ -182,6 +174,8 @@ export default function FilterSidebar({
     params.set('page', '1');
     router.push(`/products?${params.toString()}`);
   };
+
+  console.log(selectedBrand);
 
   const showSizeFilter =
     (search || selectedCategory) && availableSizes.length > 0;

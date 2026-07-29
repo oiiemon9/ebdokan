@@ -106,7 +106,7 @@ export default function ProductCard({ product }) {
               <Image
                 src={product.images[0]}
                 alt={product.productName}
-                className="h-full w-auto object-cover"
+                className="w-full h-full object-cover"
                 width={400}
                 height={400}
               />

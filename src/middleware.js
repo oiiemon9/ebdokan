@@ -1,5 +1,6 @@
 import { getToken } from 'next-auth/jwt';
 import { NextResponse } from 'next/server';
+import { ROUTE_PERMISSIONS } from './app/lib/permissions';
 
 export async function middleware(req) {
   const token = await getToken({
@@ -28,6 +29,16 @@ export async function middleware(req) {
     loginUrl.searchParams.set('callbackUrl', pathname);
 
     return NextResponse.redirect(loginUrl);
+  }
+
+  for (const route in ROUTE_PERMISSIONS) {
+    if (pathname.startsWith(route)) {
+      const allowedRoles = ROUTE_PERMISSIONS[route];
+
+      if (!allowedRoles.includes(token.role)) {
+        return NextResponse.redirect(new URL('/', req.url));
+      }
+    }
   }
 
   return NextResponse.next();

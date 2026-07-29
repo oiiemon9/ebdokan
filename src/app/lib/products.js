@@ -72,12 +72,6 @@ export async function getProducts({
         },
       },
       {
-        shortDescription: {
-          $regex: search,
-          $options: 'i',
-        },
-      },
-      {
         tags: {
           $regex: search,
           $options: 'i',
@@ -164,6 +158,7 @@ export async function getProducts({
 
   const categoryQuery = { ...query };
   delete categoryQuery.subCategory;
+  delete categoryQuery.category;
 
   const availableColors = await collection
     .aggregate([

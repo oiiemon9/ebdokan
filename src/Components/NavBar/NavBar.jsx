@@ -460,6 +460,10 @@ export default function NavBar() {
                           { label: '👤 My Profile', href: '/account' },
                           { label: '📦 My Orders', href: '/my-orders' },
                           { label: '♡  Wishlist', href: '/wishlist' },
+                          ...(session.user?.role !== 'user'
+                            ? [{ label: '📊 Dashboard', href: '/dashboard' }]
+                            : []),
+
                           { label: '⚙️ Settings', href: '/account/settings' },
                         ].map((item) => (
                           <Link

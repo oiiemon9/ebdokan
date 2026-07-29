@@ -91,12 +91,23 @@ export const authOptions = {
       }
     },
     async jwt({ token, user, account }) {
+      const usersCollection = await connect('users');
+
       if (user) {
-        console.log(user, account);
         token.id = user.id;
         token.role = user.role;
         token.phone = user.phone || '';
       }
+      if (token.id) {
+        const dbUser = await usersCollection.findOne({
+          userId: token.id,
+        });
+
+        if (dbUser) {
+          token.role = dbUser.role;
+        }
+      }
+      console.log(token);
       return token;
     },
     async session({ session, token }) {
