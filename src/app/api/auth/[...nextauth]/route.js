@@ -53,7 +53,6 @@ export const authOptions = {
   callbacks: {
     async signIn({ account, profile }) {
       if (account.type === 'credentials') return true;
-      console.log('login use:', account, profile);
       try {
         const usersCollection = await connect('users');
         const existingUser = await usersCollection.findOne({
@@ -91,28 +90,30 @@ export const authOptions = {
       }
     },
     async jwt({ token, user, account }) {
-      const usersCollection = await connect('users');
-
       if (user) {
         token.id = user.id;
-        token.role = user.role;
         token.phone = user.phone || '';
       }
-      if (token.id) {
+
+      if (account?.type === 'oauth') {
+        const usersCollection = await connect('users');
+
         const dbUser = await usersCollection.findOne({
-          userId: token.id.toString(),
+          userId: token.id,
         });
 
-        if (dbUser) {
-          token.role = dbUser.role;
-        }
+        token.role = dbUser?.role || 'user';
+      }
+
+      if (user?.role) {
+        token.role = user.role;
       }
 
       return token;
     },
     async session({ session, token }) {
       session.user.id = token.id;
-      session.user.role = token.role;
+      session.user.role = token.role || 'user';
       session.user.phone = token.phone || '';
       return session;
     },
