@@ -1,5 +1,6 @@
 'use client';
 
+import { apiFetch } from '@/app/lib/api';
 import DashboardHeader from '@/Components/Dashboard/DashboardHeader';
 import ProductRow from '@/Components/Dashboard/Products/ProductRow';
 import Skeleton from '@/Components/Dashboard/Products/Skeleton';
@@ -14,10 +15,7 @@ export default function ProductsPage() {
     error,
   } = useQuery({
     queryKey: ['products'],
-    queryFn: async () => {
-      const res = await fetch('/api/products');
-      return res.json();
-    },
+    queryFn: () => apiFetch('/api/products'),
   });
 
   return (

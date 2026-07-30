@@ -463,7 +463,6 @@ export default function NavBar() {
                           ...(session.user?.role !== 'user'
                             ? [{ label: '📊 Dashboard', href: '/dashboard' }]
                             : []),
-
                           { label: '⚙️ Settings', href: '/account/settings' },
                         ].map((item) => (
                           <Link

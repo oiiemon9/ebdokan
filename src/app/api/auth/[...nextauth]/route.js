@@ -100,14 +100,14 @@ export const authOptions = {
       }
       if (token.id) {
         const dbUser = await usersCollection.findOne({
-          userId: token.id,
+          userId: token.id.toString(),
         });
 
         if (dbUser) {
           token.role = dbUser.role;
         }
       }
-      console.log(token);
+
       return token;
     },
     async session({ session, token }) {

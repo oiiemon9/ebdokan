@@ -111,18 +111,19 @@ const TextEditor = ({ value, onChange }) => {
       }
     };
   }
-
-  if (imageUploading) {
-    Swal.fire({
-      title: 'Uploading image...',
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      },
-    });
-  } else {
-    Swal.close();
-  }
+  useEffect(() => {
+    if (imageUploading) {
+      Swal.fire({
+        title: 'Uploading image...',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+    } else if (Swal.isVisible()) {
+      Swal.close();
+    }
+  }, [imageUploading]);
 
   return (
     <div className="rounded-md overflow-hidden bg-white">

@@ -8,6 +8,8 @@ import ColorPicker from '@/Components/Dashboard/AddProduct/ColorPicker';
 import ProductImageUpload from '@/Components/Dashboard/AddProduct/ProductImageUpload';
 import TagInput from '@/Components/Dashboard/AddProduct/TagInput';
 import Swal from 'sweetalert2';
+import { apiFetch } from '@/app/lib/api';
+import { useState } from 'react';
 
 // ─── Field Wrapper ──────────────────────────────────────────────────────────
 function Field({ label, required, error, hint, children }) {
@@ -75,26 +77,21 @@ export default function AddProductPage() {
       rating: 0,
       sold: 0,
       isFeatured: false,
-      createdAt: new Date(),
     },
   });
-
+  const [isUploading, setIsUploading] = useState(false);
   const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
   const UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
 
   const mutation = useMutation({
-    mutationFn: async (product) => {
-      const res = await fetch('/api/products', {
+    mutationFn: (product) =>
+      apiFetch('/api/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(product),
-      });
-      if (!res.ok) throw new Error('Failed to save product');
-      return res.json();
-    },
+      }),
 
     onSuccess: (data) => {
-      alert('Product added successfully');
       Swal.fire({
         title: 'Success!',
         text: 'Product added successfully',
@@ -126,39 +123,52 @@ export default function AddProductPage() {
       stock: Number(data.stock) || 0,
       weight: Number(data.weight) || 0,
     };
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, upload product',
+    }).then(async (result) => {
+      if (result.isConfirmed)
+        try {
+          setIsUploading(true);
+          const uploadedImages = await Promise.all(
+            normalizedData.images.map(async (img) => {
+              const formData = new FormData();
 
-    try {
-      const uploadedImages = await Promise.all(
-        normalizedData.images.map(async (img) => {
-          const formData = new FormData();
+              formData.append('file', img.file);
+              formData.append('upload_preset', UPLOAD_PRESET);
 
-          formData.append('file', img.file);
-          formData.append('upload_preset', UPLOAD_PRESET);
+              const res = await fetch(
+                `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+                {
+                  method: 'POST',
+                  body: formData,
+                },
+              );
 
-          const res = await fetch(
-            `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
-            {
-              method: 'POST',
-              body: formData,
-            },
+              const uploadedImage = await res.json();
+
+              return uploadedImage.secure_url;
+            }),
           );
 
-          const uploadedImage = await res.json();
+          // Final payload
+          const payload = {
+            ...normalizedData,
+            images: uploadedImages,
+          };
 
-          return uploadedImage.secure_url;
-        }),
-      );
-
-      // Final payload
-      const payload = {
-        ...normalizedData,
-        images: uploadedImages,
-      };
-
-      mutation.mutate(payload);
-    } catch (error) {
-      alert('Image upload failed:', error);
-    }
+          mutation.mutate(payload);
+        } catch (error) {
+          alert('Image upload failed:', error);
+        } finally {
+          setIsUploading(false);
+        }
+    });
   };
 
   const inputClass =
@@ -549,10 +559,10 @@ export default function AddProductPage() {
                 <div className="pt-2 space-y-2">
                   <button
                     type="submit"
-                    disabled={isSubmitting || mutation.isPending}
+                    disabled={isUploading || mutation.isPending}
                     className="btn btn-primary w-full rounded-xl font-semibold text-sm"
                   >
-                    {mutation.isPending || isSubmitting ? (
+                    {mutation.isPending || isUploading ? (
                       <span className="flex items-center gap-2">
                         <span className="loading loading-spinner loading-xs" />
                         Saving...
