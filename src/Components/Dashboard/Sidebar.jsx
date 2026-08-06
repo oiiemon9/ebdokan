@@ -12,6 +12,7 @@ export default function Sidebar({ open, onClose }) {
     { name: 'Dashboard', path: '/dashboard', icon: '📊' },
     { name: 'Add Product', path: '/dashboard/add-product', icon: '➕' },
     { name: 'Products', path: '/dashboard/products', icon: '📦' },
+    { name: 'New Orders', path: '/dashboard/new-orders', icon: '📋' },
     { name: 'Orders', path: '/dashboard/orders', icon: '🛒' },
     { name: 'Settings', path: '/dashboard/settings', icon: '⚙️' },
   ];
@@ -72,7 +73,7 @@ export default function Sidebar({ open, onClose }) {
                       <Link
                         href={item.path}
                         onClick={onClose}
-                        className={`flex items-center gap-3 rounded-xl px-3 py-2 transition-colors ${
+                        className={`flex items-center gap-3 rounded-xl px-3 py-2 transition-colors relative ${
                           isActive(item.path)
                             ? 'bg-primary text-white'
                             : 'text-base-content hover:bg-base-300'
@@ -80,6 +81,11 @@ export default function Sidebar({ open, onClose }) {
                       >
                         <span className="text-lg">{item.icon}</span>
                         <span>{item.name}</span>
+                        {item.path === '/dashboard/new-orders' && (
+                          <span className="badge bg-primary border-none text-white">
+                            5
+                          </span>
+                        )}
                       </Link>
                     </li>
                   ))}

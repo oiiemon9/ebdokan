@@ -126,7 +126,7 @@ export default function OrderDetailPage() {
   }
 
   // Current stage index
-  const completedStages = order.orderStatus?.map((s) => s.stage) ?? [];
+  const completedStages = order.orderTimeline?.map((s) => s.status) ?? [];
   const latestStage =
     completedStages[completedStages.length - 1] ?? 'Order placed';
   const currentIdx = ALL_STAGES.indexOf(latestStage);
@@ -136,7 +136,7 @@ export default function OrderDetailPage() {
   const payStatus = STATUS_COLOR[order.paymentStatus] ?? STATUS_COLOR.pending;
 
   const stageTimeMap = Object.fromEntries(
-    (order.orderStatus ?? []).map((s) => [s.stage, s.time]),
+    (order.orderTimeline ?? []).map((s) => [s.status, s.createdAt]),
   );
 
   const savings = order.discount ?? 0;
@@ -569,13 +569,13 @@ export default function OrderDetailPage() {
             </div>
 
             {/* ── Order timeline log ── */}
-            {order.orderStatus?.length > 0 && (
+            {order.orderTimeline?.length > 0 && (
               <div className="bg-white border border-gray-200 rounded-2xl px-6 py-5">
                 <h3 className="text-gray-800 font-semibold text-sm mb-5">
                   Order Timeline
                 </h3>
                 <div className="space-y-4">
-                  {[...(order.orderStatus ?? [])].reverse().map((s, i) => (
+                  {[...(order.orderTimeline ?? [])].reverse().map((s, i) => (
                     <div key={i} className="flex gap-3 items-start">
                       <div className="flex flex-col items-center">
                         <div
@@ -600,7 +600,7 @@ export default function OrderDetailPage() {
                             <div className="w-2 h-2 rounded-full bg-gray-400" />
                           )}
                         </div>
-                        {i < (order.orderStatus?.length ?? 1) - 1 && (
+                        {i < (order.orderTimeline?.length ?? 1) - 1 && (
                           <div className="w-px flex-1 bg-gray-200 my-1 h-4" />
                         )}
                       </div>
@@ -608,10 +608,10 @@ export default function OrderDetailPage() {
                         <p
                           className={`text-sm font-semibold ${i === 0 ? 'text-gray-800' : 'text-gray-500'}`}
                         >
-                          {s.stage}
+                          {s.status}
                         </p>
                         <p className="text-gray-400 text-xs mt-0.5">
-                          {formatDateTime(s.time)}
+                          {formatDateTime(s.createdAt)}
                         </p>
                       </div>
                     </div>

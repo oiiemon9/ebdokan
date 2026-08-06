@@ -17,8 +17,6 @@ export default function SuccessPage() {
   const dispatch = useDispatch();
   const { data: session } = useSession();
 
-  console.log(order);
-
   useEffect(() => {
     const fetchOrder = async () => {
       if (!tran_id) {

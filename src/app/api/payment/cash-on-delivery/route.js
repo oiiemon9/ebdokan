@@ -70,15 +70,21 @@ export async function POST(req) {
     shippingCost: 60,
     subtotal: subtotal,
     discount: 0,
-    total: subtotal + 60, // subtotal + shipping cost
+    total: subtotal + 60,
     createAt: new Date(),
     items: cartItems,
     paymentMethod: 'cash-on-delivery',
     paymentStatus: 'pending',
-    orderStatus: [
+    orderStatus: 'Order placed',
+    orderTimeline: [
       {
-        stage: 'Order placed',
-        time: new Date(),
+        status: 'Order placed',
+        createdAt: new Date(),
+        updatedBy: {
+          userId: loginUserData.userId,
+          name: loginUserData.name,
+          userRole: loginUserData.role,
+        },
       },
     ],
   };
