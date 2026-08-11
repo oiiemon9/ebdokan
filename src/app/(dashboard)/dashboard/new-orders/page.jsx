@@ -132,7 +132,7 @@ function OrderRow({ order }) {
       </td>
       <td className="px-4 py-3">
         <Link
-          href={`/dashboard/orders/${order._id}`}
+          href={`/dashboard/orders/${order.orderId}`}
           className="btn btn-xs btn-ghost rounded-lg border border-base-300 font-semibold text-xs"
         >
           View
