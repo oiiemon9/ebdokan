@@ -260,7 +260,7 @@ export default function DashboardOrder() {
       );
       setAssignee(currentAssignee || null);
     }
-  });
+  }, [order, STAFF_LIST]);
 
   // ── Loading state ──
   if (isLoading) {

@@ -1,6 +1,6 @@
 import { apiFetch } from '@/app/lib/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import React from 'react';
+import React, { useState } from 'react';
 
 // Dummy data — পরে backend থেকে fetch করে বসিও
 // const STAFF_LIST = [
@@ -36,6 +36,7 @@ import React from 'react';
 
 export default function ({ currentAssigneeId, onAssign, orderId, STAFF_LIST }) {
   const queryClient = useQueryClient();
+  const [assigningStaffId, setAssigningStaffId] = useState(null);
   const closeModal = () => document.getElementById('assignee_modal')?.close();
 
   const assignMutation = useMutation({
@@ -66,10 +67,13 @@ export default function ({ currentAssigneeId, onAssign, orderId, STAFF_LIST }) {
       console.error(error);
       alert(error.message || 'Failed to assign order');
     },
+    onSettled: () => {
+      setAssigningStaffId(null);
+    },
   });
 
   const handelAssign = (staff) => {
-    console.log('assigning to', staff);
+    setAssigningStaffId(staff.userId);
     assignMutation.mutate(staff);
   };
 
@@ -108,6 +112,7 @@ export default function ({ currentAssigneeId, onAssign, orderId, STAFF_LIST }) {
         <div className="max-h-80 overflow-y-auto px-5 py-3">
           {STAFF_LIST.map((staff) => {
             const isAssigned = currentAssigneeId === staff.userId;
+            const isThisStaffLoading = assigningStaffId === staff.userId;
             return (
               <div
                 key={staff.userId}
@@ -141,12 +146,16 @@ export default function ({ currentAssigneeId, onAssign, orderId, STAFF_LIST }) {
 
                 <button
                   onClick={() => handelAssign(staff)}
-                  disabled={isAssigned}
+                  disabled={isAssigned || isThisStaffLoading}
                   className={`btn btn-xs rounded-lg font-semibold text-xs ${
                     isAssigned ? 'btn-disabled' : 'btn-outline border-base-300'
                   }`}
                 >
-                  {isAssigned ? 'Assigned' : 'Assign'}
+                  {isThisStaffLoading
+                    ? 'Loading...'
+                    : isAssigned
+                      ? 'Assigned'
+                      : 'Assign'}
                 </button>
               </div>
             );
