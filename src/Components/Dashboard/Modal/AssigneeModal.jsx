@@ -1,5 +1,5 @@
 import { apiFetch } from '@/app/lib/api';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 
 // Dummy data — পরে backend থেকে fetch করে বসিও
@@ -34,18 +34,45 @@ import React from 'react';
 //   },
 // ];
 
-export default function ({ currentAssigneeId, onAssign }) {
+export default function ({ currentAssigneeId, onAssign, orderId, STAFF_LIST }) {
+  const queryClient = useQueryClient();
   const closeModal = () => document.getElementById('assignee_modal')?.close();
-  const {
-    data: STAFF_LIST = [],
-    isLoading,
-    isError,
-    error,
-  } = useQuery({
-    queryKey: ['staff'],
-    queryFn: () => apiFetch(`/api/dashboard/orders/staff`),
+
+  const assignMutation = useMutation({
+    mutationFn: async (staff) => {
+      return apiFetch(`/api/dashboard/orders/${orderId}/assign`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          assignedTo: staff.userId,
+        }),
+      });
+    },
+
+    onSuccess: (data, staff) => {
+      queryClient.invalidateQueries({
+        queryKey: ['orders'],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ['staff'],
+      });
+
+      onAssign?.(staff);
+
+      closeModal();
+    },
+
+    onError: (error) => {
+      console.error(error);
+      alert(error.message || 'Failed to assign order');
+    },
   });
-  console.log(STAFF_LIST);
+
+  const handelAssign = (staff) => {
+    console.log('assigning to', staff);
+    assignMutation.mutate(staff);
+  };
+
   return (
     <dialog id="assignee_modal" className="modal">
       <div className="modal-box max-w-md rounded-2xl p-0 overflow-hidden">
@@ -113,10 +140,7 @@ export default function ({ currentAssigneeId, onAssign }) {
                 </div>
 
                 <button
-                  onClick={() => {
-                    onAssign(staff);
-                    closeModal();
-                  }}
+                  onClick={() => handelAssign(staff)}
                   disabled={isAssigned}
                   className={`btn btn-xs rounded-lg font-semibold text-xs ${
                     isAssigned ? 'btn-disabled' : 'btn-outline border-base-300'

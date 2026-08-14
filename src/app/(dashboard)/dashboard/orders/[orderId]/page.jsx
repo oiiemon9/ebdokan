@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 // ── Helpers ───────────────────────────────────────────────────────────────
@@ -237,7 +237,6 @@ function OrderErrorState({ orderId, message }) {
 export default function DashboardOrder() {
   const { orderId } = useParams();
   const [assignee, setAssignee] = useState(null);
-
   const {
     data: order,
     isLoading,
@@ -247,6 +246,20 @@ export default function DashboardOrder() {
     queryKey: ['orders', orderId],
     queryFn: () => apiFetch(`/api/dashboard/orders/${orderId}`),
     enabled: !!orderId,
+  });
+
+  const { data: STAFF_LIST = [], isLoading: staffLoading } = useQuery({
+    queryKey: ['staff'],
+    queryFn: () => apiFetch(`/api/dashboard/orders/staff`),
+  });
+
+  useEffect(() => {
+    if (order?.assignee?.assignedTo) {
+      const currentAssignee = STAFF_LIST.find(
+        (s) => s.userId === order.assignee.assignedTo,
+      );
+      setAssignee(currentAssignee || null);
+    }
   });
 
   // ── Loading state ──
@@ -616,6 +629,8 @@ export default function DashboardOrder() {
                 <AssigneeModal
                   currentAssigneeId={assignee?.userId}
                   onAssign={(staff) => setAssignee(staff)}
+                  orderId={orderId}
+                  STAFF_LIST={STAFF_LIST}
                 />
               </div>
             </div>
