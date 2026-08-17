@@ -124,12 +124,22 @@ function OrderRow({ order }) {
           })}
         </div>
       </td>
+      {order.assignee?.assignedTo ? (
+        <td className="px-4 py-3">
+          <div className="font-medium text-sm">{order.assignee?.name}</div>
+          <div className="text-[11px] text-base-content/40">
+            {order.assignee?.phone}
+          </div>
+          <div className="text-[11px] text-base-content/40">
+            {order.assignee?.email}
+          </div>
+        </td>
+      ) : (
+        <td className="px-4 py-3">
+          <div className="font-medium text-sm">______</div>
+        </td>
+      )}
 
-      <td className="px-4 py-3">
-        <div className="font-medium text-sm">{order.name}</div>
-        <div className="text-[11px] text-base-content/40">{order.phone}</div>
-        <div className="text-[11px] text-base-content/40">{order.email}</div>
-      </td>
       <td className="px-4 py-3">
         <Link
           href={`/dashboard/orders/${order.orderId}`}
@@ -152,8 +162,6 @@ export default function NewOrdersPage() {
     queryKey: ['orders'],
     queryFn: () => apiFetch('/api/new-orders'),
   });
-
-  console.log('New Orders:', orders); // Debugging line to check the fetched orders
 
   return (
     <div className="min-h-screen bg-base-200/40">

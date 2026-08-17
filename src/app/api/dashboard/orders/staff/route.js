@@ -23,7 +23,7 @@ export async function GET() {
             {
               $match: {
                 $expr: {
-                  $eq: ['$assignedTo', '$$userId'],
+                  $eq: ['$assignee.assignedTo', '$$userId'],
                 },
               },
             },

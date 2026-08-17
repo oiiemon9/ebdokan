@@ -62,11 +62,13 @@ export default function ({ currentAssigneeId, onAssign, orderId, STAFF_LIST }) {
 
       closeModal();
     },
-
     onError: (error) => {
-      console.error(error);
-      alert(error.message || 'Failed to assign order');
+      console.log('Assign Error:', error);
+      alert(error);
+
+      console.log(error.message);
     },
+
     onSettled: () => {
       setAssigningStaffId(null);
     },

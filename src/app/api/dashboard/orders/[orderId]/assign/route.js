@@ -1,4 +1,6 @@
 import { connect } from '@/app/lib/dbConnect';
+import { requireAuth } from '@/app/lib/security/requireAuth';
+import { requireRole } from '@/app/lib/security/requireRole';
 
 export async function PATCH(req, { params }) {
   const ordersCollection = await connect('orders');
@@ -7,7 +9,20 @@ export async function PATCH(req, { params }) {
   const body = await req.json();
   const { assignedTo } = body;
 
-  console.log('assignedto', assignedTo);
+  // secure.............................................
+  const session = await requireAuth();
+
+  // 2. Authorization
+  const roleCheck = requireRole(session, ['admin', 'sub-admin']);
+
+  if (!roleCheck.success) {
+    return Response.json(
+      { message: roleCheck.message },
+      { status: roleCheck.status },
+    );
+  }
+
+  // secure.............................end................
 
   if (!assignedTo) {
     return Response.json({ message: 'Staff ID is required' }, { status: 400 });
@@ -20,9 +35,8 @@ export async function PATCH(req, { params }) {
     },
   });
 
-  // তোমার user _id যদি ObjectId হয়, তাহলে নিচের অংশ দেখো
   if (!staff) {
-    return Response.json({ message: 'Invalid staff member' }, { status: 400 });
+    return Response.json({ message: 'Invalid staff' }, { status: 400 });
   }
 
   const result = await ordersCollection.updateOne(

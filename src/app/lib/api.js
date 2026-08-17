@@ -25,7 +25,7 @@ export async function apiFetch(url, options = {}) {
     credentials: 'include',
   });
 
-  if (res.status === 401 || res.status === 403) {
+  if (res.status === 401) {
     await signOut({
       callbackUrl: '/login',
     });
