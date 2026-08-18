@@ -2,38 +2,6 @@ import { apiFetch } from '@/app/lib/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
 
-// Dummy data — পরে backend থেকে fetch করে বসিও
-// const STAFF_LIST = [
-//   {
-//     id: 1,
-//     name: 'Rakibul Hasan',
-//     role: 'Admin',
-//     email: 'rakibul@shop.com',
-//     activeOrders: 12,
-//   },
-//   {
-//     id: 2,
-//     name: 'Sumaiya Akter',
-//     role: 'Moderator',
-//     email: 'sumaiya@shop.com',
-//     activeOrders: 7,
-//   },
-//   {
-//     id: 3,
-//     name: 'Tanvir Ahmed',
-//     role: 'Moderator',
-//     email: 'tanvir@shop.com',
-//     activeOrders: 3,
-//   },
-//   {
-//     id: 4,
-//     name: 'Nusrat Jahan',
-//     role: 'Admin',
-//     email: 'nusrat@shop.com',
-//     activeOrders: 9,
-//   },
-// ];
-
 export default function ({ currentAssigneeId, onAssign, orderId, STAFF_LIST }) {
   const queryClient = useQueryClient();
   const [assigningStaffId, setAssigningStaffId] = useState(null);
