@@ -40,6 +40,20 @@ export async function PATCH(req, { params }) {
     if (!order) {
       return Response.json({ message: 'Order not found' }, { status: 404 });
     }
+
+    // Moderator ownership check
+    if (
+      session.session.user.role === 'moderator' &&
+      order?.assignee?.assignedTo !== session.session.user.userId
+    ) {
+      return Response.json(
+        {
+          message: 'This order is not assigned to you',
+        },
+        { status: 403 },
+      );
+    }
+
     // ================= CURRENT STATUS =================
     const currentStatus =
       order.orderTimeline?.[order.orderTimeline.length - 1]?.status;
@@ -92,7 +106,7 @@ export async function PATCH(req, { params }) {
             createdAt: now,
             updatedBy: {
               name: session.session.user.name,
-              userId: session.session.user.userId,
+              userId: session.session.user.id,
               userRole: session.session.user.role,
             },
           },

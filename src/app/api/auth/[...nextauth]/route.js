@@ -34,6 +34,7 @@ export const authOptions = {
         if (!isMatch) throw new Error('Login failed.');
         return {
           id: user._id.toString(),
+          userId: user.userId,
           name: user.name,
           email: user.email,
           image: user.image,
@@ -90,31 +91,43 @@ export const authOptions = {
       }
     },
     async jwt({ token, user, account }) {
+      // প্রথম login-এর সময়
       if (user) {
         token.id = user.id;
         token.phone = user.phone || '';
+        token.userId = user.userId;
       }
 
+      // Google/Facebook OAuth login-এর সময়
       if (account?.type === 'oauth') {
+        token.userId = account.providerAccountId;
+      }
+
+      // প্রতিবার database থেকে latest role নেওয়া
+      if (token.userId) {
         const usersCollection = await connect('users');
 
         const dbUser = await usersCollection.findOne({
-          userId: token.id,
+          userId: token.userId.toString(),
         });
 
-        token.role = dbUser?.role || 'user';
-      }
-
-      if (user?.role) {
-        token.role = user.role;
+        if (dbUser) {
+          token.role = dbUser.role;
+          token.phone = dbUser.phone || '';
+        } else {
+          // DB-তে user না পেলে
+          token.role = 'user';
+        }
       }
 
       return token;
     },
     async session({ session, token }) {
       session.user.id = token.id;
+      session.user.userId = token.userId;
       session.user.role = token.role || 'user';
       session.user.phone = token.phone || '';
+
       return session;
     },
   },
