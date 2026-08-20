@@ -7,8 +7,9 @@ export async function requireAuth() {
   if (!session) {
     return Response.json({ message: 'Unauthorized' }, { status: 401 });
   }
+  if (!session?.user) {
+    return null;
+  }
 
-  return {
-    session,
-  };
+  return session;
 }

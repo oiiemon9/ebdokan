@@ -1,5 +1,4 @@
-export function requireRole(sessionData, allowedRoles = []) {
-  const session = sessionData?.session;
+export function requireRole(session, allowedRoles = []) {
   if (!session?.user) {
     return {
       success: false,

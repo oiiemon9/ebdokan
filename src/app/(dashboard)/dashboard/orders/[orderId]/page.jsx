@@ -1,6 +1,7 @@
 'use client';
 import { apiFetch } from '@/app/lib/api';
 import AssigneeModal from '@/Components/Dashboard/Modal/AssigneeModal';
+import OrderCancelModal from '@/Components/Dashboard/Modal/OrderCancelModal';
 import UpdateStatusModal from '@/Components/Dashboard/Modal/UpdateStatusModal';
 import { useQuery } from '@tanstack/react-query';
 import Image from 'next/image';
@@ -613,6 +614,9 @@ export default function DashboardOrder() {
 
                 <button
                   type="button"
+                  onClick={() =>
+                    document.getElementById('cancel_order')?.showModal()
+                  }
                   className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-red-200 bg-red-50 text-red-600 text-xs font-semibold hover:bg-red-100 transition-colors ml-auto"
                 >
                   <svg
@@ -637,6 +641,7 @@ export default function DashboardOrder() {
                   STAFF_LIST={STAFF_LIST}
                 />
                 <UpdateStatusModal order={order} orderId={orderId} />
+                <OrderCancelModal order={order} orderId={orderId} />
               </div>
             </div>
 

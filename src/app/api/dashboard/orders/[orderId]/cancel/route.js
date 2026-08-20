@@ -1,33 +1,20 @@
 import { connect } from '@/app/lib/dbConnect';
 import { requireAuth } from '@/app/lib/security/requireAuth';
-import { requireRole } from '@/app/lib/security/requireRole';
-
-const VALID_TRANSITIONS = [
-  'Order placed',
-  'Confirmed',
-  'Processing',
-  'Packed',
-  'Shipped',
-  'Out for delivery',
-  'Delivered',
-];
 
 export async function PATCH(req, { params }) {
   try {
     // ================= SECURITY =================
 
     const session = await requireAuth();
-    const roleCheck = requireRole(session, ['admin', 'sub-admin', 'moderator']);
-    if (!roleCheck.success) {
-      return Response.json(
-        { message: roleCheck.message },
-        { status: roleCheck.status },
-      );
-    }
 
     // ================= GET DATA =================
     const { orderId } = await params;
-    const { status: newStatus } = await req.json();
+    const {
+      status: newStatus,
+      cancelReason,
+      cancelReasonId,
+      cancelNote,
+    } = await req.json();
 
     if (!newStatus) {
       return Response.json({ message: 'Status is required' }, { status: 400 });
@@ -39,19 +26,6 @@ export async function PATCH(req, { params }) {
 
     if (!order) {
       return Response.json({ message: 'Order not found' }, { status: 404 });
-    }
-
-    // Moderator ownership check
-    if (
-      session.user.role === 'moderator' &&
-      order?.assignee?.assignedTo !== session.user.userId
-    ) {
-      return Response.json(
-        {
-          message: 'This order is not assigned to you',
-        },
-        { status: 403 },
-      );
     }
 
     // ================= CURRENT STATUS =================
@@ -66,20 +40,7 @@ export async function PATCH(req, { params }) {
 
     // ================= NEXT STATUS CHECK =================
 
-    const currentIndex = VALID_TRANSITIONS.indexOf(currentStatus);
-    const nextStatus = VALID_TRANSITIONS[currentIndex + 1];
-
-    // Order already delivered
-    if (!nextStatus) {
-      return Response.json(
-        {
-          message: 'Order is already completed',
-        },
-        {
-          status: 400,
-        },
-      );
-    }
+    const nextStatus = 'Cancelled';
 
     // শুধু next status-এই যেতে পারবে
     if (newStatus !== nextStatus) {
@@ -103,6 +64,9 @@ export async function PATCH(req, { params }) {
         $push: {
           orderTimeline: {
             status: newStatus,
+            reason: cancelReason || '',
+            reasonId: cancelReasonId || '',
+            note: cancelNote || '',
             createdAt: now,
             updatedBy: {
               name: session.user.name,
