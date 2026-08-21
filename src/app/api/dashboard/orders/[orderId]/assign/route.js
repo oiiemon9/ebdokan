@@ -27,6 +27,25 @@ export async function PATCH(req, { params }) {
   if (!assignedTo) {
     return Response.json({ message: 'Staff ID is required' }, { status: 400 });
   }
+
+  const order = await ordersCollection.findOne({ orderId });
+
+  if (!order) {
+    return Response.json({ message: 'Order not found' }, { status: 404 });
+  }
+
+  const orderLastStatus =
+    order.orderTimeline?.[order.orderTimeline.length - 1]?.status;
+
+  if (orderLastStatus === 'Cancelled' || orderLastStatus === 'Delivered') {
+    return Response.json(
+      {
+        message: `Cannot assign order. Current status is "${orderLastStatus}"`,
+      },
+      { status: 400 },
+    );
+  }
+
   // 4. যাকে assign করা হচ্ছে সে সত্যিই staff কিনা check
   const staff = await usersCollection.findOne({
     userId: assignedTo,

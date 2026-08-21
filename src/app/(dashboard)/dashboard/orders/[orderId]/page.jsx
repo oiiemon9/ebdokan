@@ -299,6 +299,11 @@ export default function DashboardOrder() {
     }
   };
 
+  const orderLastStatus = order.orderTimeline?.[order.orderTimeline.length - 1];
+  const isOrderCompleted =
+    orderLastStatus?.status === 'Cancelled' ||
+    orderLastStatus?.status === 'Delivered';
+
   return (
     <div className="min-h-screen bg-gray-50 font-[system-ui,sans-serif]">
       {/* ── Breadcrumb ── */}
@@ -423,7 +428,7 @@ export default function DashboardOrder() {
         </div>
 
         {/* ── Main grid ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-5">
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-5">
           {/* ══ LEFT ══ */}
           <div className="space-y-5">
             {/* ── Order progress tracker ── */}
@@ -436,80 +441,75 @@ export default function DashboardOrder() {
               </p>
 
               {/* Progress steps */}
-              <div className="relative">
-                {/* Connector line */}
-                <div
-                  className="absolute top-4 left-4 right-4 h-0.5 bg-gray-200 z-0"
-                  style={{
-                    left: 'calc(1rem + 8px)',
-                    right: 'calc(1rem + 8px)',
-                  }}
-                />
-                {/* Filled line */}
-                <div
-                  className="absolute top-4 h-0.5 bg-green-500 z-0 transition-all duration-500"
-                  style={{
-                    left: 'calc(1rem + 8px)',
-                    width:
-                      currentIdx <= 0
-                        ? '0%'
-                        : `calc(${(currentIdx / (ALL_STAGES.length - 1)) * 100}% - 16px)`,
-                  }}
-                />
-
-                {/* Step circles — horizontal scroll on mobile */}
-                <div className="flex items-start justify-between gap-1 overflow-x-auto pb-1 relative z-10">
+              <>
+                {/* ══ Desktop / Tablet — horizontal stepper (sm and up) ══ */}
+                <div className="hidden sm:flex items-start">
                   {ALL_STAGES.map((stage, i) => {
                     const done = i <= currentIdx && !isCancelled;
                     const active = i === currentIdx && !isCancelled;
                     const stageTime = stageTimeMap[stage];
+                    const isFirst = i === 0;
+                    const isLast = i === ALL_STAGES.length - 1;
 
                     return (
                       <div
                         key={stage}
-                        className="flex flex-col items-center gap-1.5 min-w-[64px]"
+                        className="flex-1 min-w-0 flex flex-col items-center"
                       >
-                        {/* Circle */}
-                        <div
-                          className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all shrink-0
-                          ${
-                            done
-                              ? 'bg-green-500 border-green-500'
-                              : active
-                                ? 'bg-white border-green-500 shadow-[0_0_0_3px_rgba(34,197,94,0.15)]'
-                                : 'bg-white border-gray-300'
-                          }`}
-                        >
-                          {done ? (
-                            <svg
-                              className="w-3.5 h-3.5 text-white"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2.5}
-                                d="M5 13l4 4L19 7"
+                        {/* Circle + connector row */}
+                        <div className="w-full flex items-center">
+                          {/* Left half line */}
+                          <div
+                            className={`flex-1 h-0.5 rounded-full transition-colors duration-500 ${isFirst ? 'invisible' : i <= currentIdx && !isCancelled ? 'bg-green-500' : 'bg-gray-200'}`}
+                          />
+
+                          {/* Circle */}
+                          <div
+                            className={`w-8 h-8 md:w-9 md:h-9 rounded-full flex items-center justify-center border-2 transition-all shrink-0
+                    ${
+                      done
+                        ? 'bg-green-500 border-green-500'
+                        : active
+                          ? 'bg-white border-green-500 shadow-[0_0_0_4px_rgba(34,197,94,0.15)]'
+                          : 'bg-white border-gray-300'
+                    }`}
+                          >
+                            {done ? (
+                              <svg
+                                className="w-3.5 h-3.5 md:w-4 md:h-4 text-white"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2.5}
+                                  d="M5 13l4 4L19 7"
+                                />
+                              </svg>
+                            ) : (
+                              <div
+                                className={`w-2 h-2 rounded-full ${active ? 'bg-green-500' : 'bg-gray-300'}`}
                               />
-                            </svg>
-                          ) : (
-                            <div
-                              className={`w-2 h-2 rounded-full ${active ? 'bg-green-500' : 'bg-gray-300'}`}
-                            />
-                          )}
+                            )}
+                          </div>
+
+                          {/* Right half line */}
+                          <div
+                            className={`flex-1 h-0.5 rounded-full transition-colors duration-500 ${isLast ? 'invisible' : i < currentIdx && !isCancelled ? 'bg-green-500' : 'bg-gray-200'}`}
+                          />
                         </div>
 
                         {/* Label */}
-                        <div className="text-center">
+                        <div className="text-center mt-2 px-1 max-w-[90px] md:max-w-[110px]">
                           <p
-                            className={`text-[10px] font-semibold leading-tight ${done || active ? 'text-gray-800' : 'text-gray-400'}`}
+                            className={`text-[11px] md:text-xs font-semibold leading-tight ${done || active ? 'text-gray-800' : 'text-gray-400'}`}
                           >
                             {stage}
                           </p>
                           {stageTime && (
-                            <p className="text-[9px] text-gray-400 mt-0.5 leading-tight">
+                            <p className="text-[10px] text-gray-400 mt-0.5 leading-tight">
                               {formatDate(stageTime)}
                             </p>
                           )}
@@ -518,7 +518,78 @@ export default function DashboardOrder() {
                     );
                   })}
                 </div>
-              </div>
+
+                {/* ══ Mobile — vertical timeline (below sm) ══ */}
+                <div className="sm:hidden">
+                  {ALL_STAGES.map((stage, i) => {
+                    const done = i <= currentIdx && !isCancelled;
+                    const active = i === currentIdx && !isCancelled;
+                    const stageTime = stageTimeMap[stage];
+                    const isLast = i === ALL_STAGES.length - 1;
+
+                    return (
+                      <div key={stage} className="flex gap-3">
+                        {/* Circle + vertical connector */}
+                        <div className="flex flex-col items-center">
+                          <div
+                            className={`w-8 h-8 rounded-full flex items-center justify-center border-2 shrink-0 transition-all
+                    ${
+                      done
+                        ? 'bg-green-500 border-green-500'
+                        : active
+                          ? 'bg-white border-green-500 shadow-[0_0_0_4px_rgba(34,197,94,0.15)]'
+                          : 'bg-white border-gray-300'
+                    }`}
+                          >
+                            {done ? (
+                              <svg
+                                className="w-3.5 h-3.5 text-white"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2.5}
+                                  d="M5 13l4 4L19 7"
+                                />
+                              </svg>
+                            ) : (
+                              <div
+                                className={`w-2 h-2 rounded-full ${active ? 'bg-green-500' : 'bg-gray-300'}`}
+                              />
+                            )}
+                          </div>
+                          {!isLast && (
+                            <div
+                              className={`w-0.5 flex-1 min-h-[28px] transition-colors duration-500 ${i < currentIdx && !isCancelled ? 'bg-green-500' : 'bg-gray-200'}`}
+                            />
+                          )}
+                        </div>
+
+                        {/* Label */}
+                        <div className={`pb-6 ${isLast ? 'pb-0' : ''}`}>
+                          <p
+                            className={`text-sm font-semibold leading-tight ${done || active ? 'text-gray-800' : 'text-gray-400'}`}
+                          >
+                            {stage}
+                          </p>
+                          {stageTime ? (
+                            <p className="text-xs text-gray-400 mt-0.5">
+                              {formatDate(stageTime)}
+                            </p>
+                          ) : active ? (
+                            <p className="text-xs text-green-500 mt-0.5 font-medium">
+                              In progress
+                            </p>
+                          ) : null}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
 
               {/* ETA */}
               {!isDelivered && !isCancelled && (
@@ -564,6 +635,83 @@ export default function DashboardOrder() {
                   </p>
                 </div>
               )}
+
+              {isCancelled && (
+                <div className="mt-5 overflow-hidden rounded-xl border border-red-200 bg-red-50">
+                  {/* Header */}
+                  <div className="flex items-center gap-2 border-b border-red-200 bg-red-100/60 px-4 py-3">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-red-100">
+                      <svg
+                        className="h-4 w-4 text-red-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                    </div>
+
+                    <div>
+                      <p className="text-sm font-semibold text-red-800">
+                        Order Cancelled
+                      </p>
+                      <p className="text-xs text-red-600">
+                        This order is no longer being processed.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Details */}
+                  <div className="space-y-3 px-4 py-4">
+                    {/* Reason */}
+                    <div className="rounded-lg border border-red-100 bg-white px-3 py-2.5">
+                      <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-red-500">
+                        Cancellation Reason
+                      </p>
+
+                      <p className="text-sm font-medium text-gray-700">
+                        {order.orderTimeline?.[order.orderTimeline.length - 1]
+                          ?.reason || 'No reason provided'}
+                      </p>
+                    </div>
+
+                    {/* Note */}
+                    <div className="rounded-lg border border-red-100 bg-white px-3 py-2.5">
+                      <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-red-500">
+                        Additional Note
+                      </p>
+
+                      <p className="text-sm text-gray-600">
+                        {order.orderTimeline?.[order.orderTimeline.length - 1]
+                          ?.note || 'No additional note provided'}
+                      </p>
+                    </div>
+                    {/* Cancelled By */}
+                    <div className="rounded-lg border border-red-100 bg-white px-3 py-2.5">
+                      <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-red-500">
+                        Cancelled By
+                      </p>
+
+                      <p className="text-sm font-medium text-gray-700">
+                        {order.orderTimeline?.[order.orderTimeline.length - 1]
+                          ?.updatedBy?.name || 'Unknown'}
+                      </p>
+
+                      <p className="mt-0.5 text-xs text-gray-500">
+                        {
+                          order.orderTimeline?.[order.orderTimeline.length - 1]
+                            ?.updatedBy?.userRole
+                        }
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
               {/* Action buttons */}
               <div className="mt-5 flex items-center gap-3 flex-wrap">
                 <button
@@ -571,6 +719,7 @@ export default function DashboardOrder() {
                   onClick={() =>
                     document.getElementById('assignee_modal')?.showModal()
                   }
+                  disabled={isOrderCompleted}
                   className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-gray-300 bg-white text-gray-700 text-xs font-semibold hover:bg-gray-50 transition-colors"
                 >
                   <svg
@@ -594,7 +743,7 @@ export default function DashboardOrder() {
                   onClick={() =>
                     document.getElementById('update_status')?.showModal()
                   }
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-700 transition-colors"
+                  className={`flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-700 transition-colors ${isOrderCompleted && 'hidden'}`}
                 >
                   <svg
                     className="w-3.5 h-3.5"
@@ -617,7 +766,7 @@ export default function DashboardOrder() {
                   onClick={() =>
                     document.getElementById('cancel_order')?.showModal()
                   }
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-red-200 bg-red-50 text-red-600 text-xs font-semibold hover:bg-red-100 transition-colors ml-auto"
+                  className={`flex items-center gap-1.5 px-4 py-2 rounded-xl border border-red-200 bg-red-50 text-red-600 text-xs font-semibold hover:bg-red-100 transition-colors ml-auto ${isOrderCompleted && 'hidden'}`}
                 >
                   <svg
                     className="w-3.5 h-3.5"
