@@ -12,6 +12,11 @@ export default function Sidebar({ open, onClose }) {
     { name: 'Dashboard', path: '/dashboard', icon: '📊' },
     { name: 'Add Product', path: '/dashboard/add-product', icon: '➕' },
     { name: 'Products', path: '/dashboard/products', icon: '📦' },
+    {
+      name: 'My Assigned Orders',
+      path: '/dashboard/my-assigned-orders',
+      icon: '🛍️',
+    },
     { name: 'New Orders', path: '/dashboard/new-orders', icon: '📋' },
     { name: 'Orders', path: '/dashboard/orders', icon: '🛒' },
     { name: 'Settings', path: '/dashboard/settings', icon: '⚙️' },

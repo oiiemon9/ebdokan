@@ -988,6 +988,12 @@ export default function DashboardOrder() {
                         <p className="text-gray-400 text-xs mt-0.5">
                           {formatDateTime(s.createdAt)}
                         </p>
+                        <p className="text-gray-400 text-xs mt-0.5">
+                          {s.updatedBy?.name}
+                        </p>
+                        <p className="text-gray-400 text-xs mt-0.5">
+                          {s.updatedBy?.userRole}
+                        </p>
                       </div>
                     </div>
                   ))}
