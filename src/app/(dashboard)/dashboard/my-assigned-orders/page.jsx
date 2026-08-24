@@ -127,21 +127,6 @@ function OrderRow({ order }) {
           })}
         </div>
       </td>
-      {order.assignee?.assignedTo ? (
-        <td className="px-4 py-3">
-          <div className="font-medium text-sm">{order.assignee?.name}</div>
-          <div className="text-[11px] text-base-content/40">
-            {order.assignee?.phone}
-          </div>
-          <div className="text-[11px] text-base-content/40">
-            {order.assignee?.email}
-          </div>
-        </td>
-      ) : (
-        <td className="px-4 py-3">
-          <div className="font-medium text-sm">______</div>
-        </td>
-      )}
 
       <td className="px-4 py-3">
         <Link
@@ -169,7 +154,7 @@ export default function page() {
     enabled: !!session?.user?.id,
   });
 
-  if (status === 'loading') {
+  if (status === 'loading' || isLoading) {
     return <div>Loading...</div>;
   }
 
@@ -235,7 +220,6 @@ export default function page() {
                 <th className="px-4 py-3 font-semibold">Payment</th>
                 <th className="px-4 py-3 font-semibold">Status</th>
                 <th className="px-4 py-3 font-semibold">Location / Date</th>
-                <th className="px-4 py-3 font-semibold">Assignee</th>
 
                 <th className="px-4 py-3 font-semibold">Actions</th>
               </tr>
