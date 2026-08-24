@@ -71,7 +71,7 @@ export async function POST(req) {
     subtotal: subtotal,
     discount: 0,
     total: subtotal + 60,
-    createAt: new Date(),
+    createdAt: new Date(),
     items: cartItems,
     paymentMethod: 'cash-on-delivery',
     paymentStatus: 'pending',

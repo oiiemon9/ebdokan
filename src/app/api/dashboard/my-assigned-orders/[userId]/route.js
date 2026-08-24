@@ -49,7 +49,7 @@ export async function GET(req, { params }) {
       {
         $sort: {
           statusPriority: 1,
-          createAt: -1,
+          createdAt: -1,
         },
       },
 

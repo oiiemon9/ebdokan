@@ -58,6 +58,18 @@ function OrderSkeleton() {
   );
 }
 
+function formatDateTime(dateVal) {
+  if (!dateVal) return '';
+  const d = new Date(dateVal?.$date ?? dateVal);
+  return d.toLocaleString('en-BD', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
 function OrderRow({ order }) {
   const firstItem = order.items?.[0];
   const extraCount = (order.items?.length || 1) - 1;
@@ -117,11 +129,7 @@ function OrderRow({ order }) {
       <td className="px-4 py-3">
         <div className="text-sm">{order.district}</div>
         <div className="text-[11px] text-base-content/40">
-          {new Date(order.createAt).toLocaleDateString('en-GB', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
-          })}
+          {formatDateTime(order.createdAt)}
         </div>
       </td>
       {order.assignee?.assignedTo ? (
