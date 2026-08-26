@@ -167,7 +167,7 @@ export default function page() {
   }
 
   return (
-    <div className="min-h-screen bg-base-200/40">
+    <div className="min-h-screen">
       <DashboardHeader
         title="My Assigned Orders"
         description="Manage all your assigned orders"

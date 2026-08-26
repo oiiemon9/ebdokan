@@ -172,7 +172,7 @@ export default function page() {
   });
 
   return (
-    <div className="min-h-screen bg-base-200/40">
+    <div className="min-h-screen ">
       <DashboardHeader
         title="New Orders"
         description="Manage all your incoming orders"

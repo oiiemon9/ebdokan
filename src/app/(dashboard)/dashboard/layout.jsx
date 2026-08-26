@@ -18,8 +18,8 @@ export default function DashboardLayout({ children }) {
           onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
         />
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8">
-          <div className="max-w-6xl mx-auto">{children}</div>
+        <main className="flex-1  bg-base-200/40">
+          <div className="p-4 sm:p-6 lg:p-8">{children}</div>
         </main>
       </div>
     </div>

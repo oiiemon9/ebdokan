@@ -167,12 +167,12 @@ export default function NewOrdersPage() {
     isError,
     error,
   } = useQuery({
-    queryKey: ['orders'],
-    queryFn: () => apiFetch('/api/new-orders'),
+    queryKey: ['newOrders'],
+    queryFn: () => apiFetch('/api/dashboard/new-orders'),
   });
 
   return (
-    <div className="min-h-screen bg-base-200/40">
+    <div className="min-h-screen ">
       <DashboardHeader
         title="New Orders"
         description="Manage all your incoming orders"

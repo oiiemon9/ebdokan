@@ -19,7 +19,7 @@ export default function ProductsPage() {
   });
 
   return (
-    <div className="min-h-screen bg-base-200/40">
+    <div className="min-h-screen">
       <DashboardHeader
         title="Products"
         description="Manage all your store products"

@@ -1,5 +1,7 @@
 'use client';
 
+import { apiFetch } from '@/app/lib/api';
+import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -7,6 +9,17 @@ export default function Sidebar({ open, onClose }) {
   const pathname = usePathname();
 
   const isActive = (path) => pathname === path;
+
+  const {
+    data: ordersCount = 0,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ['newOrdersCount'],
+    queryFn: () => apiFetch('/api/dashboard/new-orders/orders-count'),
+    refetchInterval: 60000, // Refetch every minute
+  });
 
   const menuItems = [
     { name: 'Dashboard', path: '/dashboard', icon: '📊' },
@@ -19,6 +32,7 @@ export default function Sidebar({ open, onClose }) {
     },
     { name: 'New Orders', path: '/dashboard/new-orders', icon: '📋' },
     { name: 'Orders', path: '/dashboard/orders', icon: '🛒' },
+    { name: 'Users', path: '/dashboard/users', icon: '👥' },
     { name: 'Settings', path: '/dashboard/settings', icon: '⚙️' },
   ];
 
@@ -88,7 +102,7 @@ export default function Sidebar({ open, onClose }) {
                         <span>{item.name}</span>
                         {item.path === '/dashboard/new-orders' && (
                           <span className="badge bg-primary border-none text-white">
-                            5
+                            {ordersCount > 99 ? '99+' : ordersCount}
                           </span>
                         )}
                       </Link>

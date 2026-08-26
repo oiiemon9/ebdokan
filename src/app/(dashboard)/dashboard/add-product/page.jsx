@@ -176,7 +176,7 @@ export default function AddProductPage() {
   const selectClass =
     'select select-bordered w-full focus:border-blue-400 focus:outline-none transition-colors rounded-xl text-sm';
   return (
-    <div className="min-h-screen bg-base-200/40">
+    <div className="min-h-screen ">
       <DashboardHeader
         title="Add New Product"
         description="Create and publish a new product to your store"
