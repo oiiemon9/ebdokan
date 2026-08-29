@@ -1,4 +1,6 @@
 'use client';
+import { apiFetch } from '@/app/lib/api';
+import { useQuery } from '@tanstack/react-query';
 import React, { useState } from 'react';
 
 function StarIcon({ filled, half }) {
@@ -29,82 +31,51 @@ function StarRating({ rating, size = 'sm' }) {
 export default function Tab({ data: product }) {
   const [activeTab, setActiveTab] = useState('reviews');
   const [reviewSort, setReviewSort] = useState('latest');
-  const reviews = [
-    {
-      id: 1,
-      name: 'James Gouse',
-      avatar: 'JG',
-      rating: 5,
-      date: 'May 20, 2026',
-      comment:
-        "Exceptional quality and the finish is absolutely stunning. Worth every penny — I've been using it daily and it's held up perfectly.",
-      helpful: 12,
-      verified: true,
-    },
-    {
-      id: 2,
-      name: 'Guy Hawkins',
-      avatar: 'GH',
-      rating: 4,
-      date: 'May 15, 2026',
-      comment:
-        'Great product overall. The color is exactly as shown. Fit is generous, which I actually prefer for a relaxed look.',
-      helpful: 7,
-      verified: true,
-    },
-    {
-      id: 3,
-      name: 'Sarah Lin',
-      avatar: 'SL',
-      rating: 5,
-      date: 'May 10, 2026',
-      comment:
-        'Absolutely love it! The material feels luxurious and the craftsmanship is evident. Would definitely buy again.',
-      helpful: 19,
-      verified: true,
-    },
-    {
-      id: 4,
-      name: 'Marcus Reid',
-      avatar: 'MR',
-      rating: 3,
-      date: 'Apr 28, 2026',
-      comment:
-        "Good product but shipping took longer than expected. Quality is decent, though I've seen better for the price.",
-      helpful: 4,
-      verified: false,
-    },
-    {
-      id: 5,
-      name: 'Priya Sharma',
-      avatar: 'PS',
-      rating: 5,
-      date: 'Apr 20, 2026',
-      comment:
-        'Perfect in every way! The design is so unique and it pairs well with everything in my wardrobe.',
-      helpful: 23,
-      verified: true,
-    },
-  ];
-  const ratingBreakdown = { 5: 184, 4: 63, 3: 29, 2: 7, 1: 2 };
-  const totalReviews = Object.values(ratingBreakdown).reduce(
-    (a, b) => a + b,
-    0,
-  );
 
-  const avgRating = (
-    Object.entries(ratingBreakdown).reduce(
-      (sum, [star, count]) => sum + Number(star) * count,
-      0,
-    ) / totalReviews
-  ).toFixed(1);
+  const {
+    data: reviews = [],
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ['reviews', product?._id, reviewSort],
 
-  const sortedReviews = [...reviews].sort((a, b) => {
-    if (reviewSort === 'highest') return b.rating - a.rating;
-    if (reviewSort === 'lowest') return a.rating - b.rating;
-    if (reviewSort === 'helpful') return b.helpful - a.helpful;
-    return b.id - a.id;
+    queryFn: () =>
+      apiFetch(`/api/products/${product?._id}/reviews?sort=${reviewSort}`),
+
+    enabled: !!product?._id,
+
+    staleTime: 1000 * 60 * 5,
   });
+
+  const ratingBreakdown = {
+    5: reviews.filter((review) => review.rating === 5).length,
+    4: reviews.filter((review) => review.rating === 4).length,
+    3: reviews.filter((review) => review.rating === 3).length,
+    2: reviews.filter((review) => review.rating === 2).length,
+    1: reviews.filter((review) => review.rating === 1).length,
+  };
+
+  const totalReviews = reviews.length;
+
+  const avgRating =
+    totalReviews > 0
+      ? (
+          reviews.reduce(
+            (total, review) => total + Number(review.rating || 0),
+            0,
+          ) / totalReviews
+        ).toFixed(1)
+      : '0.0';
+  const formatReviewDate = (date) => {
+    if (!date) return '';
+
+    return new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    }).format(new Date(date));
+  };
   return (
     <div>
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
@@ -223,7 +194,7 @@ export default function Tab({ data: product }) {
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sticky top-6">
                 <div className="text-center mb-6">
                   <div className="text-7xl font-['Fraunces'] font-semibold text-[#1a1a2e]">
-                    {avgRating}
+                    {totalReviews}
                   </div>
                   <div className="flex justify-center mt-2 mb-1">
                     <StarRating rating={parseFloat(avgRating)} />
@@ -271,65 +242,115 @@ export default function Tab({ data: product }) {
             {/* Review List */}
 
             <div className="lg:col-span-2">
-              <div className="space-y-4">
-                {sortedReviews.map((review) => (
-                  <div
-                    key={review.id}
-                    className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6"
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-[#1a1a2e] flex items-center justify-center text-white text-xs font-bold shrink-0">
-                          {review.avatar}
+              {isLoading ? (
+                <div className="space-y-4">
+                  {[1, 2, 3].map((item) => (
+                    <div
+                      key={item}
+                      className="bg-white rounded-2xl border border-gray-100 p-6 animate-pulse"
+                    >
+                      <div className="flex gap-3">
+                        <div className="w-10 h-10 rounded-full bg-gray-200" />
+
+                        <div className="flex-1">
+                          <div className="w-32 h-4 bg-gray-200 rounded mb-2" />
+                          <div className="w-24 h-3 bg-gray-200 rounded" />
                         </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-semibold text-gray-800 text-sm">
-                              {review.name}
-                            </span>
-                            {review.verified && (
-                              <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium">
-                                Verified
-                              </span>
+                      </div>
+
+                      <div className="mt-4 space-y-2">
+                        <div className="h-3 bg-gray-200 rounded" />
+                        <div className="h-3 bg-gray-200 rounded w-4/5" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : isError ? (
+                <div className="text-center py-10 text-red-500">
+                  {error?.message || 'Failed to load reviews'}
+                </div>
+              ) : reviews.length === 0 ? (
+                <div className="text-center py-12 bg-gray-50 rounded-2xl">
+                  <p className="text-gray-500">No reviews yet.</p>
+                  <p className="text-sm text-gray-400 mt-1">
+                    Be the first to review this product!
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {reviews.map((review) => (
+                    <div
+                      key={review._id}
+                      className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6"
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full overflow-hidden bg-[#1a1a2e] flex items-center justify-center text-white text-xs font-bold shrink-0">
+                            {review?.user?.image ? (
+                              <img
+                                src={review.user.image}
+                                alt={review.user.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              review?.user?.name?.charAt(0)?.toUpperCase()
                             )}
                           </div>
-                          <div className="flex items-center gap-2 mt-0.5">
-                            <StarRating rating={review.rating} />
-                            <span className="text-xs text-gray-400">
-                              {review.date}
-                            </span>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold text-gray-800 text-sm">
+                                {review?.user?.name}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <StarRating rating={review.rating} />
+                              <span className="text-xs text-gray-400">
+                                {formatReviewDate(review.createdAt)}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </div>
+                      <p className="mt-3 text-sm text-gray-600 leading-relaxed">
+                        {review.comment}
+                      </p>
+                      {review.images?.length > 0 && (
+                        <div className="flex gap-3 mt-4 flex-wrap">
+                          {review.images.map((image, index) => (
+                            <img
+                              key={index}
+                              src={image}
+                              alt={`Review image ${index + 1}`}
+                              className="w-20 h-20 rounded-xl object-cover border border-gray-200"
+                            />
+                          ))}
+                        </div>
+                      )}
+                      <div className="mt-4 flex items-center gap-4">
+                        <button className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-700 transition-colors">
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
+                            />
+                          </svg>
+                          Helpful ({review.likes?.length || 0})
+                        </button>
+                        <button className="text-xs text-gray-400 hover:text-gray-700 transition-colors">
+                          Reply
+                        </button>
+                      </div>
                     </div>
-                    <p className="mt-3 text-sm text-gray-600 leading-relaxed">
-                      {review.comment}
-                    </p>
-                    <div className="mt-4 flex items-center gap-4">
-                      <button className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-700 transition-colors">
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
-                          />
-                        </svg>
-                        Helpful ({review.helpful})
-                      </button>
-                      <button className="text-xs text-gray-400 hover:text-gray-700 transition-colors">
-                        Reply
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
+                  ))}
+                </div>
+              )}
               <button className="mt-6 w-full py-3 border-2 border-dashed border-gray-200 rounded-2xl text-sm text-gray-400 hover:border-gray-400 hover:text-gray-600 transition-colors font-medium">
                 Load More Reviews
               </button>
