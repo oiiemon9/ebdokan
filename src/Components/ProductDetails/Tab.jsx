@@ -2,6 +2,8 @@
 import { apiFetch } from '@/app/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import React, { useState } from 'react';
+import { PhotoProvider, PhotoView } from 'react-photo-view';
+import 'react-photo-view/dist/react-photo-view.css';
 
 function StarIcon({ filled, half }) {
   return (
@@ -315,14 +317,64 @@ export default function Tab({ data: product }) {
                         {review.comment}
                       </p>
                       {review.images?.length > 0 && (
-                        <div className="flex gap-3 mt-4 flex-wrap">
-                          {review.images.map((image, index) => (
-                            <img
+                        <PhotoProvider>
+                          <div className="flex gap-3 mt-4 flex-wrap">
+                            {review.images.map((image, index) => (
+                              <PhotoView key={index} src={image}>
+                                <img
+                                  src={image}
+                                  alt={`Review image ${index + 1}`}
+                                  className="h-20 w-20 cursor-pointer rounded-xl border border-gray-200 object-cover transition-transform hover:scale-105"
+                                />
+                              </PhotoView>
+                            ))}
+                          </div>
+                        </PhotoProvider>
+                      )}
+
+                      {/* replies */}
+
+                      {review.replies?.length > 0 && (
+                        <div className="mt-5 ml-6 sm:ml-10 space-y-3 border-l-2 border-gray-100 pl-4">
+                          {review.replies.map((reply, index) => (
+                            <div
                               key={index}
-                              src={image}
-                              alt={`Review image ${index + 1}`}
-                              className="w-20 h-20 rounded-xl object-cover border border-gray-200"
-                            />
+                              className="bg-gray-50 rounded-xl p-4"
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full overflow-hidden bg-[#1a1a2e] flex items-center justify-center text-white text-xs font-bold">
+                                  {reply.user?.image ? (
+                                    <img
+                                      src={reply.user.image}
+                                      alt={reply.user.name}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : (
+                                    reply.user?.name?.charAt(0)?.toUpperCase()
+                                  )}
+                                </div>
+
+                                <div>
+                                  <div className="flex items-center gap-2">
+                                    <p className="text-xs font-semibold text-gray-800">
+                                      {reply.user?.name}
+                                    </p>
+
+                                    <span className="px-2 py-0.5 text-[9px] bg-indigo-100 text-indigo-600 rounded-full font-semibold">
+                                      Store Team
+                                    </span>
+                                  </div>
+
+                                  <p className="text-[10px] text-gray-400">
+                                    {formatReviewDate(reply.createdAt)}
+                                  </p>
+                                </div>
+                              </div>
+
+                              <p className="mt-3 text-sm text-gray-600 leading-relaxed">
+                                {reply.comment}
+                              </p>
+                            </div>
                           ))}
                         </div>
                       )}

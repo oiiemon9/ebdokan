@@ -8,7 +8,6 @@ export async function GET(req, { params }) {
   const { searchParams } = new URL(req.url);
   const sort = searchParams.get('sort') || 'latest';
 
-  console.log(sort);
   let sortQuery = {};
 
   switch (sort) {
