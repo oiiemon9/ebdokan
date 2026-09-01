@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { apiFetch } from '@/app/lib/api';
+import ReviewModal from '@/Components/MyOrders/Modal/ReviewModal';
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 
@@ -62,111 +63,6 @@ const PAYMENT_LABEL = {
   card: 'Card Payment',
 };
 
-// ── Notun Component: Review Modal ─────────────────────────────────────────
-
-function ReviewModal({ order, onClose, onSubmit }) {
-  const [rating, setRating] = useState(0);
-  const [comment, setComment] = useState('');
-  const [hoveredRating, setHoveredRating] = useState(0);
-
-  if (!order) return null;
-
-  const handleSubmit = () => {
-    // Ekhane apnar API call hobe (e.g., apiFetch('/api/reviews', { method: 'POST', body: ... }))
-    onSubmit({ orderId: order.orderId, rating, comment });
-    onClose();
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-      <div
-        className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden transform transition-all"
-        onClick={(e) => e.stopPropagation()} // Modal er bhitor click korle jeno bondho na hoy
-      >
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-5">
-            <h3 className="text-xl font-bold text-gray-900">
-              Rate this product
-            </h3>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          </div>
-
-          <p className="text-sm text-gray-500 mb-4">
-            How was your experience with order{' '}
-            <span className="font-mono font-bold text-gray-700">
-              {order.orderId}
-            </span>
-            ?
-          </p>
-
-          {/* Star Rating System */}
-          <div className="flex justify-center gap-2 mb-6">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <svg
-                key={star}
-                onMouseEnter={() => setHoveredRating(star)}
-                onMouseLeave={() => setHoveredRating(0)}
-                onClick={() => setRating(star)}
-                className={`w-10 h-10 cursor-pointer transition-colors ${
-                  (hoveredRating || rating) >= star
-                    ? 'text-amber-400'
-                    : 'text-gray-200'
-                }`}
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-              </svg>
-            ))}
-          </div>
-
-          {/* Comment Textarea */}
-          <textarea
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-            placeholder="Write your review here... (Optional)"
-            className="w-full p-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none resize-none h-28"
-          />
-
-          {/* Actions */}
-          <div className="mt-6 flex gap-3">
-            <button
-              onClick={onClose}
-              className="flex-1 px-4 py-2.5 border border-gray-200 text-gray-600 rounded-xl font-medium hover:bg-gray-50 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSubmit}
-              disabled={rating === 0}
-              className="flex-1 px-4 py-2.5 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 disabled:bg-indigo-300 transition-colors"
-            >
-              Submit Review
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // ── Skeleton Loader Component ───────────────────────────────────────────────
 
 function OrderSkeleton() {
@@ -206,9 +102,6 @@ export default function MyOrdersPage() {
     queryKey: ['myOrders'],
     queryFn: () => apiFetch('/api/my-orders'),
   });
-
-  // State for Review Modal
-  const [reviewOrder, setReviewOrder] = useState(null);
 
   // ── Loading state ──
   if (isLoading) {
@@ -322,7 +215,6 @@ export default function MyOrdersPage() {
         {/* ── Order cards ── */}
         <div className="space-y-4">
           {orders.map((order) => {
-            console.log(order);
             const latestStage =
               order.orderTimeline?.[order.orderTimeline.length - 1]?.status ??
               'Order placed';
@@ -357,7 +249,7 @@ export default function MyOrdersPage() {
                         Placed on
                       </p>
                       <p className="text-gray-700 text-sm font-medium mt-0.5">
-                        {formatDate(order.createAt)}
+                        {formatDate(order.createdAt)}
                       </p>
                     </div>
                     <div className="w-px h-8 bg-gray-200 hidden sm:block" />
@@ -481,13 +373,10 @@ export default function MyOrdersPage() {
                     {/* Show Review Button ONLY if Delivered */}
                     {isDelivered && (
                       <button
-                        onClick={(e) => {
-                          e.preventDefault(); // Eita card er link e dhuka theke atkay
-                          setReviewOrder(order);
-                        }}
+                        type="button"
                         className="px-4 py-2 bg-indigo-50 text-indigo-600 rounded-lg text-xs font-bold hover:bg-indigo-100 transition-colors"
                       >
-                        Review & Rating
+                        Write your review...
                       </button>
                     )}
 
@@ -514,18 +403,6 @@ export default function MyOrdersPage() {
           })}
         </div>
       </div>
-
-      {/* Review Modal Component */}
-      {reviewOrder && (
-        <ReviewModal
-          order={reviewOrder}
-          onClose={() => setReviewOrder(null)}
-          onSubmit={(data) => {
-            console.log('Review submitted:', data);
-            // handle API submit here
-          }}
-        />
-      )}
     </div>
   );
 }
