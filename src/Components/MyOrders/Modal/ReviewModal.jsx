@@ -1,12 +1,16 @@
 'use client';
 
 import { apiFetch } from '@/app/lib/api';
+import { Rating } from '@smastrom/react-rating';
 import { useMutation } from '@tanstack/react-query';
 import { useState, useRef, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import '@smastrom/react-rating/style.css';
+import Swal from 'sweetalert2';
 
 // ── Main modal ────────────────────────────────────────────────────────────
-export default function ReviewModal({ order, reviewItem }) {
+export default function ReviewModal({ order, item }) {
+  // console.log('ReviewModal rendered with order:', order, item);
   const {
     register,
     handleSubmit,
@@ -16,13 +20,13 @@ export default function ReviewModal({ order, reviewItem }) {
     formState: { isSubmitting },
   } = useForm({
     defaultValues: {
-      productId: order?.productId || '',
+      productId: item?.productId || '',
       orderId: order?.orderId || '',
       user: {
         userId: order?.userId || '',
-        name: order?.userName || '',
-        image: order?.userImage || '',
-        role: order?.userRole || 'user',
+        // name: order?.name || '',
+        // image: order?.userImage || '',
+        // role: order?.userRole || 'user',
       },
       rating: 0,
       comment: '',
@@ -32,12 +36,32 @@ export default function ReviewModal({ order, reviewItem }) {
     },
   });
 
-  const rating = watch('rating');
+  useEffect(() => {
+    if (!item || !order) return;
+
+    reset({
+      productId: item.productId || '',
+      orderId: order.orderId || '',
+      user: {
+        userId: order.userId || '',
+      },
+      rating: 0,
+      comment: '',
+      images: [],
+      likes: [],
+      replies: [],
+    });
+  }, [item, order, reset]);
+
   const selectedImages = watch('images') || []; // RHF theke current images track kora
 
   const [hoveredRating, setHoveredRating] = useState(0);
   const [imagePreviews, setImagePreviews] = useState([]); // Array of URLs
   const fileInputRef = useRef(null);
+  const [rating, setRating] = useState(0);
+
+  const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+  const UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
 
   const ratingLabels = {
     1: 'Poor 😞',
@@ -53,7 +77,7 @@ export default function ReviewModal({ order, reviewItem }) {
 
   const resetForm = () => {
     reset();
-    setHoveredRating(0);
+    setRating(0);
     // Memory leak thekanor jonno shob object URL revoke kora
     imagePreviews.forEach((url) => URL.revokeObjectURL(url));
     setImagePreviews([]);
@@ -107,61 +131,121 @@ export default function ReviewModal({ order, reviewItem }) {
     setImagePreviews(updatedPreviews);
   };
 
+  const mutation = useMutation({
+    mutationFn: (product) =>
+      apiFetch('/api/review-and-rating', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(product),
+      }),
+
+    onSuccess: () => {
+      Swal.fire({
+        title: 'Success!',
+        text: 'Review submitted successfully',
+        icon: 'success',
+        confirmButtonText: 'Cool',
+      });
+      closeModal();
+      resetForm();
+    },
+
+    onError: (error) => {
+      Swal.fire({
+        title: 'Error!',
+        text: 'Failed to submit review',
+        icon: 'error',
+        confirmButtonText: 'Try Again',
+      });
+    },
+  });
+
   const onFormSubmit = async (data) => {
-    if (data.rating === 0) return;
+    if (rating === 0) return;
+    const normalizedData = {
+      ...data,
+    };
 
-    // Final payload
-    //   const payload = {
-    //     ...normalizedData,
-    //     images: uploadedImages,
-    //   };
+    console.log('Form submitted with data:', data);
+    const uploadedImages = await Promise.all(
+      normalizedData.images.map(async (img) => {
+        const formData = new FormData();
 
-    //   mutation.mutate(payload);
+        formData.append('file', img);
+        formData.append('upload_preset', UPLOAD_PRESET);
 
-    const mutation = useMutation({
-      mutationFn: (product) =>
-        apiFetch('/api/', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(product),
-        }),
+        const res = await fetch(
+          `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+          {
+            method: 'POST',
+            body: formData,
+          },
+        );
 
-      onSuccess: () => {
-        Swal.fire({
-          title: 'Success!',
-          text: 'Product added successfully',
-          icon: 'success',
-          confirmButtonText: 'Cool',
-        });
-        closeModal();
-        resetForm();
-      },
+        const uploadedImage = await res.json();
 
-      onError: (error) => {
-        alert(error.message);
-      },
-    });
+        return uploadedImage.secure_url;
+      }),
+    );
+
+    const payload = {
+      ...normalizedData,
+
+      rating,
+      images: uploadedImages,
+    };
+
+    mutation.mutate(payload);
   };
 
   const currentRating = hoveredRating || rating;
 
   return (
     <dialog id="review_modal" className="modal" onClose={resetForm}>
-      <div className="modal-box max-w-md rounded-2xl p-0 overflow-hidden">
+      <div className="modal-box max-w-md rounded-2xl p-0 overflow-y-auto">
         {/* ── Header ── */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-base-200">
-          <div>
+          <div className="">
             <h3 className="font-semibold text-base">Rate this product</h3>
-            {reviewItem?.productId && (
-              <p className="text-xs text-base-content/50 mt-0.5 font-mono">
-                {reviewItem?.productId}
-              </p>
-            )}
-            {order?.orderId && (
-              <p className="text-xs text-base-content/50 mt-0.5 font-mono">
-                Order Id : {order.orderId}
-              </p>
-            )}
+            {/* Product Info */}
+            <div className="flex items-center gap-3 min-w-0">
+              {/* Product Image */}
+              <div className="w-16 h-16 rounded-xl overflow-hidden border border-base-300 bg-base-200 shrink-0">
+                {item?.product?.image ? (
+                  <img
+                    src={item.product.image}
+                    alt={item.product.name || 'Product'}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-xl">
+                    📦
+                  </div>
+                )}
+              </div>
+
+              {/* Product Details */}
+              <div className="min-w-0">
+                <h3 className="font-semibold text-sm text-base-content truncate">
+                  {item?.product?.name || 'Product'}
+                </h3>
+
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1">
+                  <span className="text-sm font-bold text-indigo-600">
+                    ৳{Number(item?.product?.price || 0).toLocaleString()}
+                  </span>
+
+                  <span className="text-xs text-base-content/50">
+                    Qty: {item?.quantity || 0}
+                  </span>
+                </div>
+
+                {/* Product ID */}
+                <p className="text-[10px] text-base-content/40 font-mono mt-1 truncate">
+                  Product ID: {item?.productId}
+                </p>
+              </div>
+            </div>
           </div>
           <button
             onClick={closeModal}
@@ -193,28 +277,11 @@ export default function ReviewModal({ order, reviewItem }) {
 
             {/* Star rating */}
             <div className="flex justify-center gap-2 mb-2">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <button
-                  key={star}
-                  type="button"
-                  onMouseEnter={() => setHoveredRating(star)}
-                  onMouseLeave={() => setHoveredRating(0)}
-                  onClick={() =>
-                    setValue('rating', star, { shouldValidate: true })
-                  }
-                  className="transition-transform hover:scale-110 focus:outline-none"
-                >
-                  <svg
-                    className={`w-9 h-9 transition-colors ${
-                      currentRating >= star ? 'text-amber-400' : 'text-base-300'
-                    }`}
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                  </svg>
-                </button>
-              ))}
+              <Rating
+                style={{ maxWidth: 180 }}
+                value={rating}
+                onChange={setRating}
+              />
             </div>
 
             {/* Rating Number Display */}
