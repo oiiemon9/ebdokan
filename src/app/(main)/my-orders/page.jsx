@@ -226,6 +226,8 @@ export default function MyOrdersPage() {
             const firstItem = order.items?.[0];
             const extraCount = (order.items?.length ?? 1) - 1;
 
+            const reviewed = order.items?.every((item) => item.review === true);
+
             return (
               <Link
                 key={order.orderId}
@@ -371,7 +373,7 @@ export default function MyOrdersPage() {
                   {/* Right side Actions */}
                   <div className="flex items-center justify-end gap-3 sm:w-auto w-full border-t sm:border-t-0 pt-3 sm:pt-0 border-gray-100">
                     {/* Show Review Button ONLY if Delivered */}
-                    {isDelivered && (
+                    {isDelivered && !reviewed && (
                       <button
                         type="button"
                         className="px-4 py-2 bg-indigo-50 text-indigo-600 rounded-lg text-xs font-bold hover:bg-indigo-100 transition-colors"

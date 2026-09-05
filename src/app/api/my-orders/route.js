@@ -9,6 +9,7 @@ export async function GET() {
     .find({
       userId: session.user.id,
     })
+    .sort({ createdAt: -1 })
     .toArray();
 
   return Response.json(result);
