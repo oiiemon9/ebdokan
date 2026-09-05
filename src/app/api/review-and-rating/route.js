@@ -4,6 +4,7 @@ import { ObjectId } from 'mongodb';
 export async function POST(req) {
   const productsCollection = await connect('reviews');
   const usersCollection = await connect('users');
+  const ordersCollection = await connect('orders');
   const data = await req.json();
   const findUserInfo = await usersCollection.findOne(
     {
@@ -11,6 +12,8 @@ export async function POST(req) {
     },
     { projection: { name: 1, image: 1, role: 1 } },
   );
+
+  const productId = data.productId;
 
   data.productId = new ObjectId(data.productId);
   data.user.name = findUserInfo?.name || '';
@@ -20,6 +23,22 @@ export async function POST(req) {
   data.updatedAt = new Date();
 
   const result = await productsCollection.insertOne(data);
+
+  console.log(result);
+
+  if (result.acknowledged) {
+    await ordersCollection.updateOne(
+      {
+        orderId: data.orderId,
+        'items.productId': productId,
+      },
+      {
+        $set: {
+          'items.$.review': true,
+        },
+      },
+    );
+  }
 
   return Response.json(result);
 }

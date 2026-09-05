@@ -2,7 +2,7 @@
 
 import { apiFetch } from '@/app/lib/api';
 import { Rating } from '@smastrom/react-rating';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState, useRef, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import '@smastrom/react-rating/style.css';
@@ -59,6 +59,7 @@ export default function ReviewModal({ order, item }) {
   const [imagePreviews, setImagePreviews] = useState([]); // Array of URLs
   const fileInputRef = useRef(null);
   const [rating, setRating] = useState(0);
+  const queryClient = useQueryClient();
 
   const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
   const UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
@@ -146,17 +147,24 @@ export default function ReviewModal({ order, item }) {
         icon: 'success',
         confirmButtonText: 'Cool',
       });
+      // myOrder query আবার fetch করবে
+      queryClient.invalidateQueries({
+        queryKey: ['myOrder', order?.orderId],
+      });
+
       closeModal();
       resetForm();
     },
 
     onError: (error) => {
+      console.error('Error submitting review:', error);
       Swal.fire({
         title: 'Error!',
         text: 'Failed to submit review',
         icon: 'error',
         confirmButtonText: 'Try Again',
       });
+      closeModal();
     },
   });
 
@@ -199,6 +207,14 @@ export default function ReviewModal({ order, item }) {
   };
 
   const currentRating = hoveredRating || rating;
+
+  const suggestedComments = [
+    'Good product',
+    'Very good quality',
+    'Product is as described',
+    'Highly recommended',
+    'Good value for money',
+  ];
 
   return (
     <dialog id="review_modal" className="modal" onClose={resetForm}>
@@ -295,15 +311,36 @@ export default function ReviewModal({ order, item }) {
                 </span>
               )}
             </div>
-
             {/* Comment */}
-            <textarea
-              {...register('comment')}
-              placeholder="Write your review here… (optional)"
-              rows={3}
-              className="textarea textarea-bordered w-full rounded-xl text-sm resize-none focus:outline-none focus:border-indigo-400"
-            />
+            <div className="relative">
+              <textarea
+                {...register('comment')}
+                placeholder="Write your review here…"
+                rows={3}
+                className="textarea textarea-bordered w-full rounded-xl text-sm resize-none focus:outline-none focus:border-indigo-400 pb-14"
+              />
 
+              {/* Quick Comments — absolute inside textarea, wraps naturally, no scroll */}
+              {!watch('comment')?.trim() && (
+                <div className="absolute bottom-3 left-1 right-1">
+                  <div className="flex flex-wrap gap-1">
+                    {suggestedComments.map((comment) => (
+                      <button
+                        key={comment}
+                        type="button"
+                        onClick={() => setValue('comment', comment)}
+                        className="px-2 py-1 rounded-full text-[11px] font-medium
+              text-base-content/60 bg-base-200/70 border border-base-300/60
+              hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200
+              active:scale-95 transition-all duration-200"
+                      >
+                        {comment}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
             {/* Image Upload Section (Max 4) */}
             <div className="mt-4 flex flex-wrap items-center gap-3">
               {/* Image Previews Map */}

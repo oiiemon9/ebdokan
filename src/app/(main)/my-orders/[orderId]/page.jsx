@@ -1,5 +1,7 @@
 'use client';
+import { apiFetch } from '@/app/lib/api';
 import ReviewModal from '@/Components/MyOrders/Modal/ReviewModal';
+import { useQuery } from '@tanstack/react-query';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -85,23 +87,18 @@ const SHIPPING_METHOD_LABEL = {
 
 export default function OrderDetailPage() {
   const { orderId } = useParams();
-  const [order, setOrder] = useState(null);
+  // const [order, setOrder] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
 
-  useEffect(() => {
-    const myOrder = async () => {
-      try {
-        const res = await fetch(`/api/my-orders/${orderId}`, {
-          cache: 'no-cache',
-        });
-        const result = await res.json();
-        setOrder(result);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    myOrder();
-  }, [orderId]);
+  const {
+    data: order,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ['myOrder', orderId],
+    queryFn: () => apiFetch(`/api/my-orders/${orderId}`),
+  });
 
   if (!order) {
     return (
@@ -539,13 +536,20 @@ export default function OrderDetailPage() {
                     ) : isDelivered ? (
                       <button
                         type="button"
+                        disabled={!!item.review}
                         onClick={() => {
                           setSelectedItem(item);
                           document.getElementById('review_modal')?.showModal();
                         }}
-                        className="px-4 py-2 bg-indigo-50 text-indigo-600 rounded-lg text-xs font-bold hover:bg-indigo-100 transition-colors cursor-pointer"
+                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-colors ${
+                          item?.review
+                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100 cursor-pointer'
+                        }`}
                       >
-                        Write your review...
+                        {item?.review
+                          ? 'Review submitted'
+                          : 'Write your review...'}
                       </button>
                     ) : (
                       <span className="text-gray-400 text-sm">
