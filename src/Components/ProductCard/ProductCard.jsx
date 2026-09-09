@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
 import { Heart, ShoppingCart, Star } from 'lucide-react';
+import CartButtons from '../CartButton/CartButtons';
 
 // ─── Star Rating Component ─────────────────────────────────────────────────────
 function StarRating({ rating, count }) {
@@ -40,12 +41,11 @@ function StarRating({ rating, count }) {
 // ─── Product Card Component ───────────────────────────────────────────────────
 export default function ProductCard({ product }) {
   const [wishlisted, setWishlisted] = useState(product.isWishlisted);
-  const [addedToCart, setAddedToCart] = useState(false);
 
-  const handleAddToCart = () => {
-    setAddedToCart(true);
-    setTimeout(() => setAddedToCart(false), 1500);
-  };
+  const [selectedColor, setSelectedColor] = useState(product.colors[0]);
+  const [selectedSize, setSelectedSize] = useState(product.sizes[0]);
+  const [quantity, setQuantity] = useState(1);
+
   const imageVariants = {
     initial: {
       scale: 1,
@@ -172,17 +172,12 @@ export default function ProductCard({ product }) {
 
           {/* Add to Cart Button */}
 
-          <button
-            onClick={handleAddToCart}
-            className={`relative z-20 mt-3  flex items-center justify-center gap-2 text-sm font-semibold  cursor-pointer  transition-all hover:gap-3 active:scale-95 px-6 py-3 rounded-xl w-full ${
-              addedToCart
-                ? 'bg-secondary text-white'
-                : 'bg-accent/95 hover:bg-accent text-white'
-            }`}
-          >
-            <ShoppingCart size={15} />
-            {addedToCart ? 'Added!' : 'Add to Cart'}
-          </button>
+          <CartButtons
+            product={product}
+            selectedColor={selectedColor}
+            selectedSize={selectedSize}
+            quantity={quantity}
+          />
         </div>
       </div>
     </motion.div>

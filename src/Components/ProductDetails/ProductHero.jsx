@@ -2,6 +2,7 @@
 import Image from 'next/image';
 import React, { useState } from 'react';
 import CartButtons from '../CartButton/CartButtons';
+import BuyNowButton from '../CartButton/BuyNowButton';
 
 function StarIcon({ filled, half }) {
   return (
@@ -41,15 +42,9 @@ export default function ProductHero({ data }) {
   const [wishlisted, setWishlisted] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
   const [selectedColor, setSelectedColor] = useState(data.colors[0]);
-  const [selectedSize, setSelectedSize] = useState('M');
+  const [selectedSize, setSelectedSize] = useState(data.sizes[0]);
   const [quantity, setQuantity] = useState(1);
-  const [addedToCart, setAddedToCart] = useState(false);
   const product = data;
-
-  const handleAddToCart = () => {
-    setAddedToCart(true);
-    setTimeout(() => setAddedToCart(false), 2000);
-  };
 
   const colorNames = {
     '#d4a574': 'Warm Sand',
@@ -63,117 +58,126 @@ export default function ProductHero({ data }) {
     ((product.comparePrice - product.price) / product.comparePrice) * 100,
   );
 
+  const images =
+    product?.images?.length > 0
+      ? product.images
+      : [
+          'https://res.cloudinary.com/dzfrakxek/image/upload/v1779854366/image-not-available_i7kvke.png',
+        ];
+
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <section className="">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 xl:gap-20">
         {/* Left: Image Gallery */}
-        <div className="flex gap-4">
-          {/* Thumbnails */}
-          <div className="flex flex-col gap-3 w-20 shrink-0">
-            {product?.images.map((image, i) => (
+        <div className="flex flex-col-reverse lg:flex-row gap-4">
+          {/* ── Thumbnails List (Desktop e vertical, Mobile e horizontal) ── */}
+          <div className="flex lg:flex-col gap-3 overflow-x-auto lg:overflow-y-auto max-h-[500px] no-scrollbar">
+            {images.map((image, i) => (
               <button
                 key={i}
                 onClick={() => setActiveImage(i)}
-                className={`w-20 h-20 rounded-xl overflow-hidden border-2 transition-all bg-gray-100 ${activeImage === i ? 'thumb-active shadow-md' : 'border-transparent opacity-60 hover:opacity-90'}`}
+                className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 transition-all bg-gray-50 shrink-0 ${
+                  activeImage === i
+                    ? 'border-indigo-600 shadow-md ring-2 ring-indigo-600/20'
+                    : 'border-transparent opacity-60 hover:opacity-100 hover:border-gray-300'
+                }`}
               >
                 <Image
-                  src={
-                    image ||
-                    'https://res.cloudinary.com/dzfrakxek/image/upload/v1779854366/image-not-available_i7kvke.png'
-                  }
-                  alt={`Product image ${i + 1}`}
-                  width={80}
-                  height={80}
+                  src={image}
+                  alt={`Thumbnail ${i + 1}`}
+                  fill
+                  className="object-cover"
                 />
               </button>
             ))}
           </div>
 
-          {/* Main Image */}
-          <div className="flex-1 relative">
-            <div className="w-full aspect-square rounded-2xl overflow-hidden relative shadow-lg bg-gray-100">
+          {/* ── Main Image View Area ── */}
+          <div className="relative flex-1">
+            <div className="w-full aspect-square rounded-2xl overflow-hidden relative shadow-sm border border-gray-100 bg-white flex items-center justify-center">
               <Image
-                src={
-                  product?.images[activeImage] ||
-                  'https://res.cloudinary.com/dzfrakxek/image/upload/v1779854366/image-not-available_i7kvke.png'
-                }
-                alt={`Product image ${activeImage + 1}`}
+                src={images[activeImage]}
+                alt={`Product view ${activeImage + 1}`}
                 width={600}
                 height={600}
                 loading="eager"
                 priority
-                className=" object-contain p-10"
+                className="object-contain w-full h-full p-6 transition-transform duration-300 hover:scale-105"
               />
 
-              {/* Badges */}
-              <div className="absolute top-4 left-4 flex flex-col gap-2">
-                {product.isFeatured && (
-                  <span className="bg-[#1a1a2e] text-white text-[10px] font-bold px-3 py-1 rounded-full tracking-widest uppercase">
+              {/* Badges (Featured & Discount) */}
+              <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
+                {product?.isFeatured && (
+                  <span className="bg-gray-900 text-white text-[10px] font-bold px-3 py-1 rounded-full tracking-widest uppercase shadow-sm">
                     Featured
                   </span>
                 )}
-                {product?.price < product?.comparePrice && (
-                  <span className=" bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full z-10">
+                {discount > 0 && (
+                  <span className="bg-rose-500 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">
                     -{discount}% Off
                   </span>
                 )}
               </div>
 
-              {/* Stock warning */}
-              {Number(product.stock) <= 100 && (
-                <div className="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2.5 flex items-center gap-2 shadow">
-                  <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
-                  <span className="text-xs font-semibold text-gray-800">
+              {/* Stock warning banner */}
+              {/* {Number(product?.stock) <= 100 && Number(product?.stock) > 0 && (
+                <div className="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-md rounded-xl px-4 py-2.5 flex items-center gap-2.5 shadow-sm border border-gray-100">
+                  <div className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse shrink-0" />
+                  <span className="text-xs font-semibold text-gray-700">
                     Only {product.stock} left in stock — order soon!
                   </span>
                 </div>
-              )}
+              )} */}
             </div>
 
-            {/* Navigation arrows */}
-            <button
-              onClick={() =>
-                setActiveImage(
-                  (p) =>
-                    (p - 1 + product.images.length) % product.images.length,
-                )
-              }
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors"
-            >
-              <svg
-                className="w-4 h-4 text-gray-700"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-            </button>
-            <button
-              onClick={() =>
-                setActiveImage((p) => (p + 1) % product.images.length)
-              }
-              className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors"
-            >
-              <svg
-                className="w-4 h-4 text-gray-700"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </button>
+            {/* Navigation arrows (Show only if multiple images exist) */}
+            {images.length > 1 && (
+              <>
+                <button
+                  onClick={() =>
+                    setActiveImage(
+                      (p) => (p - 1 + images.length) % images.length,
+                    )
+                  }
+                  className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 hover:bg-white shadow-md flex items-center justify-center transition-all text-gray-700 hover:text-black backdrop-blur-sm"
+                  aria-label="Previous image"
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 19l-7-7 7-7"
+                    />
+                  </svg>
+                </button>
+
+                <button
+                  onClick={() => setActiveImage((p) => (p + 1) % images.length)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 hover:bg-white shadow-md flex items-center justify-center transition-all text-gray-700 hover:text-black backdrop-blur-sm"
+                  aria-label="Next image"
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </button>
+              </>
+            )}
           </div>
         </div>
 
@@ -311,14 +315,6 @@ export default function ProductHero({ data }) {
               </button>
             </div>
 
-            {/* Add to cart */}
-            <CartButtons
-              product={product}
-              selectedColor={selectedColor}
-              selectedSize={selectedSize}
-              quantity={quantity}
-            />
-
             {/* Wishlist */}
             <button
               onClick={() => setWishlisted((w) => !w)}
@@ -340,11 +336,27 @@ export default function ProductHero({ data }) {
             </button>
           </div>
 
-          {/* Buy now */}
-          <button className="w-full h-11 rounded-xl border-2 border-[#1a1a2e] text-[#1a1a2e] font-semibold text-sm tracking-wide hover:bg-[#1a1a2e] hover:text-white transition-all active:scale-95">
-            Buy Now — Instant Checkout
-          </button>
-
+          <div className="flex gap-3 w-full">
+            {/* Buy Now */}
+            <div className="flex-1">
+              <BuyNowButton
+                product={product}
+                selectedColor={selectedColor}
+                selectedSize={selectedSize}
+                quantity={quantity}
+              />
+            </div>
+            {/* Add to cart */}
+            <div className="flex-1">
+              <CartButtons
+                product={product}
+                selectedColor={selectedColor}
+                selectedSize={selectedSize}
+                quantity={quantity}
+                buttonColor={'red'}
+              />
+            </div>
+          </div>
           {/* Trust badges */}
           <div className="grid grid-cols-3 gap-3 pt-2">
             {[

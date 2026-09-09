@@ -23,12 +23,15 @@ export default function CartButtons({
   selectedColor,
   selectedSize,
   quantity = 1,
+  buttonColor = 'gray',
 }) {
   const dispatch = useDispatch();
   const router = useRouter();
   const { data: session } = useSession();
   const cartItems = useSelector(selectCartItems);
   const pathname = usePathname();
+
+  console.log(buttonColor);
 
   const [addedFeedback, setAddedFeedback] = useState(false);
 
@@ -77,24 +80,20 @@ export default function CartButtons({
     setTimeout(() => setAddedFeedback(false), 2000);
   };
 
-  // ── Buy Now ──
-  const handleBuyNow = () => {
-    // If the user wants direct buy now, clear any previous cart selection.
-    sessionStorage.removeItem('selectedCartKeys');
-    dispatch(setBuyNow(itemPayload));
-    router.push('/checkout');
-  };
-
   return (
     <div className="flex gap-3">
       {/* Add to Cart */}
       <button
         onClick={handleAddToCart}
-        className={`flex-1 h-12 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all 
+        className={`relative z-20  flex items-center justify-center gap-2 text-sm font-semibold  cursor-pointer  transition-all hover:gap-3 active:scale-95 px-6 py-3 rounded-xl w-full 
           ${
-            addedFeedback
-              ? 'bg-emerald-500 text-white'
-              : 'bg-emerald-900 border border-white/15 hover:bg-emerald-700 hover:border-white/25 active:scale-95'
+            buttonColor === 'gray'
+              ? addedFeedback
+                ? 'bg-secondary text-white'
+                : 'bg-accent/95 hover:bg-accent text-white'
+              : addedFeedback
+                ? ' bg-primary text-white'
+                : 'bg-red-600 hover:bg-red-700 text-white'
           }`}
       >
         {addedFeedback ? (
@@ -132,30 +131,6 @@ export default function CartButtons({
             Add to Cart
           </>
         )}
-      </button>
-
-      {/* Buy Now */}
-      <button
-        onClick={handleBuyNow}
-        className="flex-1 h-12 rounded-xl font-semibold text-sm text-white flex items-center justify-center gap-2
-          bg-gradient-to-r from-sky-400 via-indigo-400 to-violet-500
-          shadow-[0_4px_16px_rgba(56,189,248,0.2)]
-          hover:opacity-90 hover:-translate-y-0.5 active:translate-y-0 transition-all"
-      >
-        Buy Now
-        <svg
-          className="w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M13 7l5 5m0 0l-5 5m5-5H6"
-          />
-        </svg>
       </button>
     </div>
   );

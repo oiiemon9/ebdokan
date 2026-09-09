@@ -1,11 +1,9 @@
 import { connect } from '@/app/lib/dbConnect';
 import { requireAuth } from '@/app/lib/security/requireAuth';
-
 import { ObjectId } from 'mongodb';
 
 export async function POST(req) {
   const reviewsCollection = await connect('reviews');
-  const productsCollection = await connect('products');
   const usersCollection = await connect('users');
   const ordersCollection = await connect('orders');
   const data = await req.json();
@@ -66,8 +64,6 @@ export async function POST(req) {
   data.updatedAt = new Date();
 
   const result = await reviewsCollection.insertOne(data);
-
-  console.log(result);
 
   if (result.acknowledged) {
     await ordersCollection.updateOne(

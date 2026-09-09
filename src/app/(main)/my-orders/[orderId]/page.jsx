@@ -256,7 +256,7 @@ export default function OrderDetailPage() {
                   Placed on
                 </p>
                 <p className="text-gray-700 font-medium text-sm">
-                  {formatDate(order.createAt)}
+                  {formatDate(order.createdAt)}
                 </p>
               </div>
             </div>

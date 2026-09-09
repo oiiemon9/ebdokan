@@ -84,7 +84,7 @@ export default async function Page({ params }) {
   }
 
   return (
-    <div className="min-h-screen  font-['DM_Sans',sans-serif]">
+    <div className="min-h-screen container mx-auto px-3 sm:px-4 py-3 sm:py-6  font-['DM_Sans',sans-serif]">
       {/* Google Fonts */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,400&display=swap');
@@ -95,7 +95,7 @@ export default async function Page({ params }) {
         .pop { animation: pop 0.25s ease; }
       `}</style>
       {/* ── Breadcrumb ── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-2">
+      <div className="py-4">
         <nav className="flex items-center gap-2 text-xs text-gray-400 font-medium tracking-wide uppercase">
           <span className="hover:text-gray-700 cursor-pointer transition-colors">
             Home
