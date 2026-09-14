@@ -1,9 +1,11 @@
 'use client';
 import { apiFetch } from '@/app/lib/api';
+import { Rating } from '@smastrom/react-rating';
 import { useQuery } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import 'react-photo-view/dist/react-photo-view.css';
+import '@smastrom/react-rating/style.css';
 
 function StarIcon({ filled, half }) {
   return (
@@ -16,22 +18,8 @@ function StarIcon({ filled, half }) {
     </svg>
   );
 }
-function StarRating({ rating, size = 'sm' }) {
-  return (
-    <div className="flex gap-0.5">
-      {[1, 2, 3, 4, 5].map((star) => (
-        <StarIcon
-          key={star}
-          filled={star <= Math.floor(rating)}
-          half={star === Math.ceil(rating) && rating % 1 !== 0}
-        />
-      ))}
-    </div>
-  );
-}
 
 export default function Tab({ data: product }) {
-  const [activeTab, setActiveTab] = useState('reviews');
   const [reviewSort, setReviewSort] = useState('latest');
 
   const {
@@ -145,7 +133,7 @@ export default function Tab({ data: product }) {
             </>
           </div>
 
-          <div className="sticky top-6 h-fit">
+          <div className="sticky top-28 h-fit">
             <h3 className="text-lg font-semibold text-[#1a1a2e] mb-4 font-['Fraunces']">
               Specifications
             </h3>
@@ -173,7 +161,7 @@ export default function Tab({ data: product }) {
             </div>
           </div>
         </div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6 mt-6 border-b border-gray-200 "></div>
+        <div className=" mb-6 mt-6 border-b border-gray-200 "></div>
         <div>
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-['Fraunces'] font-semibold text-[#1a1a2e] mb-6">
@@ -193,16 +181,20 @@ export default function Tab({ data: product }) {
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
             <div className="lg:col-span-1">
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sticky top-6">
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sticky top-28">
                 <div className="text-center mb-6">
                   <div className="text-7xl font-['Fraunces'] font-semibold text-[#1a1a2e]">
                     {totalReviews}
                   </div>
                   <div className="flex justify-center mt-2 mb-1">
-                    <StarRating rating={parseFloat(avgRating)} />
+                    <Rating
+                      style={{ maxWidth: 180 }}
+                      value={avgRating}
+                      readOnly
+                    />
                   </div>
                   <div className="text-sm text-gray-400">
-                    {totalReviews} reviews
+                    {totalReviews} Ratings
                   </div>
                 </div>
                 <div className="space-y-2.5">
@@ -234,10 +226,6 @@ export default function Tab({ data: product }) {
                     );
                   })}
                 </div>
-
-                <button className="mt-6 w-full h-10 bg-[#1a1a2e] text-white rounded-xl text-sm font-semibold hover:bg-[#2d2d4e] transition-colors">
-                  Write a Review
-                </button>
               </div>
             </div>
 
@@ -305,7 +293,11 @@ export default function Tab({ data: product }) {
                               </span>
                             </div>
                             <div className="flex items-center gap-2 mt-0.5">
-                              <StarRating rating={review.rating} />
+                              <Rating
+                                style={{ maxWidth: 80 }}
+                                value={review.rating}
+                                readOnly
+                              />
                               <span className="text-xs text-gray-400">
                                 {formatReviewDate(review.createdAt)}
                               </span>
@@ -411,7 +403,7 @@ export default function Tab({ data: product }) {
         </div>
 
         {/* Discussion Tab */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6 mt-6 border-b border-gray-200"></div>
+        <div className="mb-6 mt-6 border-b border-gray-200"></div>
         <div className="max-w-2xl mb-6">
           <h2 className="text-2xl font-['Fraunces'] font-semibold text-[#1a1a2e] mb-6">
             Community Discussion

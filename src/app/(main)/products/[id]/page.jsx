@@ -46,6 +46,69 @@ const relatedProducts = [
   },
 ];
 
+// SEO metadata.......................................................
+
+export async function generateMetadata({ params }) {
+  const { id } = await params;
+  const product = await getProduct(id);
+
+  if (!product) {
+    return {
+      title: 'Product Not Found - EB Dokan',
+      description: 'The product you are looking for does not exist.',
+    };
+  }
+
+  const productName = product.productName || 'Product Details';
+  const productDescription =
+    product.description ||
+    product.shortDescription ||
+    `Buy ${productName} at the best price from EB Dokan.`;
+  const productImage =
+    product.images?.[0] ||
+    'https://res.cloudinary.com/dzfrakxek/image/upload/v1779854366/image-not-available_i7kvke.png';
+  const productPrice = product.price || 0;
+
+  return {
+    title: `${productName} | EB Dokan Online Shop`,
+    description: productDescription,
+    keywords: [
+      productName,
+      product.category,
+      'EB Dokan',
+      'Online shopping Bangladesh',
+    ],
+
+    // Open Graph (Facebook, LinkedIn, WhatsApp share er somoy image & title dekhanor jonno)
+    openGraph: {
+      title: productName,
+      description: productDescription,
+      url: `${process.env.NEXT_PUBLIC_SITE_URL}/products/${id}`,
+      siteName: 'EB Dokan',
+      images: [
+        {
+          url: productImage,
+          width: 800,
+          height: 800,
+          alt: productName,
+        },
+      ],
+      locale: 'en_US',
+      type: 'website',
+    },
+
+    // Twitter Card
+    twitter: {
+      card: 'summary_large_image',
+      title: productName,
+      description: productDescription,
+      images: [productImage],
+    },
+  };
+}
+
+// SEO metadata.................end......................................
+
 // ─── Sub-components ────────────────────────────────────────────────────────
 
 function StarIcon({ filled, half }) {
@@ -83,8 +146,49 @@ export default async function Page({ params }) {
     notFound();
   }
 
+  // Schema Markup (JSON-LD) for Google Rich Snippets (Price, Stock, Rating)
+  const jsonLd = {
+    '@context': 'https://schema.org/',
+    '@type': 'Product',
+    name: data.productName,
+    image: data.images || [],
+    description:
+      data.description ||
+      data.shortDescription ||
+      'Best quality product from EB Dokan',
+    sku: data._id,
+    brand: {
+      '@type': 'Brand',
+      name: data.brand || 'EB Dokan',
+    },
+    offers: {
+      '@type': 'Offer',
+      url: `${process.env.NEXT_PUBLIC_SITE_URL}/products/${data._id}`,
+      priceCurrency: 'BDT',
+      price: data.price,
+      availability:
+        Number(data.stock) > 0
+          ? 'https://schema.org/InStock'
+          : 'https://schema.org/OutOfStock',
+      itemCondition: 'https://schema.org/NewCondition',
+    },
+    // Optional: Add aggregate rating if available in data
+    aggregateRating: data.rating
+      ? {
+          '@type': 'AggregateRating',
+          ratingValue: data.rating,
+          reviewCount: data.reviewCount || 1,
+        }
+      : undefined,
+  };
+
   return (
     <div className="min-h-screen container mx-auto px-3 sm:px-4 py-3 sm:py-6  font-['DM_Sans',sans-serif]">
+      {/* Google Structured Data (JSON-LD) injection */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Google Fonts */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,400&display=swap');
@@ -113,7 +217,8 @@ export default async function Page({ params }) {
       {/* ── Tabs ── */}
       <Tab data={data} />
       {/* ── Related Products ── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t border-gray-200">
+      <div className="mb-6 mt-6 border-b border-gray-200"></div>
+      <section className=" pb-12 ">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl font-['Fraunces'] font-semibold text-[#1a1a2e]">
             You Might Also Like
@@ -199,7 +304,7 @@ export default async function Page({ params }) {
         </div>
       </section>
       {/* ── Recently Viewed ── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+      <section className="pb-16">
         <h2 className="text-xl font-['Fraunces'] font-semibold text-[#1a1a2e] mb-5">
           Recently Viewed
         </h2>

@@ -3,6 +3,7 @@ import StockPill from './StockPill';
 import StatusBadge from './StatusBadge';
 import ColorDots from './ColorDots';
 import TagChips from './TagChips';
+import Link from 'next/link';
 
 export default function ProductRow({ product }) {
   const {
@@ -129,9 +130,12 @@ export default function ProductRow({ product }) {
       {/* Actions */}
       <td className="px-4 py-3">
         <div className="flex items-center gap-1.5">
-          <button className="btn btn-xs btn-ghost rounded-lg text-blue-500 hover:bg-blue-50 hover:text-blue-600 font-semibold">
+          <Link
+            href={`/dashboard/products/edit/${_id}`}
+            className="btn btn-xs btn-ghost rounded-lg text-blue-500 hover:bg-blue-50 hover:text-blue-600 font-semibold"
+          >
             Edit
-          </button>
+          </Link>
           <button className="btn btn-xs btn-ghost rounded-lg text-red-400 hover:bg-red-50 hover:text-red-500">
             <svg
               className="w-3.5 h-3.5"

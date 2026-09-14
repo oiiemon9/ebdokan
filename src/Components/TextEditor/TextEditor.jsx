@@ -11,6 +11,7 @@ const TextEditor = ({ value, onChange }) => {
   const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
   const UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
 
+  // Quill initialization
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -36,6 +37,11 @@ const TextEditor = ({ value, onChange }) => {
           },
         });
 
+        // Jodi age thekei value (description) thake, tahole instance toiri howar sathe sathe set kore deya
+        if (value) {
+          quill.root.innerHTML = value;
+        }
+
         quill.on('text-change', () => {
           onChange(quill.root.innerHTML);
         });
@@ -47,13 +53,18 @@ const TextEditor = ({ value, onChange }) => {
     initQuill();
   }, []);
 
-  // sync value
+  // Sync value when `value` changes (Especially for Edit mode data load)
   useEffect(() => {
-    if (
-      quillInstance.current &&
-      value !== quillInstance.current.root.innerHTML
-    ) {
-      quillInstance.current.root.innerHTML = value || '';
+    if (quillInstance.current) {
+      const currentContent = quillInstance.current.root.innerHTML;
+      // Shudhu tokhon-i update korbe jokhon editor er content ebong props er value alada hobe
+      if (
+        value &&
+        value !== currentContent &&
+        currentContent === '<p><br></p>'
+      ) {
+        quillInstance.current.root.innerHTML = value;
+      }
     }
   }, [value]);
 
@@ -61,21 +72,17 @@ const TextEditor = ({ value, onChange }) => {
     if (typeof window === 'undefined') return;
 
     const input = document.createElement('input');
-
     input.type = 'file';
     input.accept = 'image/*';
     input.click();
 
     input.onchange = async () => {
       const file = input.files?.[0];
-
       if (!file) return;
 
       try {
         setImageUploading(true);
-
         const formData = new FormData();
-
         formData.append('file', file);
         formData.append('upload_preset', UPLOAD_PRESET);
 
@@ -88,29 +95,23 @@ const TextEditor = ({ value, onChange }) => {
         );
 
         const data = await res.json();
-
         if (!res.ok) {
           throw new Error('Upload failed');
         }
 
         const quill = quillInstance.current;
-
-        const range = quill.getSelection(true) || {
-          index: 0,
-        };
-
+        const range = quill.getSelection(true) || { index: 0 };
         quill.insertEmbed(range.index, 'image', data.secure_url);
-
         quill.setSelection(range.index + 1);
       } catch (error) {
         console.log(error);
-
         alert(error.message);
       } finally {
         setImageUploading(false);
       }
     };
   }
+
   useEffect(() => {
     if (imageUploading) {
       Swal.fire({
@@ -127,7 +128,6 @@ const TextEditor = ({ value, onChange }) => {
 
   return (
     <div className="rounded-md overflow-hidden bg-white">
-      {' '}
       <style jsx global>{`
         .ql-toolbar,
         .ql-container {

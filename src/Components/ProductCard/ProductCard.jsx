@@ -60,6 +60,26 @@ export default function ProductCard({ product }) {
     },
   };
 
+  // ── Stock calculation helper (ProductCard component er upore ba bhitore rakhte paren) ──
+  const stockNumber = Number(product.stock) || 0;
+  // Dhore nilam maximum stock 50 ta base kore percentage bar banano hocche (apni apnar moto adjust kore nite parben)
+  const stockPercentage = Math.min(Math.max((stockNumber / 50) * 100, 10), 100);
+
+  // Stock er obostha onujayi color and text nirdharon
+  let stockColor = 'bg-emerald-500';
+  let textColor = 'text-emerald-600';
+  let stockText = `${stockNumber} in stock`;
+
+  if (stockNumber === 0) {
+    stockColor = 'bg-red-500';
+    textColor = 'text-red-500';
+    stockText = 'Out of stock';
+  } else if (stockNumber < 10) {
+    stockColor = 'bg-amber-500';
+    textColor = 'text-amber-600';
+    stockText = `Hurry! Only ${stockNumber} left`;
+  }
+
   return (
     <motion.div
       initial="initial"
@@ -151,21 +171,20 @@ export default function ProductCard({ product }) {
           </div>
 
           {/* Stock Level Bar */}
-          <div className="mt-3 mb-1">
+          {/* Stock Level Bar */}
+          <div className="mt-3 mb-3">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-[10px] text-gray-400 font-medium">
-                Stock Level
+              <span className="text-[11px] text-gray-400 font-medium">
+                Availability
               </span>
-              <span
-                className={`text-[10px] font-semibold ${product.stockLabelColor || 'text-green-500'}`}
-              >
-                {product.stock}
+              <span className={`text-[11px] font-bold ${textColor}`}>
+                {stockText}
               </span>
             </div>
-            <div className="w-full bg-gray-100 rounded-full h-1.5">
+            <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
               <div
-                className={`h-1.5 rounded-full ${product.stockBarColor || 'bg-green-500'} transition-all duration-300`}
-                style={{ width: `${product.stockLevel || 95}%` }}
+                className={`h-1.5 rounded-full ${stockColor} transition-all duration-500`}
+                style={{ width: `${stockNumber === 0 ? 0 : stockPercentage}%` }}
               />
             </div>
           </div>
